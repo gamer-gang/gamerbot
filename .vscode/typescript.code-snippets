@@ -1,0 +1,91 @@
+{
+  "ima": {
+    "prefix": "ima",
+    "description": "Import node:assert",
+    "body": "import assert from 'node:assert'"
+  },
+  "rem": {
+    "prefix": "rem",
+    "description": "Reply with embed",
+    "body": "interaction.reply({ embeds: [$0] })"
+  },
+  "reme": {
+    "prefix": "reme",
+    "description": "Reply with embed (ephemeral)",
+    "body": ["interaction.reply({", "\tembeds: [$0],", "\tephemeral: true,", "})"]
+  },
+  "cc": {
+    "prefix": "cc",
+    "description": "Chat command",
+    "body": [
+      "import command from '../command.js'",
+      "",
+      "const COMMAND_${TM_FILENAME_BASE/(.*)/${1:/upcase}/} = command('CHAT_INPUT', {",
+      "\tname: '${TM_FILENAME_BASE}',",
+      "\tdescription: '$1',",
+      "",
+      "\tasync run(context) {",
+      "\t  const { interaction } = context",
+      "\t  interaction.reply('Not implemented')$0",
+      "\t},",
+      "})",
+      "",
+      "export default COMMAND_${TM_FILENAME_BASE/(.*)/${1:/upcase}/}"
+    ]
+  },
+  "mc": {
+    "prefix": "mc",
+    "description": "Message command",
+    "body": [
+      "import command from '../command.js'",
+      "",
+      "const COMMAND_${TM_FILENAME_BASE/(.*)/${1:/upcase}/} = command('MESSAGE', {",
+      "\tname: '$1',",
+      "",
+      "\tasync run(context) {",
+      "\t  const { interaction } = context",
+      "\t  interaction.reply('Not implemented')$0",
+      "\t},",
+      "})",
+      "",
+      "export default COMMAND_${TM_FILENAME_BASE/(.*)/${1:/upcase}/}"
+    ]
+  },
+  "uc": {
+    "prefix": "uc",
+    "description": "User command",
+    "body": [
+      "import command from '../command.js'",
+      "",
+      "const COMMAND_${TM_FILENAME_BASE/(.*)/${1:/upcase}/} = command('USER', {",
+      "\tname: '$1',",
+      "",
+      "\tasync run(context) {",
+      "\t  const { interaction } = context",
+      "\t  interaction.reply('Not implemented')$0",
+      "\t},",
+      "})",
+      "",
+      "export default COMMAND_${TM_FILENAME_BASE/(.*)/${1:/upcase}/}"
+    ]
+  },
+  "co": {
+    "prefix": "co",
+    "description": "config option",
+    "body": [
+      "import { configOption } from './_configOption.js'",
+      "",
+      "const CONFIG_OPTION_${TM_FILENAME_BASE/_([A-Za-z0-9_]+)/${1:/upcase}/} = configOption({",
+      "\tinternalName: '$1',",
+      "\tdisplayName: '$2',",
+      "",
+      "\tasync handle(context) {",
+      "\t\tconst { interaction } = context",
+      "\t\tinteraction.reply('Not implemented')$0",
+      "\t},",
+      "})",
+      "",
+      "export default CONFIG_OPTION_${TM_FILENAME_BASE/_([A-Za-z0-9_]+)/${1:/upcase}/}"
+    ]
+  }
+}

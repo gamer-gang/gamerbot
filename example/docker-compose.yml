@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  db:
+    restart: unless-stopped
+    image: postgres:14
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+  app:
+    image: ghcr.io/gamer-gang/gamerbot:latest
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - db
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+    command: ['sh', '-c', 'npx prisma migrate deploy && node ./dist/main.mjs']
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --interval 30

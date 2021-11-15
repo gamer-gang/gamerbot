@@ -1,0 +1,11 @@
+/.git
+/.vscode
+/.yarn/*
+!/.yarn/releases
+!/.yarn/plugins
+/dist
+/node_modules
+/.env*
+/.dockerignore
+/Dockerfile
+/docker-compose.yml

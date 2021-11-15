@@ -1,0 +1,81 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Config {
+  guildId   String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  allowSpam Boolean @default(false)
+  egg       Boolean @default(true)
+
+  welcomeMessage       WelcomeMessage?
+  logChannel           LogChannel[]
+  reactionRoleMessages ReactionRoleMessage[]
+}
+
+model WelcomeMessage {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  config    Config   @relation(fields: [guildId], references: [guildId], onDelete: Cascade, onUpdate: Cascade)
+  guildId   String   @unique
+
+  json      Json
+  channelId String @id
+}
+
+model LogChannel {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  config    Config   @relation(fields: [guildId], references: [guildId], onDelete: Cascade, onUpdate: Cascade)
+  guildId   String
+
+  channelId        String @id
+  subscribedEvents BigInt @default(0)
+
+}
+
+model EggLeaderboard {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String @id
+  userTag   String
+  collected BigInt @default(0)
+  balance   BigInt @default(0)
+}
+
+model MinecraftPlayer {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId              String @id
+  minecraftIdentifier String
+}
+
+model ReactionRoleMessage {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  config    Config   @relation(fields: [guildId], references: [guildId], onDelete: Cascade, onUpdate: Cascade)
+  guildId   String
+
+  messageId String         @id
+  roles     ReactionRole[]
+}
+
+model ReactionRole {
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  message   ReactionRoleMessage @relation(fields: [messageId], references: [messageId], onDelete: Cascade, onUpdate: Cascade)
+  messageId String
+
+  roleId String @id
+  emoji  String
+}

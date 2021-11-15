@@ -1,0 +1,69 @@
+{
+  "name": "gamerbot",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "yarn@3.1.0",
+  "scripts": {
+    "build": "NODE_ENV=production webpack",
+    "watch": "NODE_ENV=development webpack watch",
+    "dev": "NODE_ENV=development nodemon ./dist/main.mjs",
+    "prod": "NODE_ENV=production node ./dist/main.mjs"
+  },
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
+  "standard": {
+    "engine": "ts-standard"
+  },
+  "ts-standard": {
+    "project": "./tsconfig.json"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.14",
+    "@prisma/client": "3.4.0",
+    "@wiisportsresorts/cowsay": "^0.2.0",
+    "axios": "^0.24.0",
+    "common-tags": "^1.8.0",
+    "discord.js": "^13.3.1",
+    "emoji-regex": "^10.0.0",
+    "hypixel-cache": "https://github.com/wiisportsresort/hypixel-cache",
+    "hypixel-types": "https://github.com/wiisportsresort/hypixel-types",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "luxon": "^2.0.2",
+    "nodemon": "^2.0.14",
+    "object-hash": "^2.2.0",
+    "regenerator-runtime": "^0.13.9",
+    "string-length": "^5.0.1",
+    "unicode": "^13.0.0",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.2.106",
+    "@types/common-tags": "^1",
+    "@types/js-yaml": "^4",
+    "@types/lodash": "^4",
+    "@types/luxon": "^2",
+    "@types/object-hash": "^2",
+    "@types/prettier": "^2",
+    "@types/webpack-node-externals": "^2.5.3",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "discord-api-types": "^0.24.0",
+    "dotenv": "^10.0.0",
+    "eslint": "latest",
+    "eslint-config-standard-with-typescript": "^21.0.1",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.1",
+    "fork-ts-checker-webpack-plugin": "^6.4.0",
+    "prettier": "^2.4.1",
+    "prisma": "3.4.0",
+    "swc-loader": "^0.1.15",
+    "typescript": "^4.4.4",
+    "webpack": "^5.61.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-node-externals": "^3.0.0"
+  }
+}
