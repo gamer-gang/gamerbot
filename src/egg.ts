@@ -49,7 +49,7 @@ const assertDatabaseEntry = async (user: User): Promise<void> => {
 }
 
 export const getTotal = async (): Promise<BigInt> => {
-  if (eggCount != null) {
+  if (eggCount == null) {
     const count = await getEggTotalFromDatabase()
     eggCount ??= count
     return eggCount

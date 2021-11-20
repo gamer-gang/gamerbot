@@ -20,6 +20,7 @@ import COMMAND_SERVERINFO from './commands/general/serverinfo.js'
 import COMMAND_COWSAY from './commands/messages/cowsay.js'
 import COMMAND_EGGLEADERBOARD from './commands/messages/eggleaderboard.js'
 import COMMAND_LMGTFY from './commands/messages/lmgtfy.js'
+import COMMAND_XKCD from './commands/messages/xkcd.js'
 import COMMAND_STATS from './commands/minecraft/stats.js'
 import COMMAND_USERNAME from './commands/minecraft/username.js'
 import COMMAND_BAN from './commands/moderation/ban.js'
@@ -96,6 +97,7 @@ export class GamerbotClient extends Client {
     COMMAND_COWSAY,
     COMMAND_EGGLEADERBOARD,
     COMMAND_LMGTFY,
+    COMMAND_XKCD,
     // minecraft
     COMMAND_STATS,
     COMMAND_USERNAME,
