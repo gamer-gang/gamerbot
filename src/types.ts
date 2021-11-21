@@ -1,19 +1,47 @@
+/* eslint-disable @typescript-eslint/indent */
 import {
+  ApplicationCommandOptionChoice,
   ApplicationCommandOptionData,
+  AutocompleteInteraction,
   CommandInteraction,
   ContextMenuInteraction,
   Guild,
   GuildChannel,
   GuildMember,
+  Interaction,
   PermissionString,
 } from 'discord.js'
-import { CommandContext, MessageCommandContext, UserCommandContext } from './commands/context.js'
+import {
+  BaseContext,
+  CommandContext,
+  MessageCommandContext,
+  UserCommandContext,
+} from './commands/context.js'
 
-export interface GuildRequired {
-  guild: Guild
-  channel: GuildChannel
-  member: GuildMember
+interface GuildRequired<C extends BaseContext, I extends Interaction> {
+  guildOnly: true
+  run: (
+    context: C & {
+      interaction: I & {
+        guild: Guild
+        channel: GuildChannel
+        member: GuildMember
+      }
+    }
+  ) => Promise<unknown>
 }
+
+interface GuildOptional<C extends BaseContext> {
+  guildOnly?: false
+  run: (context: C) => Promise<unknown>
+}
+
+type CommandType<
+  C extends BaseContext,
+  I extends Interaction,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  O = {}
+> = BaseCommand & O & (GuildRequired<C, I> | GuildOptional<C>)
 
 interface BaseCommand {
   name: string
@@ -23,54 +51,18 @@ interface BaseCommand {
   botPermissions?: PermissionString[]
 }
 
-export interface ChatCommandDefNoGuild extends BaseCommand {
-  description: string
-  options?: ApplicationCommandOptionData[]
-  guildOnly?: false
-  run: (context: CommandContext) => Promise<unknown>
-}
+export type ChatCommandDef = CommandType<
+  CommandContext,
+  CommandInteraction,
+  {
+    description: string
+    options?: ApplicationCommandOptionData[]
+    autocomplete?: (
+      interaction: AutocompleteInteraction
+    ) => Promise<ApplicationCommandOptionChoice[]>
+  }
+>
 
-export interface UserCommandDefNoGuild extends BaseCommand {
-  guildOnly?: false
-  run: (context: UserCommandContext) => Promise<unknown>
-}
+export type UserCommandDef = CommandType<UserCommandContext, ContextMenuInteraction>
 
-export interface MessageCommandDefNoGuild extends BaseCommand {
-  guildOnly?: false
-  run: (context: MessageCommandContext) => Promise<unknown>
-}
-
-export interface ChatCommandDefGuildOnly extends BaseCommand {
-  description: string
-  options?: ApplicationCommandOptionData[]
-  guildOnly: true
-  run: (
-    context: CommandContext & {
-      interaction: CommandInteraction & GuildRequired
-    }
-  ) => Promise<unknown>
-}
-
-export type ChatCommandDef = ChatCommandDefNoGuild | ChatCommandDefGuildOnly
-
-export interface UserCommandDefGuildOnly extends BaseCommand {
-  guildOnly: true
-  run: (
-    context: UserCommandContext & {
-      interaction: ContextMenuInteraction & GuildRequired
-    }
-  ) => Promise<unknown>
-}
-
-export type UserCommandDef = UserCommandDefNoGuild | UserCommandDefGuildOnly
-
-export interface MessageCommandDefGuildOnly extends BaseCommand {
-  guildOnly: true
-  run: (
-    context: MessageCommandContext & {
-      interaction: ContextMenuInteraction & GuildRequired
-    }
-  ) => Promise<unknown>
-}
-
-export type MessageCommandDef = MessageCommandDefNoGuild | MessageCommandDefGuildOnly
+export type MessageCommandDef = CommandType<MessageCommandContext, ContextMenuInteraction>

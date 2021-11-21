@@ -263,6 +263,26 @@ export class GamerbotClient extends Client {
         return
       }
 
+      if (interaction.isAutocomplete()) {
+        const command = this.commands.get(interaction.commandName)
+
+        if (command == null) {
+          await interaction.respond([{ name: 'Command not found.', value: 'command-not-found' }])
+          return
+        }
+
+        assert(command.type === 'CHAT_INPUT', 'Command type must be CHAT_INPUT')
+
+        const results = await command.autocomplete(interaction)
+
+        if (results.length === 0) {
+          await interaction.respond([{ name: 'No results found.', value: 'no-results-found' }])
+          return
+        }
+
+        await interaction.respond(results)
+      }
+
       if (!interaction.isCommand()) return
       const command = this.commands.get(interaction.commandName)
 

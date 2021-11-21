@@ -18,13 +18,15 @@ function command(
   def: ChatCommandDef | UserCommandDef | MessageCommandDef
 ): Command {
   const commandObj: Command = {
-    ...def,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...(def as any),
     options: isChatCommand(def) ? def.options ?? [] : [],
     type: type as never,
     guildOnly: (def.guildOnly ?? false) as never,
     logUsage: def.logUsage ?? false,
     userPermissions: def.userPermissions ?? [],
     botPermissions: def.botPermissions ?? [],
+    autocomplete: (isChatCommand(def) ? def.autocomplete : null) as never,
   }
 
   if (commandObj.logUsage) {

@@ -1,14 +1,16 @@
 import { CommandInteraction, ContextMenuInteraction } from 'discord.js'
-import { GuildRequired } from '../../types.js'
+import assert from 'node:assert'
 import { getDateFromSnowflake } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
 import command from '../command.js'
-
 export const purgeTo = async (
-  interaction: (CommandInteraction | ContextMenuInteraction) & GuildRequired,
+  interaction: CommandInteraction | ContextMenuInteraction,
   to: string
 ): Promise<void> => {
   const timestamp = getDateFromSnowflake(to)
+
+  assert(interaction.channel)
+  assert(interaction.channel.type !== 'DM')
 
   while (getDateFromSnowflake(interaction.channel.lastMessage?.id ?? '0') > timestamp) {
     const messages = await interaction.channel.messages.fetch({ limit: 200 })
