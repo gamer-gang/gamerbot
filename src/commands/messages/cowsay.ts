@@ -17,9 +17,24 @@ const COMMAND_COWSAY = command('CHAT_INPUT', {
       name: 'cow',
       description: 'The cow to use',
       type: 'STRING',
-      required: false,
+      autocomplete: true,
     },
   ],
+
+  async autocomplete(interaction) {
+    const input = interaction.options.getFocused(true)
+    if (input.name === 'cow') {
+      const matches = Object.keys(cows).filter((cow) => cow.includes(input.value.toString().trim()))
+
+      if (matches.length === 0) {
+        return [{ name: 'No results found.', value: '-' }]
+      }
+
+      return matches.slice(0, 25).map((cow) => ({ name: cow, value: cow }))
+    }
+
+    return []
+  },
 
   async run(context) {
     const { interaction } = context
