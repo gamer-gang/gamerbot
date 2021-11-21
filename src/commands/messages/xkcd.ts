@@ -8,18 +8,16 @@ const COMMAND_XKCD = command('CHAT_INPUT', {
   async run(context) {
     const { interaction } = context
 
-    await axios
-      .get('https://xkcd.com/info.0.json')
-      .then(async ({ data }: { data: XKCDResponse }) => {
-        const { num } = data
-        await interaction.reply(`https://xkcd.com/${Math.ceil(Math.random() * num)}`)
-      })
+    const res = await axios.get('https://xkcd.com/info.0.json')
+    const data: XKCDResponse = res.data
+
+    await interaction.reply(`https://xkcd.com/${Math.ceil(Math.random() * data.num)}`)
   },
 })
 
 export default COMMAND_XKCD
 
-export interface XKCDResponse {
+interface XKCDResponse {
   month: string
   num: number
   link: string
