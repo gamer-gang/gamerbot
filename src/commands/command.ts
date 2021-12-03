@@ -33,13 +33,11 @@ function command(
     commandObj.run = (async (
       context: CommandContext & UserCommandContext & MessageCommandContext
     ) => {
-      const { interaction } = context
+      const { interaction, options } = context
 
       assert(interaction.isCommand())
 
-      context.client.logger.silly(
-        `/${interaction.commandName} ${formatOptions(interaction.options.data)}`
-      )
+      context.client.logger.silly(`/${interaction.commandName} ${formatOptions(options.data)}`)
       await def.run(
         // @ts-expect-error guild types are not correct
         context

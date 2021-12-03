@@ -38,13 +38,13 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
     },
   ],
   async run(context) {
-    const { interaction, prisma } = context
+    const { interaction, prisma, options } = context
 
-    const subcommand = interaction.options.getSubcommand()
+    const subcommand = options.getSubcommand()
 
     try {
       if (subcommand === 'set') {
-        const input = interaction.options.getString('identifier', true)
+        const input = options.getString('identifier', true)
 
         if (!usernameRegex.test(input) && !uuidRegex.test(input)) {
           await interaction.reply({
@@ -71,7 +71,7 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
           embeds: [Embed.success(`Set your username/UUID to **${input}**`)],
         })
       } else if (subcommand === 'get') {
-        const user = interaction.options.getUser('user')
+        const user = options.getUser('user')
 
         const userId = user?.id ?? interaction.user.id
         const userTag = user?.tag ?? interaction.user.tag

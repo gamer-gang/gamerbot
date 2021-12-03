@@ -7,8 +7,8 @@ const COMMAND_APIMESSAGE = command('CHAT_INPUT', {
   description: 'API Message',
 
   async run(context) {
-    const { interaction } = context
-    const json = interaction.options.getString('json', true)
+    const { interaction, options } = context
+    const json = options.getString('json', true)
 
     try {
       await interaction.reply(parseDiscohookJSON(json))

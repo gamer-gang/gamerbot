@@ -37,14 +37,14 @@ const COMMAND_COWSAY = command('CHAT_INPUT', {
   },
 
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
-    const text = interaction.options.getString('text')
+    const text = options.getString('text')
     if (text == null) {
       return await interaction.reply('You need to specify a text to make the cow say')
     }
 
-    const cowInput = interaction.options.getString('cow')
+    const cowInput = options.getString('cow')
     let cow = cows.default_cow
     if (cowInput != null) {
       // eslint-disable-next-line import/namespace

@@ -21,9 +21,9 @@ const COMMAND_COLOR = command('CHAT_INPUT', {
     },
   ],
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
-    const input = interaction.options.getString('color', true)
+    const input = options.getString('color', true)
 
     const colorPatterns = [hexCodeRegex, rgbRegex, hslRegex]
 

@@ -13,9 +13,9 @@ const COMMAND_SERVERICON = command('CHAT_INPUT', {
   ],
 
   async run(context) {
-    const { interaction, client } = context
+    const { interaction, client, options } = context
 
-    const input = interaction.options.getString('server')
+    const input = options.getString('server')
 
     if (input == null && interaction.guild == null) {
       await interaction.reply('You must specify a server to show icon for.')

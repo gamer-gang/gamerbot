@@ -1,17 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { APIInteractionGuildMember } from 'discord-api-types'
-import {
-  CacheType,
-  CommandInteraction,
-  CommandInteractionOptionResolver,
-  ContextMenuInteraction,
-  Guild,
-  GuildMember,
-  Interaction,
-  Message,
-  TextBasedChannels,
-  User,
-} from 'discord.js'
+import { CommandInteraction, ContextMenuInteraction, Interaction, Message, User } from 'discord.js'
 import assert from 'node:assert'
 import { GamerbotClient } from '../GamerbotClient.js'
 
@@ -26,24 +14,23 @@ export class BaseContext {
     this.client = client
   }
 
-  get user(): User {
+  get user(): Interaction['user'] {
     return this.interaction.user
   }
 
-  get member(): GuildMember | APIInteractionGuildMember {
+  get member(): Interaction['member'] {
     return this.interaction.member
   }
 
-  get channel(): TextBasedChannels | null {
+  get channel(): Interaction['channel'] {
     return this.interaction.channel
   }
 
-  get guild(): Guild | null {
+  get guild(): Interaction['guild'] {
     return this.interaction.guild
   }
 
-  /** `createdTimestamp` of interaction */
-  get time(): number {
+  get createdTimestamp(): Interaction['createdTimestamp'] {
     return this.interaction.createdTimestamp
   }
 }
@@ -57,7 +44,7 @@ export class CommandContext extends BaseContext {
     super(client, interaction, prisma)
   }
 
-  get options(): Omit<CommandInteractionOptionResolver<CacheType>, 'getMessage' | 'getFocused'> {
+  get options(): CommandInteraction['options'] {
     return this.interaction.options
   }
 }

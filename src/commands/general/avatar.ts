@@ -14,9 +14,9 @@ const COMMAND_AVATAR = command('CHAT_INPUT', {
   ],
 
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
-    const user = interaction.options.getUser('user') ?? interaction.user
+    const user = options.getUser('user') ?? interaction.user
     const icon = getProfileImageUrl(user)
 
     const embed = new Embed({

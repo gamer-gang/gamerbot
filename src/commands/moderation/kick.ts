@@ -20,14 +20,14 @@ const COMMAND_KICK = command('CHAT_INPUT', {
     },
   ],
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
     if (context.guild == null) {
       return await interaction.reply('You can only ban users in a guild.')
     }
 
-    const user = interaction.options.getUser('user')
-    const reason = interaction.options.getString('reason')
+    const user = options.getUser('user')
+    const reason = options.getString('reason')
 
     if (user == null) {
       return await interaction.reply({

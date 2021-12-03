@@ -68,12 +68,12 @@ const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
     },
   ],
   async run(context) {
-    const { interaction, client } = context
+    const { interaction, client, options } = context
 
-    const type = interaction.options.getString('type') ?? 'collected'
+    const type = options.getString('type') ?? 'collected'
     assert(type === 'collected' || type === 'balance', 'Invalid type')
 
-    const userInput = interaction.options.getUser('user')
+    const userInput = options.getUser('user')
 
     const eggers = (await prisma.eggLeaderboard.findMany()) ?? []
 

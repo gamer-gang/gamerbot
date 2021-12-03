@@ -24,10 +24,10 @@ const COMMAND_LMGTFY = command('CHAT_INPUT', {
   ],
 
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
-    const query = interaction.options.getString('query')
-    const engine = interaction.options.getString('engine') ?? 'google'
+    const query = options.getString('query')
+    const engine = options.getString('engine') ?? 'google'
 
     if (query == null) {
       return await interaction.reply({

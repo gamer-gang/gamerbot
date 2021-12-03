@@ -21,9 +21,9 @@ const COMMAND_RPS = command('CHAT_INPUT', {
   ],
 
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
-    const opponent = interaction.options.getUser('user')
+    const opponent = options.getUser('user')
 
     if (opponent == null) return await interaction.reply('Unable to resolve user.')
 

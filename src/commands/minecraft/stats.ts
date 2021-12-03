@@ -45,7 +45,7 @@ const COMMAND_STATS = command('CHAT_INPUT', {
   ],
 
   async run(context) {
-    const { interaction, prisma, client } = context
+    const { interaction, prisma, client, options } = context
 
     if (process.env.HYPIXEL_CACHE_URL == null || process.env.HYPIXEL_CACHE_SECRET == null) {
       await interaction.reply({
@@ -72,9 +72,9 @@ const COMMAND_STATS = command('CHAT_INPUT', {
     timers.totalNs = process.hrtime.bigint()
     timers.resolveNs = process.hrtime.bigint()
 
-    const gamemode = interaction.options.getString('gamemode') ?? 'bedwars'
-    let identifier = interaction.options.getString('username')
-    const debug = DEVELOPMENT || interaction.options.getBoolean('debug') != null
+    const gamemode = options.getString('gamemode') ?? 'bedwars'
+    let identifier = options.getString('username')
+    const debug = DEVELOPMENT || options.getBoolean('debug') != null
 
     if (identifier == null) {
       // try to find username/UUID in database

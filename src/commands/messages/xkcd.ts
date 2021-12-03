@@ -47,9 +47,9 @@ const COMMAND_XKCD = command('CHAT_INPUT', {
   },
 
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
-    const value = interaction.options.getString('comic')
+    const value = options.getString('comic')
     if (value != null) {
       const number = value.split(':')[0]
       if (isNaN(+number)) {

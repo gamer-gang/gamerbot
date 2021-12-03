@@ -21,9 +21,9 @@ const COMMAND_CHARACTER = command('CHAT_INPUT', {
     },
   ],
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
-    let input = interaction.options.getString('character', true).trim()
+    let input = options.getString('character', true).trim()
 
     const codePointRegex = /^(?:U\+)?([0-9a-f]{4,6})$/i
 

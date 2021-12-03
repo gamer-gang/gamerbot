@@ -21,10 +21,10 @@ const COMMAND_UNBAN = command('CHAT_INPUT', {
   ],
 
   async run(context) {
-    const { interaction, client } = context
+    const { interaction, client, options } = context
 
-    const input = interaction.options.getUser('user')
-    const reason = interaction.options.getString('reason')
+    const input = options.getUser('user')
+    const reason = options.getString('reason')
 
     if (input == null) {
       return await interaction.reply({

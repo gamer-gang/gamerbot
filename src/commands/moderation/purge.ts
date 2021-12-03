@@ -21,10 +21,10 @@ const COMMAND_PURGE = command('CHAT_INPUT', {
   ],
 
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
-    let n = interaction.options.getNumber('n')
-    const to = interaction.options.getString('to')
+    let n = options.getNumber('n')
+    const to = options.getString('to')
 
     // if both n and to are specified or neither is specified, reply with an error
     if ((n != null && to != null) || (n == null && to == null)) {
@@ -58,9 +58,7 @@ const COMMAND_PURGE = command('CHAT_INPUT', {
 
       if (n === 0) {
         await interaction.editReply({
-          embeds: [
-            Embed.info(`Purged ${interaction.options.getNumber('n') ?? '<unknown>'} messages`),
-          ],
+          embeds: [Embed.info(`Purged ${options.getNumber('n') ?? '<unknown>'} messages`)],
         })
       }
       return
