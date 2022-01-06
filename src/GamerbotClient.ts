@@ -4,6 +4,7 @@ import {
   ClientUser,
   CommandInteraction,
   ContextMenuInteraction,
+  Guild,
   Interaction,
   Message,
 } from 'discord.js'
@@ -11,6 +12,7 @@ import { DateTime } from 'luxon'
 import assert from 'node:assert'
 import winston, { Logger } from 'winston'
 import { Command } from './commands/command.js'
+import COMMAND_CONFIG from './commands/config/config.js'
 import { CommandContext, MessageCommandContext, UserCommandContext } from './commands/context.js'
 import COMMAND_RPS from './commands/games/rps.js'
 import COMMAND_AVATAR from './commands/general/avatar.js'
@@ -88,6 +90,8 @@ export class GamerbotClient extends Client {
   presenceManager: PresenceManager = new PresenceManager(this)
 
   static defaultCommands = [
+    // config
+    COMMAND_CONFIG,
     // games
     COMMAND_RPS,
     // general
@@ -138,6 +142,8 @@ export class GamerbotClient extends Client {
     this.on('debug', this.onDebug.bind(this))
     this.on('messageCreate', this.onMessage.bind(this))
     this.on('interactionCreate', this.onInteraction.bind(this))
+    this.on('guildCreate', this.onGuildCreate.bind(this))
+    this.on('guildDelete', this.onGuildDelete.bind(this))
   }
 
   registerPlugins(...plugins: Plugin[]): void {
@@ -176,6 +182,7 @@ export class GamerbotClient extends Client {
   }
 
   async onMessage(message: Message): Promise<void> {
+    if (message.author.id === this.user.id) return
     void eggs.onMessage(this, message)
   }
 
@@ -235,7 +242,40 @@ export class GamerbotClient extends Client {
     return true
   }
 
+  /** set of guild ids that are already known to have config rows in the db to save queries */
+  #hasConfig = new Set<string>()
+
+  async ensureConfig(guildId: string): Promise<void> {
+    if (this.#hasConfig.has(guildId)) return
+
+    if (!/\d{18}/.test(guildId)) {
+      throw new Error(`Invalid guild id: ${guildId}`)
+    }
+
+    await prisma.config.upsert({
+      create: { guildId },
+      update: {},
+      where: { guildId },
+    })
+
+    this.#hasConfig.add(guildId)
+  }
+
+  async onGuildCreate(guild: Guild): Promise<void> {
+    await this.ensureConfig(guild.id)
+  }
+
+  async onGuildDelete(guild: Guild): Promise<void> {
+    await prisma.config.delete({ where: { guildId: guild.id } })
+
+    this.#hasConfig.delete(guild.id)
+  }
+
   async onInteraction(interaction: Interaction): Promise<void> {
+    if (interaction.guild != null) {
+      await this.ensureConfig(interaction.guild.id)
+    }
+
     try {
       if (interaction.isContextMenu()) {
         const command = this.commands.get(interaction.commandName)
