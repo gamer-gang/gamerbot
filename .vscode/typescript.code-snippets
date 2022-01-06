@@ -1,20 +1,20 @@
 {
-  "ima": {
+  "Import node:assert": {
     "prefix": "ima",
     "description": "Import node:assert",
     "body": "import assert from 'node:assert'"
   },
-  "rem": {
+  "Embed reply": {
     "prefix": "rem",
     "description": "Reply with embed",
     "body": "interaction.reply({ embeds: [$0] })"
   },
-  "reme": {
+  "Ephemeral embed reply": {
     "prefix": "reme",
     "description": "Reply with embed (ephemeral)",
     "body": ["interaction.reply({", "\tembeds: [$0],", "\tephemeral: true,", "})"]
   },
-  "cc": {
+  "Chat command": {
     "prefix": "cc",
     "description": "Chat command",
     "body": [
@@ -25,15 +25,15 @@
       "\tdescription: '$1',",
       "",
       "\tasync run(context) {",
-      "\t  const { interaction } = context",
-      "\t  interaction.reply('Not implemented')$0",
+      "\t\tconst { interaction } = context",
+      "\t\t${0:await interaction.reply('Not implemented')}",
       "\t},",
       "})",
       "",
       "export default COMMAND_${TM_FILENAME_BASE/(.*)/${1:/upcase}/}"
     ]
   },
-  "mc": {
+  "Message command": {
     "prefix": "mc",
     "description": "Message command",
     "body": [
@@ -43,15 +43,15 @@
       "\tname: '$1',",
       "",
       "\tasync run(context) {",
-      "\t  const { interaction } = context",
-      "\t  interaction.reply('Not implemented')$0",
+      "\t\tconst { interaction } = context",
+      "\t\t${0:await interaction.reply('Not implemented')}",
       "\t},",
       "})",
       "",
       "export default COMMAND_${TM_FILENAME_BASE/(.*)/${1:/upcase}/}"
     ]
   },
-  "uc": {
+  "User command": {
     "prefix": "uc",
     "description": "User command",
     "body": [
@@ -61,15 +61,15 @@
       "\tname: '$1',",
       "",
       "\tasync run(context) {",
-      "\t  const { interaction } = context",
-      "\t  interaction.reply('Not implemented')$0",
+      "\t\tconst { interaction } = context",
+      "\t\t${0:await interaction.reply('Not implemented')}",
       "\t},",
       "})",
       "",
       "export default COMMAND_${TM_FILENAME_BASE/(.*)/${1:/upcase}/}"
     ]
   },
-  "co": {
+  "Config option": {
     "prefix": "co",
     "description": "config option",
     "body": [
@@ -78,10 +78,12 @@
       "const CONFIG_OPTION_${TM_FILENAME_BASE/_([A-Za-z0-9_]+)/${1:/upcase}/} = configOption({",
       "\tinternalName: '$1',",
       "\tdisplayName: '$2',",
+      "\tdescription: '$3',",
+      "\ttype: '$4',",
       "",
       "\tasync handle(context) {",
       "\t\tconst { interaction } = context",
-      "\t\tinteraction.reply('Not implemented')$0",
+      "\t\t${0:await interaction.reply('Not implemented')}",
       "\t},",
       "})",
       "",
