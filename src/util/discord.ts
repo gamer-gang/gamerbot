@@ -1,4 +1,4 @@
-import { User } from 'discord.js'
+import { Interaction, InteractionReplyOptions, MessagePayload, User } from 'discord.js'
 import { DateTime } from 'luxon'
 
 export const getDateStringFromSnowflake = (id: string): [timestamp: string, age: string] => {
@@ -19,4 +19,25 @@ export const getProfileImageUrl = (user: User): string => {
     icon = user.displayAvatarURL({ size: 4096, format: 'png' })
   }
   return icon
+}
+
+export const interactionReplySafe = async (
+  interaction: Interaction,
+  content: string | MessagePayload | InteractionReplyOptions
+): Promise<void> => {
+  if (
+    interaction.isCommand() ||
+    interaction.isContextMenu() ||
+    interaction.isButton() ||
+    interaction.isMessageComponent() ||
+    interaction.isSelectMenu()
+  ) {
+    if (interaction.deferred) {
+      await interaction.editReply(content)
+    } else if (interaction.replied) {
+      await interaction.followUp(content)
+    } else {
+      await interaction.reply(content)
+    }
+  }
 }

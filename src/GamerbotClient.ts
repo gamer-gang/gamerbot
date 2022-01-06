@@ -36,7 +36,9 @@ import { DEVELOPMENT } from './constants.js'
 import * as eggs from './egg.js'
 import { Plugin } from './Plugin.js'
 import { prisma } from './prisma.js'
+import { interactionReplySafe } from './util/discord.js'
 import { Embed } from './util/embed.js'
+import { findErrorMessage } from './util/message.js'
 import { resolvePath } from './util/path.js'
 import { PresenceManager } from './util/presence.js'
 
@@ -304,15 +306,7 @@ export class GamerbotClient extends Client {
     } catch (err) {
       this.logger.error(err)
 
-      if (interaction.isCommand() || interaction.isContextMenu()) {
-        if (interaction.deferred) {
-          await interaction.editReply({ embeds: [Embed.error(err.message)] })
-        } else if (interaction.replied) {
-          await interaction.followUp({ embeds: [Embed.error(err.message)] })
-        } else {
-          await interaction.reply({ embeds: [Embed.error(err.message)] })
-        }
-      }
+      await interactionReplySafe(interaction, { embeds: [Embed.error(findErrorMessage(err))] })
     }
   }
 }

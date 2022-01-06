@@ -1,4 +1,5 @@
 import { Embed } from '../../util/embed.js'
+import { findErrorMessage } from '../../util/message.js'
 import command from '../command.js'
 
 const COMMAND_BAN = command('CHAT_INPUT', {
@@ -21,7 +22,7 @@ const COMMAND_BAN = command('CHAT_INPUT', {
   ],
 
   async run(context) {
-    const { interaction, options } = context
+    const { interaction, options, client } = context
 
     if (context.guild == null) {
       return await interaction.reply('You can only ban users in a guild.')
@@ -92,7 +93,8 @@ const COMMAND_BAN = command('CHAT_INPUT', {
         ],
       })
     } catch (err) {
-      await interaction.reply({ embeds: [Embed.error(err.message)], ephemeral: true })
+      client.logger.error(err)
+      await interaction.reply({ embeds: [Embed.error(findErrorMessage(err))], ephemeral: true })
     }
   },
 })

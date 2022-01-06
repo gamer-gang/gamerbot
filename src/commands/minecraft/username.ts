@@ -1,4 +1,6 @@
+import { interactionReplySafe } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
+import { findErrorMessage } from '../../util/message.js'
 import { usernameRegex, uuidRegex } from '../../util/regex.js'
 import command from '../command.js'
 
@@ -38,7 +40,7 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
     },
   ],
   async run(context) {
-    const { interaction, prisma, options } = context
+    const { interaction, prisma, options, client } = context
 
     const subcommand = options.getSubcommand()
 
@@ -95,7 +97,8 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
         await interaction.reply({ embeds: [Embed.success('Cleared your Minecraft username/UUID')] })
       }
     } catch (err) {
-      await interaction.reply({ embeds: [Embed.error(err.message)] })
+      client.logger.error(err)
+      await interactionReplySafe(interaction, { embeds: [Embed.error(findErrorMessage(err))] })
     }
   },
 })

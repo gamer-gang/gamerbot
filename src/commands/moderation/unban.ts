@@ -1,4 +1,5 @@
 import { Embed } from '../../util/embed.js'
+import { findErrorMessage } from '../../util/message.js'
 import command from '../command.js'
 
 const COMMAND_UNBAN = command('CHAT_INPUT', {
@@ -66,7 +67,8 @@ const COMMAND_UNBAN = command('CHAT_INPUT', {
         ephemeral: true,
       })
     } catch (err) {
-      await interaction.reply({ embeds: [Embed.error(err.message)], ephemeral: true })
+      client.logger.error(err)
+      await interaction.reply({ embeds: [Embed.error(findErrorMessage(err))], ephemeral: true })
     }
   },
 })

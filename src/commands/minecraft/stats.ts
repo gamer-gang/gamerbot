@@ -5,7 +5,9 @@ import { HypixelCacheResponse } from 'hypixel-cache'
 import assert from 'node:assert'
 import { DEVELOPMENT } from '../../constants.js'
 import { formatBytes } from '../../util.js'
+import { interactionReplySafe } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
+import { findErrorMessage } from '../../util/message.js'
 import { usernameRegex, uuidRegex } from '../../util/regex.js'
 import command from '../command.js'
 import STATS_PROVIDER_BEDWARS from './_bedwars.js'
@@ -122,17 +124,27 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       )
 
       if (response.status === 429) {
-        await interaction.reply({
+        await interaction.editReply({
           embeds: [Embed.error('Too many requests', 'Please try again later.')],
-          ephemeral: true,
+        })
+        return
+      }
+
+      if (response.status !== 200) {
+        await interaction.editReply({
+          embeds: [
+            Embed.error(
+              'Received non-200 status code from cache service',
+              `${response.status} ${response.statusText}`
+            ),
+          ],
         })
         return
       }
 
       if (!response.data.success) {
-        await interaction.reply({
-          embeds: [Embed.error(response.data.error)],
-          ephemeral: true,
+        await interaction.editReply({
+          embeds: [Embed.error(response.data.error ?? JSON.stringify(response.data))],
         })
         return
       }
@@ -146,13 +158,12 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       const player = response.data.player
 
       if (player == null) {
-        await interaction.reply({
+        await interaction.editReply({
           embeds: [
             Embed.error('Could not find player.').setFooter(stripIndents`
             Cache time: ${timers.cacheMs}ms
             Data time: ${timers.dataNs / 1000n}ms`),
           ],
-          ephemeral: true,
         })
         return
       }
@@ -175,9 +186,8 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       const provider = STATS_PROVIDERS.get(gamemode)
 
       if (provider == null) {
-        await interaction.reply({
+        await interaction.editReply({
           embeds: [Embed.error('Invalid gamemode.')],
-          ephemeral: true,
         })
         return
       }
@@ -210,7 +220,7 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       })
     } catch (err) {
       client.logger.error(err)
-      await interaction.editReply({ embeds: [Embed.error(err.message)] })
+      await interactionReplySafe(interaction, { embeds: [Embed.error(findErrorMessage(err))] })
     }
   },
 })

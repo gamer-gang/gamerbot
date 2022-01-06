@@ -22,3 +22,18 @@ export const parseDiscohookJSON = (json: string): MessageOptions => {
     embeds: embed != null ? [embed] : undefined,
   }
 }
+
+export const findErrorMessage = (err: unknown): string => {
+  if (process.env.NODE_ENV === 'development') {
+    if (err instanceof Error) {
+      return `${err.message}\n\n${err.stack}`
+    }
+    return `${err}`
+  }
+
+  if (err instanceof Error) {
+    return err.message
+  }
+
+  return `${err}`
+}

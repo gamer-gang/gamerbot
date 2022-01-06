@@ -1,5 +1,7 @@
 import { DMChannel, Message, MessageActionRow, MessageButton } from 'discord.js'
+import { interactionReplySafe } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
+import { findErrorMessage } from '../../util/message.js'
 import command from '../command.js'
 
 const RPS_CHOICES = {
@@ -166,7 +168,9 @@ const COMMAND_RPS = command('CHAT_INPUT', {
         components: [],
       })
     } catch (err) {
-      return await opponentResponse.editReply({ embeds: [Embed.error(err.message)] })
+      return await interactionReplySafe(opponentResponse, {
+        embeds: [Embed.error(findErrorMessage(err))],
+      })
     }
   },
 })
