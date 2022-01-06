@@ -14,7 +14,8 @@ export const formatOptions = (options: readonly CommandInteractionOption[]): str
 
       const value = opt.value ?? opt.user?.tag ?? opt.channel?.name ?? ''
 
-      return `${text}:${value.toString()}`
+      if (value != null && value !== '') return `${text}:${value}`
+      return text
     })
     .join('\n')
 
