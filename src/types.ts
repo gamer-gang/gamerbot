@@ -18,7 +18,7 @@ import {
   UserCommandContext,
 } from './commands/context.js'
 
-interface GuildRequired<C extends BaseContext, I extends Interaction> {
+export interface GuildRequired<Context extends BaseContext, Int extends Interaction> {
   /**
    * Whether this command is allowed to be used outside a guild (e.g. in a DM).
    *
@@ -26,8 +26,8 @@ interface GuildRequired<C extends BaseContext, I extends Interaction> {
    */
   guildOnly: true
   run: (
-    context: C & {
-      interaction: I & {
+    context: Context & {
+      interaction: Int & {
         guild: Guild
         channel: GuildChannel
         member: GuildMember
@@ -36,7 +36,7 @@ interface GuildRequired<C extends BaseContext, I extends Interaction> {
   ) => Promise<unknown>
 }
 
-interface GuildOptional<C extends BaseContext> {
+export interface GuildOptional<C extends BaseContext> {
   /**
    * Whether this command is allowed to be used outside a guild (e.g. in a DM).
    *
@@ -47,11 +47,11 @@ interface GuildOptional<C extends BaseContext> {
 }
 
 type CommandType<
-  C extends BaseContext,
-  I extends Interaction,
+  Context extends BaseContext,
+  Int extends Interaction,
   // eslint-disable-next-line @typescript-eslint/ban-types
-  O = {}
-> = BaseCommand & O & (GuildRequired<C, I> | GuildOptional<C>)
+  Options = {}
+> = BaseCommand & Options & (GuildRequired<Context, Int> | GuildOptional<Context>)
 
 interface BaseCommand {
   /**

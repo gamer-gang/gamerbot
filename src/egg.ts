@@ -27,6 +27,7 @@ class EggCooldown {
 }
 
 const getEggTotalFromDatabase = async (): Promise<bigint> => {
+  assert(prisma.eggLeaderboard, 'prisma.eggLeaderboard must exist')
   const result = await prisma.$queryRaw`SELECT SUM(collected) FROM "EggLeaderboard";`
 
   assert(Array.isArray(result) && result.length === 1, 'result must be array of length 1')
@@ -90,6 +91,10 @@ export const onMessage = async (
   message: Message | PartialMessage
 ): Promise<void> => {
   if (message.channel.type === 'DM') return
+  if (message.guild == null) return
+
+  const config = await prisma.config.findFirst({ where: { guildId: message.guild.id } })
+  if (config == null || !config.egg) return
 
   if (!hasEggs(message)) return
 
