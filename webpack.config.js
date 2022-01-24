@@ -5,11 +5,12 @@ import webpack from 'webpack'
 
 const devMode = process.env.NODE_ENV === 'development'
 
+// @ts-ignore module is set to es2020
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-/** @type {import('webpack').Configuration} */
-export default {
+/** @type {webpack.Configuration} */
+const config = {
   mode: devMode ? 'development' : 'production',
   entry: {
     main: './src/index.ts',
@@ -19,9 +20,14 @@ export default {
     path: path.resolve(__dirname, 'dist'),
     module: true,
     libraryTarget: 'module',
+    publicPath: '/',
+    devtoolModuleFilenameTemplate: '[absolute-resource-path]',
   },
+  devtool: devMode ? 'inline-cheap-module-source-map' : 'source-map',
   experiments: {
     outputModule: true,
+    topLevelAwait: true,
+    futureDefaults: true,
   },
   resolve: {
     extensions: ['.ts', '.js'],
@@ -34,11 +40,16 @@ export default {
       resource.request = resource.request.replace('.js', '')
     }),
     new ForkTsCheckerWebpackPlugin(),
-  ],
+  ].filter(Boolean),
   externalsType: 'module',
   externals: /^[^.][a-z\-0-9@/.]+$/,
   module: {
     rules: [
+      {
+        test: /\.js$/,
+        enforce: 'pre',
+        use: ['source-map-loader'],
+      },
       {
         test: /\.tsx?$/,
         use: 'swc-loader',
@@ -47,3 +58,5 @@ export default {
     ],
   },
 }
+
+export default config

@@ -6,5 +6,6 @@
       "dynamicImport": true
     },
     "target": "es2020"
-  }
+  },
+  "sourceMaps": true
 }

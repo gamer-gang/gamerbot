@@ -10,6 +10,7 @@
     "plugin:import/typescript",
     "standard-with-typescript"
   ],
+  "ignorePatterns": "dist/*",
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2021,
@@ -20,30 +21,14 @@
   "rules": {
     "no-void": "off",
     "comma-dangle": "off",
+    "@typescript-eslint/no-invalid-void-type": "off",
     "@typescript-eslint/space-before-function-paren": [
       "error",
       { "anonymous": "always", "named": "never", "asyncArrow": "always" }
     ],
     "@typescript-eslint/restrict-template-expressions": "off",
-    "@typescript-eslint/naming-convention": [
-      "error",
-      {
-        "selector": "default",
-        "format": ["camelCase"],
-        "leadingUnderscore": "allow",
-        "trailingUnderscore": "allow"
-      },
-      {
-        "selector": "variable",
-        "format": ["camelCase", "UPPER_CASE"],
-        "leadingUnderscore": "allowSingleOrDouble",
-        "trailingUnderscore": "allow"
-      },
-      {
-        "selector": "typeLike",
-        "format": ["PascalCase"]
-      }
-    ],
+    "@typescript-eslint/naming-convention": "off",
+    "@typescript-eslint/promise-function-async": "off",
     // "consistent-return": "error",
     "curly": ["error", "multi-line", "consistent"],
     "require-atomic-updates": "error",
@@ -56,6 +41,7 @@
     "prefer-template": "error",
     "import/extensions": ["error", "always"],
     "import/no-unresolved": "off",
+    "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/ban-ts-comment": [
       "error",
