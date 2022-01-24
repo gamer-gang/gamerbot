@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Embed } from '../../util/embed.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const BASE_URL = 'https://xkcd.com'
 
@@ -10,7 +10,7 @@ const COMMAND_XKCD = command('CHAT_INPUT', {
   options: [
     {
       name: 'comic',
-      description: 'The comic to get.',
+      description: 'The comic to get. If omitted, a random comic will be chosen.',
       type: 'STRING',
       autocomplete: true,
     },
@@ -54,16 +54,17 @@ const COMMAND_XKCD = command('CHAT_INPUT', {
       const number = value.split(':')[0]
       if (isNaN(+number)) {
         await interaction.reply({ embeds: [Embed.error('Invalid comic.')], ephemeral: true })
-        return
+        return CommandResult.Success
       }
       await interaction.reply(`${BASE_URL}/${number}`)
-      return
+      return CommandResult.Success
     }
 
     const res = await axios.get(`${BASE_URL}/info.0.json`)
     const data: XKCDResponse = res.data
 
     await interaction.reply(`${BASE_URL}/${Math.ceil(Math.random() * data.num)}`)
+    return CommandResult.Success
   },
 })
 
@@ -75,7 +76,6 @@ interface XKCDResponse {
   link: string
   year: string
   news: string
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   safe_title: string
   transcript: string
   alt: string

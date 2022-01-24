@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "CommandType" AS ENUM ('MESSAGE', 'USER', 'CHAT_INPUT');
+
 -- CreateTable
 CREATE TABLE "Config" (
     "guildId" TEXT NOT NULL,
@@ -74,6 +77,37 @@ CREATE TABLE "ReactionRole" (
     CONSTRAINT "ReactionRole_pkey" PRIMARY KEY ("roleId")
 );
 
+-- CreateTable
+CREATE TABLE "AnalyticsReport" (
+    "month" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "botLogins" INTEGER NOT NULL DEFAULT 0,
+    "guildCount" INTEGER NOT NULL DEFAULT 0,
+    "userCount" INTEGER NOT NULL DEFAULT 0,
+    "usersInteracted" TEXT[],
+    "commandsSent" INTEGER NOT NULL DEFAULT 0,
+    "commandsSuccessful" INTEGER NOT NULL DEFAULT 0,
+    "commandsFailed" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "AnalyticsReport_pkey" PRIMARY KEY ("month")
+);
+
+-- CreateTable
+CREATE TABLE "CommandReport" (
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "command" TEXT NOT NULL,
+    "type" "CommandType" NOT NULL,
+    "analyticsReportMonth" TIMESTAMP(3) NOT NULL,
+    "usersInteracted" TEXT[],
+    "sent" INTEGER NOT NULL DEFAULT 0,
+    "successful" INTEGER NOT NULL DEFAULT 0,
+    "failed" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "CommandReport_pkey" PRIMARY KEY ("command","analyticsReportMonth")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "WelcomeMessage_guildId_key" ON "WelcomeMessage"("guildId");
 
@@ -88,3 +122,6 @@ ALTER TABLE "ReactionRoleMessage" ADD CONSTRAINT "ReactionRoleMessage_guildId_fk
 
 -- AddForeignKey
 ALTER TABLE "ReactionRole" ADD CONSTRAINT "ReactionRole_messageId_fkey" FOREIGN KEY ("messageId") REFERENCES "ReactionRoleMessage"("messageId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommandReport" ADD CONSTRAINT "CommandReport_analyticsReportMonth_fkey" FOREIGN KEY ("analyticsReportMonth") REFERENCES "AnalyticsReport"("month") ON DELETE CASCADE ON UPDATE CASCADE;

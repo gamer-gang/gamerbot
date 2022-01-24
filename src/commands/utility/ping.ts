@@ -1,4 +1,4 @@
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const COMMAND_PING = command('CHAT_INPUT', {
   name: 'ping',
@@ -12,6 +12,7 @@ const COMMAND_PING = command('CHAT_INPUT', {
     const end = process.hrtime(start)
 
     await interaction.editReply(`Pong! (${end[0] * 1000 + end[1] / 1000000}ms)`)
+    return CommandResult.Success
   },
 })
 

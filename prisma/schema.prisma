@@ -16,8 +16,8 @@ model Config {
   allowSpam Boolean @default(false)
   egg       Boolean @default(true)
 
-  welcomeMessage       WelcomeMessage?
-  logChannel           LogChannel[]
+  welcomeMessages      WelcomeMessage?
+  logChannels          LogChannel[]
   reactionRoleMessages ReactionRoleMessage[]
 }
 
@@ -78,4 +78,46 @@ model ReactionRole {
 
   roleId String @id
   emoji  String
+}
+
+model AnalyticsReport {
+  month     DateTime @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+  botLogins       Int      @default(0)
+  guildCount      Int      @default(0)
+  userCount       Int      @default(0)
+  usersInteracted String[]
+
+  commandsSent       Int @default(0)
+  commandsSuccessful Int @default(0)
+  commandsFailed     Int @default(0)
+
+  commandReports CommandReport[]
+}
+
+enum CommandType {
+  MESSAGE
+  USER
+  CHAT_INPUT
+}
+
+model CommandReport {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  command String
+  type    CommandType
+
+  analyticsReport      AnalyticsReport @relation(fields: [analyticsReportMonth], references: [month], onDelete: Cascade, onUpdate: Cascade)
+  analyticsReportMonth DateTime
+
+  usersInteracted String[]
+  sent            Int      @default(0)
+  successful      Int      @default(0)
+  failed          Int      @default(0)
+
+  @@id([command, analyticsReportMonth])
 }

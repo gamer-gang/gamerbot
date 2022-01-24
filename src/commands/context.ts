@@ -8,8 +8,8 @@ export class BaseContext {
 
   constructor(
     client: GamerbotClient,
-    public interaction: Interaction,
-    public prisma: PrismaClient
+    public readonly interaction: Interaction,
+    public readonly prisma: PrismaClient
   ) {
     this.client = client
   }
@@ -38,7 +38,7 @@ export class BaseContext {
 export class CommandContext extends BaseContext {
   constructor(
     client: GamerbotClient,
-    public interaction: CommandInteraction,
+    public readonly interaction: CommandInteraction,
     prisma: PrismaClient
   ) {
     super(client, interaction, prisma)
@@ -52,7 +52,7 @@ export class CommandContext extends BaseContext {
 class ContextMenuCommandContext extends BaseContext {
   constructor(
     client: GamerbotClient,
-    public interaction: ContextMenuInteraction,
+    public readonly interaction: ContextMenuInteraction,
     prisma: PrismaClient
   ) {
     super(client, interaction, prisma)

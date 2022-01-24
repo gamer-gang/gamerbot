@@ -1,20 +1,13 @@
-import {
-  Client,
-  ClientOptions,
-  ClientUser,
-  CommandInteraction,
-  ContextMenuInteraction,
-  Guild,
-  Interaction,
-  Message,
-} from 'discord.js'
-import { DateTime } from 'luxon'
+import { Client, ClientOptions, ClientUser, Guild, Interaction, Message } from 'discord.js'
+import log4js from 'log4js'
 import assert from 'node:assert'
-import winston, { Logger } from 'winston'
-import { Command } from './commands/command.js'
+import { AnalyticsEvent } from './analytics/event.js'
+import { AnalyticsManager } from './analytics/manager.js'
+import { Command, CommandResult } from './commands/command.js'
 import COMMAND_CONFIG from './commands/config/config.js'
 import { CommandContext, MessageCommandContext, UserCommandContext } from './commands/context.js'
 import COMMAND_RPS from './commands/games/rps.js'
+import COMMAND_ANALYTICS from './commands/general/analytics.js'
 import COMMAND_AVATAR from './commands/general/avatar.js'
 import COMMAND_GETAVATAR from './commands/general/getavatar.js'
 import COMMAND_SERVERICON from './commands/general/servericon.js'
@@ -33,92 +26,81 @@ import COMMAND_UNBAN from './commands/moderation/unban.js'
 import COMMAND_APIMESSAGE from './commands/utility/apimessage.js'
 import COMMAND_CHARACTER from './commands/utility/character.js'
 import COMMAND_COLOR from './commands/utility/color.js'
+import COMMAND_MATH from './commands/utility/math.js'
 import COMMAND_PING from './commands/utility/ping.js'
-import { DEVELOPMENT } from './constants.js'
+import COMMAND_TIME from './commands/utility/time.js'
+import COMMAND_TIMESTAMP from './commands/utility/timestamp.js'
+import { IS_DEVELOPMENT } from './constants.js'
 import * as eggs from './egg.js'
+import { initLogger } from './logger.js'
 import { Plugin } from './Plugin.js'
 import { prisma } from './prisma.js'
+import { formatOptions, hasPermissions } from './util.js'
 import { interactionReplySafe } from './util/discord.js'
 import { Embed } from './util/embed.js'
-import { findErrorMessage } from './util/message.js'
-import { resolvePath } from './util/path.js'
+import { formatErrorMessage } from './util/message.js'
 import { PresenceManager } from './util/presence.js'
+
+const DEFAULT_COMMANDS = [
+  // config
+  COMMAND_CONFIG,
+  // games
+  COMMAND_RPS,
+  // general
+  COMMAND_ANALYTICS,
+  COMMAND_AVATAR,
+  COMMAND_GETAVATAR,
+  COMMAND_SERVERICON,
+  COMMAND_SERVERINFO,
+  // messages
+  COMMAND_COWSAY,
+  COMMAND_EGGLEADERBOARD,
+  COMMAND_LMGTFY,
+  COMMAND_XKCD,
+  // minecraft
+  COMMAND_STATS,
+  COMMAND_USERNAME,
+  // moderation
+  COMMAND_BAN,
+  COMMAND_KICK,
+  COMMAND_PURGE,
+  COMMAND_PURGETOHERE,
+  COMMAND_UNBAN,
+  // utility
+  COMMAND_APIMESSAGE,
+  COMMAND_CHARACTER,
+  COMMAND_COLOR,
+  COMMAND_MATH,
+  COMMAND_PING,
+  COMMAND_TIME,
+  COMMAND_TIMESTAMP,
+]
 
 export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {
   plugins?: Plugin[]
-  logger: Logger
 }
 
 export class GamerbotClient extends Client {
   readonly user!: ClientUser
-  readonly logger = winston.createLogger({
-    levels: winston.config.npm.levels,
-    exitOnError: false,
-    transports: DEVELOPMENT
-      ? [
-          new winston.transports.Console({
-            format: winston.format.combine(
-              winston.format.errors({ stack: true }),
-              winston.format.cli({ all: true })
-            ),
-            level: 'silly',
-          }),
-        ]
-      : [
-          new winston.transports.Console({
-            format: winston.format.combine(
-              winston.format.errors({ stack: true }),
-              winston.format.cli({ all: true })
-            ),
-            level: 'info',
-          }),
-          new winston.transports.File({
-            filename: resolvePath('logs/client-info.log'),
-            rotationFormat: () => DateTime.now().toFormat('yyyy-MM-dd'),
-            format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-            level: 'info',
-          }),
-          new winston.transports.File({
-            filename: resolvePath('logs/client-error.log'),
-            format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-            level: 'error',
-          }),
-        ],
-  })
+  readonly #logger = log4js.getLogger('client')
+  readonly #discordLogger = log4js.getLogger('discord')
+  readonly #commandLogger = log4js.getLogger('command')
 
-  commands: Map<string, Command> = new Map()
-  presenceManager: PresenceManager = new PresenceManager(this)
+  getLogger(category: string): log4js.Logger {
+    return log4js.getLogger(category)
+  }
 
-  static defaultCommands = [
-    // config
-    COMMAND_CONFIG,
-    // games
-    COMMAND_RPS,
-    // general
-    COMMAND_AVATAR,
-    COMMAND_GETAVATAR,
-    COMMAND_SERVERICON,
-    COMMAND_SERVERINFO,
-    // messages
-    COMMAND_COWSAY,
-    COMMAND_EGGLEADERBOARD,
-    COMMAND_LMGTFY,
-    COMMAND_XKCD,
-    // minecraft
-    COMMAND_STATS,
-    COMMAND_USERNAME,
-    // moderation
-    COMMAND_BAN,
-    COMMAND_KICK,
-    COMMAND_PURGE,
-    COMMAND_PURGETOHERE,
-    COMMAND_UNBAN,
-    // utility
-    COMMAND_APIMESSAGE,
-    COMMAND_CHARACTER,
-    COMMAND_COLOR,
-    COMMAND_PING,
-  ]
+  readonly commands: Map<string, Command> = new Map()
+  readonly presenceManager: PresenceManager = new PresenceManager(this)
+  readonly analytics: AnalyticsManager = new AnalyticsManager(this)
+
+  static readonly DEFAULT_COMMANDS = DEFAULT_COMMANDS
+
+  #updateAnalyticsInterval: NodeJS.Timeout | null = null
+  async #updateAnalytics(): Promise<void> {
+    await this.analytics.flushAll()
+    await this.analytics.update()
+  }
 
   constructor(options?: GamerbotClientOptions) {
     super({
@@ -135,7 +117,9 @@ export class GamerbotClient extends Client {
       ],
     })
 
-    GamerbotClient.defaultCommands.forEach((command) => {
+    initLogger()
+
+    GamerbotClient.DEFAULT_COMMANDS.forEach((command) => {
       this.commands.set(command.name, command)
     })
 
@@ -144,6 +128,25 @@ export class GamerbotClient extends Client {
     this.on('interactionCreate', this.onInteraction.bind(this))
     this.on('guildCreate', this.onGuildCreate.bind(this))
     this.on('guildDelete', this.onGuildDelete.bind(this))
+    // this.on('apiRequest', (req) => {
+    //   this.#apiLogger.trace(`REQUEST ${req.method} ${req.path}`)
+    // })
+    // this.on('apiResponse', (res) => {
+    //   this.#apiLogger.trace(`RESPONSE ${res.method} ${res.path}`)
+    // })
+    this.on('error', (err) => {
+      this.#discordLogger.error(err)
+    })
+    this.on('warn', (warn) => {
+      this.#discordLogger.warn(warn)
+    })
+
+    this.on('ready', async () => {
+      await this.analytics.initialize()
+      this.analytics.trackEvent(AnalyticsEvent.BotLogin)
+    })
+
+    this.#updateAnalyticsInterval = setInterval(() => void this.#updateAnalytics(), 1000 * 60 * 5) // 5 minutes
   }
 
   registerPlugins(...plugins: Plugin[]): void {
@@ -171,75 +174,58 @@ export class GamerbotClient extends Client {
     }
   }
 
+  async countGuilds(): Promise<number> {
+    const shard = this.shard
+
+    if (shard == null) {
+      return this.guilds.cache.size
+    }
+
+    const guilds = await shard.fetchClientValues('guilds.cache.size')
+
+    assert(
+      Array.isArray(guilds) && guilds.every((guild) => typeof guild === 'number'),
+      'guilds is not an array of numbers'
+    )
+
+    return (guilds as number[]).reduce((a, b) => a + b, 0)
+  }
+
+  async #countUsers(client: Client): Promise<string[]> {
+    const guilds = await Promise.all(client.guilds.cache.map((guild) => guild.members.fetch()))
+    const users = guilds.reduce<string[]>((acc, guildMembers) => {
+      return [...acc, ...guildMembers.mapValues((member) => member.user.id).values()]
+    }, [])
+    return users.flat(1)
+  }
+
+  async countUsers(): Promise<number> {
+    const shard = this.shard
+
+    if (shard == null) {
+      const users = await this.#countUsers(this)
+      return new Set(users).size
+    }
+
+    const users = await shard.broadcastEval((client) => this.#countUsers(client))
+    return new Set(users.flat(1)).size
+  }
+
   onDebug(content: string): void {
     if (content.includes('Heartbeat')) return
 
     if (content.includes('Remaining: ')) {
-      this.logger.info(`Remaining gateway sessions: ${content.split(' ').reverse()[0]}`)
+      this.#logger.info(`Remaining gateway sessions: ${content.split(' ').reverse()[0]}`)
     }
 
-    this.logger.debug(content)
+    if (content.includes('Manager was destroyed. Called by:')) return
+
+    this.#discordLogger.trace(content)
   }
 
   async onMessage(message: Message): Promise<void> {
     if (message.author.id === this.user.id) return
     void eggs.onMessage(this, message)
-  }
-
-  hasPermissions(
-    interaction: CommandInteraction | ContextMenuInteraction,
-    command: Command
-  ): boolean {
-    if (interaction.guild != null) {
-      const currentUserPermissions = interaction.member.permissions
-      assert(typeof currentUserPermissions !== 'string')
-
-      assert(interaction.channel)
-      assert(interaction.channel.type !== 'DM')
-
-      const requiredUserPermissions = command.userPermissions
-
-      if (
-        requiredUserPermissions.length > 0 &&
-        requiredUserPermissions.some((permission) => !currentUserPermissions.has(permission))
-      ) {
-        void interaction.reply({
-          embeds: [
-            Embed.error(
-              'You do not have the required permissions to use this command.',
-              `Required: ${requiredUserPermissions.join(', ')}`
-            ),
-          ],
-          ephemeral: true,
-        })
-        return false
-      }
-
-      const currentBotPermissions = interaction.channel.permissionsFor(interaction.guild.me!)
-
-      const requiredBotPermissions = command.botPermissions
-      assert(typeof requiredBotPermissions !== 'string')
-
-      if (
-        requiredBotPermissions.length > 0 &&
-        requiredBotPermissions.some((permission) => !currentBotPermissions.has(permission))
-      ) {
-        void interaction.reply({
-          embeds: [
-            Embed.error(
-              'I do not have the required permissions to use this command.',
-              `Required: ${requiredBotPermissions.join(', ')}`
-            ),
-          ],
-          ephemeral: true,
-        })
-        return false
-      }
-
-      return true
-    }
-
-    return true
   }
 
   /** set of guild ids that are already known to have config rows in the db to save queries */
@@ -276,37 +262,11 @@ export class GamerbotClient extends Client {
       await this.ensureConfig(interaction.guild.id)
     }
 
+    let command: Command | undefined
+
     try {
-      if (interaction.isContextMenu()) {
-        const command = this.commands.get(interaction.commandName)
-
-        if (command == null) {
-          await interaction.reply({ embeds: [Embed.error('Command not found.')] })
-          return
-        }
-
-        assert(
-          command.type === 'USER' || command.type === 'MESSAGE',
-          'Command type must be USER or MESSAGE'
-        )
-
-        const context =
-          interaction.targetType === 'MESSAGE'
-            ? new MessageCommandContext(this, interaction, prisma)
-            : new UserCommandContext(this, interaction, prisma)
-
-        if (!this.hasPermissions(interaction, command)) return
-
-        await command.run(
-          // @ts-expect-error guild types are not correct
-          context
-        )
-
-        return
-      }
-
       if (interaction.isAutocomplete()) {
-        const command = this.commands.get(interaction.commandName)
+        command = this.commands.get(interaction.commandName)
 
         if (command == null) {
           await interaction.respond([{ name: 'Command not found.', value: 'command-not-found' }])
@@ -323,10 +283,42 @@ export class GamerbotClient extends Client {
         }
 
         await interaction.respond(results)
+        return
+      }
+
+      if (interaction.isContextMenu()) {
+        command = this.commands.get(interaction.commandName)
+
+        if (command == null) {
+          await interaction.reply({ embeds: [Embed.error('Command not found.')] })
+          return
+        }
+
+        assert(
+          command.type === 'USER' || command.type === 'MESSAGE',
+          'Command type must be USER or MESSAGE'
+        )
+
+        const context =
+          interaction.targetType === 'MESSAGE'
+            ? new MessageCommandContext(this, interaction, prisma)
+            : new UserCommandContext(this, interaction, prisma)
+
+        let result: CommandResult
+        if (hasPermissions(interaction, command)) {
+          result = await command.run(
+            // @ts-expect-error guild types are not correct
+            context
+          )
+        } else {
+          result = CommandResult.Success
+        }
+
+        this.#trackResult(result, command)
       }
 
       if (!interaction.isCommand()) return
-      const command = this.commands.get(interaction.commandName)
+      command = this.commands.get(interaction.commandName)
 
       if (command == null) {
         await interaction.reply({ embeds: [Embed.error('Command not found.')] })
@@ -337,16 +329,53 @@ export class GamerbotClient extends Client {
 
       const context = new CommandContext(this, interaction, prisma)
 
-      if (!this.hasPermissions(interaction, command)) return
+      if (IS_DEVELOPMENT) {
+        this.#commandLogger.debug(
+          `/${interaction.commandName} ${formatOptions(interaction.options.data)}`
+        )
+      }
 
-      await command.run(
-        // @ts-expect-error guild types are not correct
-        context
+      this.analytics.trackEvent(
+        AnalyticsEvent.CommandSent,
+        command.name,
+        command.type,
+        interaction.user.id
       )
-    } catch (err) {
-      this.logger.error(err)
 
-      await interactionReplySafe(interaction, { embeds: [Embed.error(findErrorMessage(err))] })
+      let result: CommandResult
+      if (hasPermissions(interaction, command)) {
+        result = await command.run(
+          // @ts-expect-error guild types are not correct
+          context
+        )
+      } else {
+        result = CommandResult.Success
+      }
+
+      this.#trackResult(result, command)
+    } catch (err) {
+      this.#logger.error(err)
+
+      await interactionReplySafe(interaction, { embeds: [Embed.error(formatErrorMessage(err))] })
+      if (command != null) {
+        this.#trackResult(CommandResult.Failure, command)
+      }
+    }
+  }
+
+  #trackResult(result: CommandResult, command: Command): void {
+    switch (result) {
+      case CommandResult.Success: {
+        this.analytics.trackEvent(AnalyticsEvent.CommandSuccess, command.name, command.type)
+        break
+      }
+      case CommandResult.Failure: {
+        this.analytics.trackEvent(AnalyticsEvent.CommandFailure, command.name, command.type)
+        break
+      }
+      default: {
+        throw new Error(`Unknown command result: ${result}`)
+      }
     }
   }
 }

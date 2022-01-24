@@ -3,22 +3,17 @@ import axios from 'axios'
 import { stripIndent, stripIndents } from 'common-tags'
 import { HypixelCacheResponse } from 'hypixel-cache'
 import assert from 'node:assert'
-import { DEVELOPMENT } from '../../constants.js'
+import { IS_DEVELOPMENT } from '../../constants.js'
 import { formatBytes } from '../../util.js'
 import { interactionReplySafe } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
-import { findErrorMessage } from '../../util/message.js'
 import { usernameRegex, uuidRegex } from '../../util/regex.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 import STATS_PROVIDER_BEDWARS from './_bedwars.js'
-import { StatsProvider } from './_statsProvider.js'
 
 const AVATAR_SIZE = 165
 
-const STATS_PROVIDERS = new Map<string, StatsProvider>()
-
-const DEFAULT_PROVIDERS = [STATS_PROVIDER_BEDWARS]
-DEFAULT_PROVIDERS.forEach((provider) => STATS_PROVIDERS.set(provider.name, provider))
+const STATS_PROVIDERS = [STATS_PROVIDER_BEDWARS]
 
 const COMMAND_STATS = command('CHAT_INPUT', {
   name: 'stats',
@@ -28,11 +23,10 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       name: 'gamemode',
       description: 'Gamemode to get stats for.',
       type: 'STRING',
-      choices: [
-        { name: 'BedWars', value: 'bedwars' },
-        { name: 'BedWars Dream', value: 'bedwarsdream' },
-        // TODO { name: 'SkyWars', value: 'skywars', },
-      ],
+      choices: STATS_PROVIDERS.map((provider) => ({
+        name: provider.displayName,
+        value: provider.name,
+      })),
     },
     {
       name: 'username',
@@ -53,13 +47,13 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       await interaction.reply({
         embeds: [
           Embed.error(
-            '**This command is disabled:**',
+            '**This command is disabled**',
             'HYPIXEL_CACHE_URL or HYPIXEL_CACHE_SECRET is not present in the server environment.'
           ),
         ],
         ephemeral: true,
       })
-      return
+      return CommandResult.Failure
     }
 
     const timers = {
@@ -76,7 +70,7 @@ const COMMAND_STATS = command('CHAT_INPUT', {
 
     const gamemode = options.getString('gamemode') ?? 'bedwars'
     let identifier = options.getString('username')
-    const debug = DEVELOPMENT || options.getBoolean('debug') != null
+    const debug = IS_DEVELOPMENT || options.getBoolean('debug') != null
 
     if (identifier == null) {
       // try to find username/UUID in database
@@ -95,18 +89,29 @@ const COMMAND_STATS = command('CHAT_INPUT', {
           ],
           ephemeral: true,
         })
+        return CommandResult.Success
       }
     }
 
-    assert(identifier)
+    assert(identifier, 'Expected identifier to be set after checking input and database')
 
     if (!usernameRegex.test(identifier) && !uuidRegex.test(identifier)) {
       await interaction.reply({
         embeds: [Embed.error('Invalid username/UUID')],
         ephemeral: true,
       })
+      return CommandResult.Success
     }
     timers.resolveNs = process.hrtime.bigint() - timers.resolveNs
+
+    const provider = STATS_PROVIDERS.find((provider) => provider.name === gamemode)
+
+    if (provider == null) {
+      await interaction.editReply({
+        embeds: [Embed.error('Invalid gamemode.')],
+      })
+      return CommandResult.Success
+    }
 
     await interaction.deferReply()
     try {
@@ -115,10 +120,7 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       const response = await axios.get<HypixelCacheResponse>(
         `${process.env.HYPIXEL_CACHE_URL}/${inputType}/${identifier}`,
         {
-          headers: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            'X-Secret': process.env.HYPIXEL_CACHE_SECRET,
-          },
+          headers: { 'X-Secret': process.env.HYPIXEL_CACHE_SECRET },
           validateStatus: () => true,
         }
       )
@@ -127,7 +129,7 @@ const COMMAND_STATS = command('CHAT_INPUT', {
         await interaction.editReply({
           embeds: [Embed.error('Too many requests', 'Please try again later.')],
         })
-        return
+        return CommandResult.Failure
       }
 
       if (response.status !== 200) {
@@ -139,21 +141,19 @@ const COMMAND_STATS = command('CHAT_INPUT', {
             ),
           ],
         })
-        return
+        return CommandResult.Failure
       }
 
       if (!response.data.success) {
         await interaction.editReply({
           embeds: [Embed.error(response.data.error ?? JSON.stringify(response.data))],
         })
-        return
+        return CommandResult.Failure
       }
       timers.cacheMs = Math.round(
         parseFloat(response.headers['x-response-time'].replace(/ms/g, ''))
       )
       timers.dataNs = process.hrtime.bigint() - timers.dataNs
-
-      timers.avatarNs = process.hrtime.bigint()
 
       const player = response.data.player
 
@@ -165,7 +165,7 @@ const COMMAND_STATS = command('CHAT_INPUT', {
             Data time: ${timers.dataNs / 1000n}ms`),
           ],
         })
-        return
+        return CommandResult.Success
       }
 
       timers.avatarNs = process.hrtime.bigint()
@@ -182,15 +182,6 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       }
 
       timers.avatarNs = process.hrtime.bigint() - timers.avatarNs
-
-      const provider = STATS_PROVIDERS.get(gamemode)
-
-      if (provider == null) {
-        await interaction.editReply({
-          embeds: [Embed.error('Invalid gamemode.')],
-        })
-        return
-      }
 
       timers.imageNs = process.hrtime.bigint()
       const { image, metadata } = await provider.makeStats(
@@ -218,9 +209,11 @@ const COMMAND_STATS = command('CHAT_INPUT', {
         embeds: debug ? [Embed.info('Debug information', `\`\`\`${debugInfo}\`\`\``)] : [],
         files: [{ name: 'stats.png', attachment: image }],
       })
+      return CommandResult.Success
     } catch (err) {
-      client.logger.error(err)
-      await interactionReplySafe(interaction, { embeds: [Embed.error(findErrorMessage(err))] })
+      client.getLogger('/stats').error(err)
+      await interactionReplySafe(interaction, { embeds: [Embed.error(err)] })
+      return CommandResult.Failure
     }
   },
 })

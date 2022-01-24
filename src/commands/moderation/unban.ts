@@ -1,6 +1,5 @@
 import { Embed } from '../../util/embed.js'
-import { findErrorMessage } from '../../util/message.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const COMMAND_UNBAN = command('CHAT_INPUT', {
   name: 'unban',
@@ -28,9 +27,10 @@ const COMMAND_UNBAN = command('CHAT_INPUT', {
     const reason = options.getString('reason')
 
     if (input == null) {
-      return await interaction.reply({
+      await interaction.reply({
         embeds: [Embed.error('Expected a user (and optionally reason)')],
       })
+      return CommandResult.Success
     }
 
     const user =
@@ -39,17 +39,19 @@ const COMMAND_UNBAN = command('CHAT_INPUT', {
       input.toString().replace(/<@!?(\d+)>/g, '$1')
 
     if (user == null) {
-      return await interaction.reply({
+      await interaction.reply({
         embeds: [Embed.error('Could not resolve user')],
         ephemeral: true,
       })
+      return CommandResult.Success
     }
 
     if (interaction.guild == null) {
-      return await interaction.reply({
+      await interaction.reply({
         embeds: [Embed.error('Could not resolve guild')],
         ephemeral: true,
       })
+      return CommandResult.Success
     }
 
     const unbanner = interaction.guild.members.resolve(interaction.user.id)!
@@ -66,9 +68,11 @@ const COMMAND_UNBAN = command('CHAT_INPUT', {
         embeds: [Embed.success(`${user.toString()} unbanned`)],
         ephemeral: true,
       })
+      return CommandResult.Success
     } catch (err) {
-      client.logger.error(err)
-      await interaction.reply({ embeds: [Embed.error(findErrorMessage(err))], ephemeral: true })
+      client.getLogger('/unban').error(err)
+      await interaction.reply({ embeds: [Embed.error(err)], ephemeral: true })
+      return CommandResult.Failure
     }
   },
 })

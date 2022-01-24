@@ -11,6 +11,7 @@ import {
   Interaction,
   PermissionString,
 } from 'discord.js'
+import type { CommandResult } from './commands/command.js'
 import {
   BaseContext,
   CommandContext,
@@ -33,7 +34,7 @@ export interface GuildRequired<Context extends BaseContext, Int extends Interact
         member: GuildMember
       }
     }
-  ) => Promise<unknown>
+  ) => Promise<CommandResult>
 }
 
 export interface GuildOptional<C extends BaseContext> {
@@ -43,7 +44,7 @@ export interface GuildOptional<C extends BaseContext> {
    * @default false
    */
   guildOnly?: false
-  run: (context: C) => Promise<unknown>
+  run: (context: C) => Promise<CommandResult>
 }
 
 type CommandType<

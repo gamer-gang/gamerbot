@@ -1,7 +1,7 @@
 import { createCanvas } from '@napi-rs/canvas'
 import { Color, HslTriple, RgbTriple } from '../../util/color.js'
 import { Embed } from '../../util/embed.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const hexCodeRegex = /^#?([a-f0-9]{3}|[a-f0-9]{6})$/i
 const rgbRegex =
@@ -37,7 +37,7 @@ const COMMAND_COLOR = command('CHAT_INPUT', {
 
     if (exec == null) {
       await interaction.reply('Invalid color. Use a hex code, RGB, or HSL color.')
-      return
+      return CommandResult.Success
     }
 
     let color
@@ -78,6 +78,7 @@ const COMMAND_COLOR = command('CHAT_INPUT', {
       embeds: [embed],
       files: [{ attachment: png, name: 'color.png' }],
     })
+    return CommandResult.Success
   },
 })
 

@@ -4,7 +4,7 @@ import _ from 'lodash'
 import assert from 'node:assert'
 import { prisma } from '../../prisma.js'
 import { Embed } from '../../util/embed.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const makeEmbed = ({
   pages,
@@ -19,6 +19,10 @@ const makeEmbed = ({
   totalEggs: string
   type: 'collected' | 'balance'
 }): Embed => {
+  if (pages.length === 0) {
+    return Embed.info(`🥚 Top eggers (${type})`, 'No eggers! Get egging!!!')
+  }
+
   const page = pages[pageNumber]
 
   const formattedList = page
@@ -32,17 +36,11 @@ const makeEmbed = ({
 
   const embed = Embed.info(
     `🥚 Top eggers (${type})`,
-    page.length > 0
-      ? `Total eggers: **${totalEggers}**
-Total eggs: **${totalEggs}**
-
-${formattedList}
-`
-      : 'No eggers! Get egging!!!'
+    `Total eggers: **${totalEggers}**\nTotal eggs: **${totalEggs}**\n\n${formattedList}`
   )
 
   if (pages.length > 1) {
-    embed.setFooter(`Page ${pageNumber + 1}/${pages.length}`)
+    embed.setFooter({ text: `Page ${pageNumber + 1}/${pages.length}` })
   }
 
   return embed
@@ -75,20 +73,20 @@ const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
 
     const userInput = options.getUser('user')
 
-    const eggers = (await prisma.eggLeaderboard.findMany()) ?? []
-
     if (interaction.channel == null) {
       await interaction.reply('Please use this command in a channel.')
-      return
+      return CommandResult.Success
     }
 
-    eggers.sort((a, b) => {
-      const aVal = a[type]
-      const bVal = b[type]
-      if (aVal > bVal) return -1
-      if (aVal < bVal) return 1
-      return 0
-    })
+    const eggers = _.sortBy((await prisma.eggLeaderboard.findMany()) ?? [], type)
+
+    // eggers.sort((a, b) => {
+    //   const aVal = a[type]
+    //   const bVal = b[type]
+    //   if (aVal > bVal) return -1
+    //   if (aVal < bVal) return 1
+    //   return 0
+    // })
 
     if (userInput != null) {
       const user = client.users.resolve(userInput)
@@ -98,12 +96,12 @@ const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
           embeds: [Embed.error('Could not resolve user')],
           ephemeral: true,
         })
-        return
+        return CommandResult.Success
       }
 
       if (client.user.id === user.id) {
         await interaction.reply({ embeds: [Embed.error("I don't have any eggs :(")] })
-        return
+        return CommandResult.Success
       }
 
       const ranking = eggers.findIndex((lb) => lb.userId === user.id)
@@ -113,7 +111,7 @@ const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
           embeds: [Embed.error('No data/invalid user', 'Get egging!!')],
           ephemeral: true,
         })
-        return
+        return CommandResult.Success
       }
 
       const eggs = BigInt(eggers[ranking][type])
@@ -127,7 +125,7 @@ const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
       )
 
       await interaction.reply({ embeds: [embed] })
-      return
+      return CommandResult.Success
     }
 
     const totalEggers = eggers.length.toLocaleString()
@@ -141,54 +139,57 @@ const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
       await interaction.reply({
         embeds: [makeEmbed({ pages, totalEggers, totalEggs, pageNumber, type })],
       })
-    } else {
-      const row = new MessageActionRow({
-        components: [
-          new MessageButton({
-            customId: 'prev',
-            style: 'SECONDARY',
-            emoji: '◀️',
-          }),
-          new MessageButton({
-            customId: 'next',
-            style: 'SECONDARY',
-            emoji: '▶️',
-          }),
-        ],
-      })
+      return CommandResult.Success
+    }
+    const row = new MessageActionRow({
+      components: [
+        new MessageButton({
+          customId: 'prev',
+          style: 'SECONDARY',
+          emoji: '◀️',
+        }),
+        new MessageButton({
+          customId: 'next',
+          style: 'SECONDARY',
+          emoji: '▶️',
+        }),
+      ],
+    })
 
-      await interaction.reply({
+    await interaction.reply({
+      embeds: [makeEmbed({ pages, totalEggers, totalEggs, pageNumber, type })],
+      components: [row],
+    })
+
+    const reply = interaction.channel.messages.cache.get((await interaction.fetchReply()).id)!
+
+    const collector = reply.createMessageComponentCollector({
+      idle: 1000 * 60 * 5,
+    })
+
+    collector.on('collect', (interaction) => {
+      if (interaction.customId === 'next') {
+        pageNumber++
+        if (pageNumber === pages.length) pageNumber = 0
+      } else {
+        pageNumber--
+        if (pageNumber === -1) pageNumber = pages.length - 1
+      }
+
+      void interaction.update({
         embeds: [makeEmbed({ pages, totalEggers, totalEggs, pageNumber, type })],
         components: [row],
       })
+    })
 
-      const reply = interaction.channel.messages.cache.get((await interaction.fetchReply()).id)!
+    collector.on('end', () => {
+      void reply.edit({
+        embeds: [makeEmbed({ pages, totalEggers, totalEggs, pageNumber, type })],
+        components: [],
+      })
+    })
 
-      reply
-        .createMessageComponentCollector({
-          idle: 1000 * 60 * 5,
-        })
-        .on('collect', (interaction) => {
-          if (interaction.customId === 'next') {
-            pageNumber++
-            if (pageNumber === pages.length) pageNumber = 0
-          } else {
-            pageNumber--
-            if (pageNumber === -1) pageNumber = pages.length - 1
-          }
-
-          void interaction.update({
-            embeds: [makeEmbed({ pages, totalEggers, totalEggs, pageNumber, type })],
-            components: [row],
-          })
-        })
-        .on('end', () => {
-          void reply.edit({
-            embeds: [makeEmbed({ pages, totalEggers, totalEggs, pageNumber, type })],
-            components: [],
-          })
-        })
-    }
+    return CommandResult.Success
   },
 })
 

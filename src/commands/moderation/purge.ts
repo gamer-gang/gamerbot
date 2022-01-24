@@ -1,6 +1,6 @@
 import assert from 'node:assert'
 import { Embed } from '../../util/embed.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 import { purgeTo } from './purgetohere.js'
 
 const COMMAND_PURGE = command('CHAT_INPUT', {
@@ -31,7 +31,7 @@ const COMMAND_PURGE = command('CHAT_INPUT', {
       await interaction.reply(
         'You must specify either a number of messages to delete or a message to delete up to.'
       )
-      return
+      return CommandResult.Success
     }
 
     if (n != null) {
@@ -61,7 +61,7 @@ const COMMAND_PURGE = command('CHAT_INPUT', {
           embeds: [Embed.info(`Purged ${options.getNumber('n') ?? '<unknown>'} messages`)],
         })
       }
-      return
+      return CommandResult.Success
     }
 
     assert(to)

@@ -1,6 +1,5 @@
 import { Embed } from '../../util/embed.js'
-import { findErrorMessage } from '../../util/message.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const COMMAND_BAN = command('CHAT_INPUT', {
   name: 'ban',
@@ -25,21 +24,23 @@ const COMMAND_BAN = command('CHAT_INPUT', {
     const { interaction, options, client } = context
 
     if (context.guild == null) {
-      return await interaction.reply('You can only ban users in a guild.')
+      await interaction.reply('You can only ban users in a guild.')
+      return CommandResult.Success
     }
 
     const user = options.getUser('user')
     const reason = options.getString('reason')
 
     if (user == null) {
-      return await interaction.reply({
+      await interaction.reply({
         embeds: [Embed.error('Could not resolve user.')],
       })
+      return CommandResult.Success
     }
 
     if (interaction.guild == null) {
       await interaction.reply({ embeds: [Embed.error('Could not resolve guild.')] })
-      return
+      return CommandResult.Success
     }
 
     try {
@@ -51,7 +52,7 @@ const COMMAND_BAN = command('CHAT_INPUT', {
           embeds: [Embed.error('User not in guild')],
           ephemeral: true,
         })
-        return
+        return CommandResult.Success
       }
 
       if (banner.roles.highest.comparePositionTo(bannee.roles.highest) <= 0) {
@@ -59,7 +60,7 @@ const COMMAND_BAN = command('CHAT_INPUT', {
           embeds: [Embed.error('You cannot ban that member')],
           ephemeral: true,
         })
-        return
+        return CommandResult.Success
       }
 
       if (context.guild.me!.roles.highest.comparePositionTo(bannee.roles.highest) <= 0) {
@@ -67,7 +68,7 @@ const COMMAND_BAN = command('CHAT_INPUT', {
           embeds: [Embed.error('gamerbot cannot ban that member')],
           ephemeral: true,
         })
-        return
+        return CommandResult.Success
       }
 
       if (!bannee.bannable) {
@@ -75,7 +76,7 @@ const COMMAND_BAN = command('CHAT_INPUT', {
           embeds: [Embed.error('Member is not bannable by gamerbot')],
           ephemeral: true,
         })
-        return
+        return CommandResult.Success
       }
 
       await bannee.ban({
@@ -92,9 +93,11 @@ const COMMAND_BAN = command('CHAT_INPUT', {
           ),
         ],
       })
+      return CommandResult.Success
     } catch (err) {
-      client.logger.error(err)
-      await interaction.reply({ embeds: [Embed.error(findErrorMessage(err))], ephemeral: true })
+      client.getLogger('/ban').error(err)
+      await interaction.reply({ embeds: [Embed.error(err)], ephemeral: true })
+      return CommandResult.Failure
     }
   },
 })

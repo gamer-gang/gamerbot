@@ -1,6 +1,6 @@
 import { getProfileImageUrl } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const COMMAND_AVATAR = command('CHAT_INPUT', {
   name: 'avatar',
@@ -29,6 +29,7 @@ const COMMAND_AVATAR = command('CHAT_INPUT', {
     })
 
     await interaction.reply({ embeds: [embed] })
+    return CommandResult.Success
   },
 })
 

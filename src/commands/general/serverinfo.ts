@@ -1,6 +1,6 @@
 import { getDateStringFromSnowflake } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const COMMAND_SERVERINFO = command('CHAT_INPUT', {
   name: 'serverinfo',
@@ -20,14 +20,14 @@ const COMMAND_SERVERINFO = command('CHAT_INPUT', {
 
     if (input == null && interaction.guild == null) {
       await interaction.reply('You must specify a server to show icon for.')
-      return
+      return CommandResult.Success
     }
 
     const guild = input != null ? client.guilds.resolve(input) : interaction.guild
 
     if (guild == null) {
       await interaction.reply(`Could not find server with ID or name "${input ?? '<unknown>'}".`)
-      return
+      return CommandResult.Success
     }
 
     const bots = [...(await guild.members.fetch()).values()].filter(
@@ -59,9 +59,12 @@ const COMMAND_SERVERINFO = command('CHAT_INPUT', {
       .addField('ID', guild.id)
       .setTimestamp()
 
-    icon != null && embed.setThumbnail(icon)
+    if (icon != null) {
+      embed.setThumbnail(icon)
+    }
 
     await interaction.reply({ embeds: [embed] })
+    return CommandResult.Success
   },
 })
 

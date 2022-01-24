@@ -1,8 +1,7 @@
 import { DMChannel, Message, MessageActionRow, MessageButton } from 'discord.js'
 import { interactionReplySafe } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
-import { findErrorMessage } from '../../util/message.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const RPS_CHOICES = {
   rock: '✊',
@@ -27,7 +26,10 @@ const COMMAND_RPS = command('CHAT_INPUT', {
 
     const opponent = options.getUser('user')
 
-    if (opponent == null) return await interaction.reply('Unable to resolve user.')
+    if (opponent == null) {
+      await interaction.reply('Unable to resolve user.')
+      return CommandResult.Success
+    }
 
     const embed = new Embed({
       title: `${interaction.user.tag} has dueled ${opponent.tag} to a game of RPS!`,
@@ -61,10 +63,11 @@ const COMMAND_RPS = command('CHAT_INPUT', {
       .catch()
 
     if (opponentResponse == null) {
-      return await interaction.followUp({
+      await interaction.followUp({
         embeds: [Embed.error('The duel timed out.')],
         components: [],
       })
+      return CommandResult.Success
     }
 
     void opponentResponse.update({
@@ -118,7 +121,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
       const moveString = `${RPS_CHOICES[move1]} vs ${RPS_CHOICES[move2]}`
 
       if (move1 === move2) {
-        return await opponentResponse.editReply({
+        await opponentResponse.editReply({
           embeds: [
             new Embed({
               title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
@@ -127,6 +130,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
           ],
           components: [],
         })
+        return CommandResult.Success
       }
 
       let p1Win = true
@@ -147,7 +151,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
       }
 
       if (p1Win) {
-        return await opponentResponse.editReply({
+        await opponentResponse.editReply({
           embeds: [
             new Embed({
               title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
@@ -156,9 +160,10 @@ const COMMAND_RPS = command('CHAT_INPUT', {
           ],
           components: [],
         })
+        return CommandResult.Success
       }
 
-      return await opponentResponse.editReply({
+      await opponentResponse.editReply({
         embeds: [
           new Embed({
             title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
@@ -167,10 +172,12 @@ const COMMAND_RPS = command('CHAT_INPUT', {
         ],
         components: [],
       })
+      return CommandResult.Success
     } catch (err) {
-      return await interactionReplySafe(opponentResponse, {
-        embeds: [Embed.error(findErrorMessage(err))],
+      await interactionReplySafe(opponentResponse, {
+        embeds: [Embed.error(err)],
       })
+      return CommandResult.Failure
     }
   },
 })

@@ -1,13 +1,23 @@
 import { stripIndents } from 'common-tags'
+import { Formatters } from 'discord.js'
 import emojiRegex from 'emoji-regex'
 import stringLength from 'string-length'
-import { Character } from 'unicode/category/index.js'
+import unicode, { type Character } from 'unicode/category/index.js'
 import '../../types/unicode.d.ts'
 import { Embed } from '../../util/embed.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
-// eslint-disable-next-line import/extensions
-const unicode = import('unicode/category/index.js')
+const formatCodePoints = (str: string): string => {
+  const codePoints = []
+
+  for (const codePoint of str) {
+    const digits = codePoint.codePointAt(0)!.toString(16).padStart(4, '0')
+    const formatted = digits.length > 4 ? `\\u{${digits}}` : `\\u${digits}`
+    codePoints.push(formatted)
+  }
+
+  return codePoints.join(' ')
+}
 
 const COMMAND_CHARACTER = command('CHAT_INPUT', {
   name: 'character',
@@ -35,10 +45,15 @@ const COMMAND_CHARACTER = command('CHAT_INPUT', {
 
     if (stringLength(input) !== 1) {
       await interaction.reply({
-        embeds: [Embed.error('Input must be exactly one character')],
+        embeds: [
+          Embed.error(
+            '**Input must be exactly one character**',
+            `Input was: ${Formatters.inlineCode(input)}`
+          ),
+        ],
         ephemeral: true,
       })
-      return
+      return CommandResult.Success
     }
 
     let codePoint = ''
@@ -47,12 +62,24 @@ const COMMAND_CHARACTER = command('CHAT_INPUT', {
     // must use for..of because a .split('').map does not handle UTF-16 surrogate pairs correctly
     for (const character of input) {
       // if variable is already truthy, we already have one character already
-      if (codePoint != null) {
+      if (codePoint.length > 0) {
+        const codePoints = formatCodePoints(input)
+        const embed = Embed.error(
+          '**Input must be exactly one character**',
+          `Input was: ${Formatters.inlineCode(codePoints)}`
+        )
+
+        if (codePoints.includes('\\ufe0f') || codePoints.includes('\\u200d')) {
+          embed.setFooter({
+            text: 'Note: some emojis are composed of a number of different emojis put together and thus do not count as single characters.',
+          })
+        }
+
         await interaction.reply({
-          embeds: [Embed.error('Input must be exactly one character')],
+          embeds: [embed],
           ephemeral: true,
         })
-        return
+        return CommandResult.Success
       }
       const number = character.codePointAt(0)!
       codePoint = number.toString(16).padStart(4, '0')
@@ -68,16 +95,16 @@ const COMMAND_CHARACTER = command('CHAT_INPUT', {
         embeds: [Embed.error('Input must be exactly one character')],
         ephemeral: true,
       })
-      return
+      return CommandResult.Success
     }
 
     let data: Character | undefined
-
-    const categories = await unicode
-    for (const k of Object.keys(categories)) {
+    for (const k of Object.keys(unicode)) {
       if (k === 'default') continue
-      const potentialData =
-        categories[k as Exclude<keyof typeof categories, 'default'>][input.codePointAt(0)!]
+      const category = unicode[k as Exclude<keyof typeof unicode, 'default'>]
+      const codePointNum = input.codePointAt(0)!
+
+      const potentialData = category[codePointNum]
       if (potentialData != null) {
         data = potentialData
         break
@@ -88,12 +115,14 @@ const COMMAND_CHARACTER = command('CHAT_INPUT', {
       author: data != null ? { name: `Character ${input}` } : undefined,
       title:
         data != null
-          ? `${data.name}${data.unicode_name != null ? ` (${data.unicode_name})` : ''}`
+          ? `${data.name}${data.unicode_name ? ` (${data.unicode_name})` : ''}`
           : `Character ${input}`,
       description: stripIndents`
         ${emojiRegex().test(input) ? `${input}\n` : ''}
         https://graphemica.com/${encodeURIComponent(input)}`,
-    }).addField('Code point', `U+${codePoint.toUpperCase()}`, true)
+    })
+
+    embed.addField('Code point', `U+${codePoint.toUpperCase()}`, true)
 
     if (charCodes.length > 0) {
       embed.addField(
@@ -115,6 +144,7 @@ const COMMAND_CHARACTER = command('CHAT_INPUT', {
     )
 
     await interaction.reply({ embeds: [embed] })
+    return CommandResult.Success
   },
 })
 

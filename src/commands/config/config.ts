@@ -1,8 +1,20 @@
-import { ApplicationCommandOptionData } from 'discord.js'
-import command from '../command.js'
-import { ConfigOption } from './_configOption.js'
+import {
+  ApplicationCommandNonOptionsData,
+  ApplicationCommandOptionChoice,
+  ApplicationCommandOptionData,
+} from 'discord.js'
+import { Embed } from '../../util/embed.js'
+import command, { CommandResult } from '../command.js'
+import CONFIG_OPTION_ALLOWSPAM from './_allowSpam.js'
+import { ConfigOption, ConfigValueType, helpers } from './_configOption.js'
+import CONFIG_OPTION_ENABLEEGG from './_enableEgg.js'
+import CONFIG_OPTION_LOGCHANNELS from './_logChannels.js'
 
-const CONFIG_OPTIONS: ConfigOption[] = []
+const CONFIG_OPTIONS: Array<ConfigOption<ConfigValueType>> = [
+  CONFIG_OPTION_ALLOWSPAM,
+  CONFIG_OPTION_ENABLEEGG,
+  CONFIG_OPTION_LOGCHANNELS,
+]
 
 const COMMAND_CONFIG = command('CHAT_INPUT', {
   name: 'config',
@@ -17,11 +29,14 @@ const COMMAND_CONFIG = command('CHAT_INPUT', {
         description: optionDef.description,
         type: 'SUB_COMMAND',
         options: [
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           {
             name: 'value',
-            description: 'The value to set the option to.',
+            description: 'The value to set the option to. Leave blank to view the current value.',
             type: optionDef.type,
-          },
+            choices: (optionDef as unknown as { choices: ApplicationCommandOptionChoice[] })
+              .choices,
+          } as ApplicationCommandNonOptionsData,
         ],
       }
 
@@ -30,9 +45,21 @@ const COMMAND_CONFIG = command('CHAT_INPUT', {
   ],
 
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
-    await interaction.reply('hi')
+    const optionName = options.getSubcommand()
+
+    const option = CONFIG_OPTIONS.find((optionDef) => optionDef.internalName === optionName)
+
+    if (option == null) {
+      await interaction.reply({
+        embeds: [Embed.error(`Unknown option: ${optionName}`)],
+        ephemeral: true,
+      })
+      return CommandResult.Success
+    }
+
+    return await option.handle(context, helpers(context))
   },
 })
 

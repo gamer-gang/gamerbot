@@ -13,16 +13,19 @@ export interface StatsProviderResponse {
 }
 
 interface StatsProviderDef {
+  displayName?: string
   makeStats: (player: Player, avatar?: Image) => Promise<StatsProviderResponse>
 }
 
 export interface StatsProvider extends StatsProviderDef {
   name: string
+  displayName: string
 }
 
 export function statsProvider(name: string, def: StatsProviderDef): StatsProvider {
   return {
     ...def,
     name,
+    displayName: def.displayName ?? name,
   }
 }

@@ -1,6 +1,6 @@
+import assert from 'node:assert'
 import { Embed } from '../../util/embed.js'
-import { findErrorMessage } from '../../util/message.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const COMMAND_KICK = command('CHAT_INPUT', {
   name: 'kick',
@@ -24,22 +24,21 @@ const COMMAND_KICK = command('CHAT_INPUT', {
     const { interaction, options, client } = context
 
     if (context.guild == null) {
-      return await interaction.reply('You can only ban users in a guild.')
+      await interaction.reply('You can only ban users in a guild.')
+      return CommandResult.Success
     }
 
     const user = options.getUser('user')
     const reason = options.getString('reason')
 
     if (user == null) {
-      return await interaction.reply({
+      await interaction.reply({
         embeds: [Embed.error('Could not resolve user.')],
       })
+      return CommandResult.Success
     }
 
-    if (interaction.guild == null) {
-      await interaction.reply({ embeds: [Embed.error('Could not resolve guild.')] })
-      return
-    }
+    assert(interaction.guild, 'Could not resolve guild.')
 
     try {
       const kickee = interaction.guild.members.resolve(user)
@@ -49,7 +48,7 @@ const COMMAND_KICK = command('CHAT_INPUT', {
           embeds: [Embed.error('User not in server')],
           ephemeral: true,
         })
-        return
+        return CommandResult.Success
       }
 
       const kicker = interaction.guild.members.resolve(interaction.user.id)!
@@ -59,7 +58,7 @@ const COMMAND_KICK = command('CHAT_INPUT', {
           embeds: [Embed.error('You cannot kick that member')],
           ephemeral: true,
         })
-        return
+        return CommandResult.Success
       }
 
       if (interaction.guild.me!.roles.highest.comparePositionTo(kickee.roles.highest) <= 0) {
@@ -67,7 +66,7 @@ const COMMAND_KICK = command('CHAT_INPUT', {
           embeds: [Embed.error('gamerbot cannot kick that member')],
           ephemeral: true,
         })
-        return
+        return CommandResult.Success
       }
 
       if (!kickee.kickable) {
@@ -75,7 +74,7 @@ const COMMAND_KICK = command('CHAT_INPUT', {
           embeds: [Embed.error('Member cannot be kicked by gamerbot')],
           ephemeral: true,
         })
-        return
+        return CommandResult.Success
       }
 
       await kickee.kick(
@@ -92,9 +91,11 @@ const COMMAND_KICK = command('CHAT_INPUT', {
           ),
         ],
       })
+      return CommandResult.Success
     } catch (err) {
-      client.logger.error(err)
-      await interaction.reply({ embeds: [Embed.error(findErrorMessage(err))], ephemeral: true })
+      client.getLogger('/kick').error(err)
+      await interaction.reply({ embeds: [Embed.error(err)], ephemeral: true })
+      return CommandResult.Failure
     }
   },
 })

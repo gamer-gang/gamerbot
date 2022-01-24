@@ -1,5 +1,7 @@
-import { MessageEmbed, MessageEmbedOptions } from 'discord.js'
+import { MessageEmbed, MessageEmbedOptions, User } from 'discord.js'
 import { Color } from './color.js'
+import { getProfileImageUrl } from './discord.js'
+import { formatErrorMessage } from './message.js'
 
 type EmbedIntent = 'info' | 'success' | 'warning' | 'error'
 
@@ -22,12 +24,16 @@ export const colors = {
 }
 
 export class Embed extends MessageEmbed {
-  static error(message: string, description?: string): Embed {
-    // const client = getClient();
-    // customEmojis.error ??= client.getCustomEmoji('error') ?? false;
+  static error(error: unknown): Embed
+  static error(message: string, description?: string): Embed
+  static error(err: unknown, description?: string): Embed {
+    if (err instanceof Error || typeof err === 'object') {
+      return Embed.error(formatErrorMessage(err))
+    }
+
     return new Embed({
       intent: 'error',
-      description: `❌${spacer}${intentText(message, description)}`,
+      description: `❌${spacer}${intentText(`${err}`, description)}`,
     })
   }
 
@@ -60,20 +66,40 @@ export class Embed extends MessageEmbed {
     super(options)
 
     if (this.color == null && options?.noColor === false) {
-      switch (options?.intent) {
-        case 'error':
-          this.setColor(colors.red.asNumber)
-          break
-        case 'warning':
-          this.setColor(colors.orange.asNumber)
-          break
-        case 'success':
-          this.setColor(colors.green.asNumber)
-          break
-        case 'info':
-        default:
-          this.setColor(colors.blue.asNumber)
-      }
+      this.setIntent(options?.intent ?? 'info')
     }
+  }
+
+  setIntent(intent: EmbedIntent): this {
+    switch (intent) {
+      case 'error':
+        this.setColor(colors.red.asNumber)
+        break
+      case 'warning':
+        this.setColor(colors.orange.asNumber)
+        break
+      case 'success':
+        this.setColor(colors.green.asNumber)
+        break
+      case 'info':
+      default:
+        this.setColor(colors.blue.asNumber)
+    }
+
+    return this
+  }
+
+  setAuthorToProfile(name: string, user: User, url?: string): this {
+    this.setAuthor({
+      name,
+      iconURL: getProfileImageUrl(user),
+      url,
+    })
+    return this
+  }
+
+  setThumbnailToProfileImage(user: User): this {
+    this.setThumbnail(getProfileImageUrl(user))
+    return this
   }
 }

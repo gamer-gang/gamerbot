@@ -1,8 +1,7 @@
 import { interactionReplySafe } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
-import { findErrorMessage } from '../../util/message.js'
 import { usernameRegex, uuidRegex } from '../../util/regex.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const COMMAND_USERNAME = command('CHAT_INPUT', {
   name: 'username',
@@ -39,7 +38,7 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
       type: 'SUB_COMMAND',
     },
   ],
-  async run(context) {
+  async run(context): Promise<CommandResult> {
     const { interaction, prisma, options, client } = context
 
     const subcommand = options.getSubcommand()
@@ -53,7 +52,7 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
             embeds: [Embed.error('Invalid username/UUID')],
             ephemeral: true,
           })
-          return
+          return CommandResult.Success
         }
 
         await prisma.minecraftPlayer.upsert({
@@ -72,6 +71,7 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
         await interaction.reply({
           embeds: [Embed.success(`Set your username/UUID to **${input}**`)],
         })
+        return CommandResult.Success
       } else if (subcommand === 'get') {
         const user = options.getUser('user')
 
@@ -91,14 +91,20 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
         } else {
           await interaction.reply({ embeds: [Embed.info(`${userTag} has no username/UUID`)] })
         }
+
+        return CommandResult.Success
       } else if (subcommand === 'clear') {
         await prisma.minecraftPlayer.delete({ where: { userId: interaction.user.id } })
 
         await interaction.reply({ embeds: [Embed.success('Cleared your Minecraft username/UUID')] })
+        return CommandResult.Success
       }
+
+      throw new Error(`Invalid subcommand ${subcommand}`)
     } catch (err) {
-      client.logger.error(err)
-      await interactionReplySafe(interaction, { embeds: [Embed.error(findErrorMessage(err))] })
+      client.getLogger('/username').error(err)
+      await interactionReplySafe(interaction, { embeds: [Embed.error(err)] })
+      return CommandResult.Failure
     }
   },
 })

@@ -1,5 +1,5 @@
 import { Embed } from '../../util/embed.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const COMMAND_LMGTFY = command('CHAT_INPUT', {
   name: 'lmgtfy',
@@ -30,10 +30,11 @@ const COMMAND_LMGTFY = command('CHAT_INPUT', {
     const engine = options.getString('engine') ?? 'google'
 
     if (query == null) {
-      return await interaction.reply({
+      await interaction.reply({
         embeds: [Embed.error('No search query provided')],
         ephemeral: true,
       })
+      return CommandResult.Success
     }
 
     const encoded = query
@@ -46,6 +47,7 @@ const COMMAND_LMGTFY = command('CHAT_INPUT', {
     } else {
       await interaction.reply(`https://duckduckgo.com/?q=${encoded}`)
     }
+    return CommandResult.Success
   },
 })
 

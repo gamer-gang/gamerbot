@@ -1,6 +1,6 @@
 import { Embed } from '../../util/embed.js'
-import { findErrorMessage, parseDiscohookJSON } from '../../util/message.js'
-import command from '../command.js'
+import { parseDiscohookJSON } from '../../util/message.js'
+import command, { CommandResult } from '../command.js'
 
 const COMMAND_APIMESSAGE = command('CHAT_INPUT', {
   name: 'apimessage',
@@ -12,9 +12,11 @@ const COMMAND_APIMESSAGE = command('CHAT_INPUT', {
 
     try {
       await interaction.reply(parseDiscohookJSON(json))
+      return CommandResult.Success
     } catch (err) {
-      client.logger.error(err)
-      await interaction.reply({ embeds: [Embed.error(findErrorMessage(err))], ephemeral: true })
+      client.getLogger('/apimessage').error(err)
+      await interaction.reply({ embeds: [Embed.error(err)], ephemeral: true })
+      return CommandResult.Failure
     }
   },
 })

@@ -1,5 +1,5 @@
 import { Embed } from '../../util/embed.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 
 const COMMAND_SERVERICON = command('CHAT_INPUT', {
   name: 'servericon',
@@ -19,14 +19,14 @@ const COMMAND_SERVERICON = command('CHAT_INPUT', {
 
     if (input == null && interaction.guild == null) {
       await interaction.reply('You must specify a server to show icon for.')
-      return
+      return CommandResult.Success
     }
 
     const guild = input != null ? client.guilds.resolve(input) : interaction.guild
 
     if (guild == null) {
       await interaction.reply(`Could not find server with ID or name "${input ?? '<unknown>'}".`)
-      return
+      return CommandResult.Success
     }
 
     let icon = guild.iconURL({ dynamic: true, size: 4096 })
@@ -36,7 +36,7 @@ const COMMAND_SERVERICON = command('CHAT_INPUT', {
 
     if (icon == null) {
       await interaction.reply({ embeds: [Embed.info('Server has no icon set')] })
-      return
+      return CommandResult.Success
     }
 
     const embed = new Embed({
@@ -49,6 +49,7 @@ const COMMAND_SERVERICON = command('CHAT_INPUT', {
     })
 
     await interaction.reply({ embeds: [embed] })
+    return CommandResult.Success
   },
 })
 

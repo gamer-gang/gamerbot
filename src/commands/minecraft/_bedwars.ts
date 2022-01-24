@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { createCanvas, Image } from '@napi-rs/canvas'
 import { Bedwars, Player } from 'hypixel-types'
 import _ from 'lodash'
@@ -173,6 +172,8 @@ function findCanvasWidth({
 }
 
 const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
+  displayName: 'Bedwars',
+
   async makeStats(player, avatar) {
     let apiData = player.stats.Bedwars
     apiData ??= noData
@@ -212,7 +213,6 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
         }
         stats[row] ??= {}
         stats[row][col] =
-          // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
           stringVal || (isFinite(rowData[col]) ? rowData[col].toLocaleString() : '-')
       })
     })
@@ -293,7 +293,6 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
       c.font = s.font(s.headerHeight)
 
       c.textAlign = 'right'
-      c.translate(-(canvas.width / 2), 0)
 
       c.fillText(
         rightHeader,
@@ -317,7 +316,6 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
       })
 
       c.textAlign = 'right'
-      c.translate(-(canvas.width / 2), 0)
 
       rightSubheaders.forEach((line, i) => {
         c.fillStyle = colorCode(0x7).hex
@@ -367,7 +365,6 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
 
           transaction(c, () => {
             c.textAlign = 'right'
-            c.translate(-(canvas.width / 2), 0)
 
             c.fillText(col, x, s.mainHeight + s.padding)
             Object.keys(rows).forEach((mode, j) => {

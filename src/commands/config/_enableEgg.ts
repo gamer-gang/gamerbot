@@ -2,10 +2,10 @@ import { Embed } from '../../util/embed.js'
 import { CommandResult } from '../command.js'
 import { configOption } from './_configOption.js'
 
-const CONFIG_OPTION_ALLOWSPAM = configOption({
-  internalName: 'allow-spam',
-  displayName: 'allow spam commands',
-  description: 'Allow spam commands like /lorem',
+const CONFIG_OPTION_ENABLEEGG = configOption({
+  internalName: 'enable-egg',
+  displayName: 'enable egg reactions',
+  description: 'Enable gamerbot egg reactions',
   type: 'BOOLEAN',
 
   async handle(context, { getValue, getConfig, updateConfig }) {
@@ -16,19 +16,19 @@ const CONFIG_OPTION_ALLOWSPAM = configOption({
 
     if (value == null) {
       await interaction.reply({
-        embeds: [Embed.info(`allow-spam is currently set to **${config.allowSpam}**.`)],
+        embeds: [Embed.info(`enable-egg is currently set to **${config.egg}**.`)],
       })
       return CommandResult.Success
     }
 
-    await updateConfig({ allowSpam: value })
+    await updateConfig({ egg: value })
 
     await interaction.reply({
-      embeds: [Embed.success(`allow-spam has been set to **${value}**.`)],
+      embeds: [Embed.success(`enable-egg has been set to **${value}**.`)],
     })
 
     return CommandResult.Success
   },
 })
 
-export default CONFIG_OPTION_ALLOWSPAM
+export default CONFIG_OPTION_ENABLEEGG

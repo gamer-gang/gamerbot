@@ -2,11 +2,11 @@ import { CommandInteraction, ContextMenuInteraction } from 'discord.js'
 import assert from 'node:assert'
 import { getDateFromSnowflake } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
-import command from '../command.js'
+import command, { CommandResult } from '../command.js'
 export const purgeTo = async (
   interaction: CommandInteraction | ContextMenuInteraction,
   to: string
-): Promise<void> => {
+): Promise<CommandResult> => {
   const timestamp = getDateFromSnowflake(to)
 
   assert(interaction.channel)
@@ -28,6 +28,8 @@ export const purgeTo = async (
     }
     await new Promise((resolve) => setTimeout(resolve, 1000))
   }
+
+  return CommandResult.Success
 }
 
 const COMMAND_PURGETOHERE = command('MESSAGE', {

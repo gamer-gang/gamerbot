@@ -1,47 +1,41 @@
-import { ApplicationCommandDataResolvable } from 'discord.js'
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import dotenv from 'dotenv'
-import { DEVELOPMENT } from './constants.js'
+import log4js from 'log4js'
+import { deployCommands } from './deploy.js'
 import { GamerbotClient } from './GamerbotClient.js'
-import { isChatCommand } from './util.js'
+import { prisma } from './prisma.js'
 
 dotenv.config()
-
 const client = new GamerbotClient()
 
-client.on('ready', () => {
-  client.logger.info(`${client.user.tag} ready`)
+client.on('ready', async () => {
+  client.getLogger('ready').info(`${client.user.tag} ready`)
   void client.refreshPresence()
-
-  if (DEVELOPMENT) {
-    if (process.env.DEVELOPMENT_GUILD_ID == null) {
-      client.logger.error(
-        'DEVELOPMENT_GUILD_ID environment variable not set, not deploying commands'
-      )
-      return
-    }
-
-    const guild = client.guilds.cache.get(process.env.DEVELOPMENT_GUILD_ID)
-
-    if (guild == null) {
-      client.logger.error(
-        'DEVELOPMENT_GUILD_ID environment variable set but guild not found, not deploying commands'
-      )
-      return
-    }
-
-    const commands: ApplicationCommandDataResolvable[] = [...client.commands.values()].map(
-      (command) => {
-        return {
-          type: command.type as never,
-          name: command.name,
-          description: isChatCommand(command) ? command.description : undefined,
-          options: isChatCommand(command) ? command.options : undefined
-        }
-      }
-    )
-
-    void guild.commands.set(commands)
-  }
+  void deployCommands(client)
 })
 
 void client.login(process.env.DISCORD_TOKEN)
+
+let isExiting = false
+const exit = (): void => {
+  if (isExiting) return
+  isExiting = true
+  const logger = client.getLogger('exit')
+  logger.info('Flushing analytics')
+  client.analytics.flushAll().then(() => {
+    logger.info('Closing database connection')
+    prisma.$disconnect().then(() => {
+      logger.info('Destroying client')
+      client.destroy()
+      logger.info('Shutting down log4js')
+      log4js.shutdown()
+      logger.info('Exiting')
+      process.exit(0)
+    })
+  })
+}
+
+process.on('SIGINT', exit)
+process.on('SIGTERM', exit)
+process.on('SIGUSR2', exit)
