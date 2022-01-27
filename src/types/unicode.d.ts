@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 declare module 'unicode/category/index.js' {
   interface Character<Category extends string = string> {
     value: string

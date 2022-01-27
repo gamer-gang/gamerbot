@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { SKRSContext2D } from '@napi-rs/canvas'
 import { Player } from 'hypixel-types'
 import * as s from '../../../style.js'

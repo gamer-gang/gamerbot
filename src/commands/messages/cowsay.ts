@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { CowFunction, say } from '@wiisportsresorts/cowsay'
 import * as cows from '@wiisportsresorts/cowsay/lib/cows.js'
 import command, { CommandResult } from '../command.js'

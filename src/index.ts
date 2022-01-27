@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import dotenv from 'dotenv'
 import log4js from 'log4js'
 import { deployCommands } from './deploy.js'

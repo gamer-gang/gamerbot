@@ -117,7 +117,6 @@ export const hasPermissions = (
   return true
 }
 
-// eslint-disable-next-line @typescript-eslint/member-delimiter-style
 export const matchString = (
   input: string,
   possible: string[]
