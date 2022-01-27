@@ -782,6 +782,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vvo/tzdb@npm:^6.44.0":
+  version: 6.44.0
+  resolution: "@vvo/tzdb@npm:6.44.0"
+  checksum: 8e891d294dd2b7b85bddc635924c932a41649c5933f18483e074e806ab0ee2c13c3ed086f609939062b3a088713a284b947a2066df9727caebb441e065c85052
+  languageName: node
+  linkType: hard
+
 "@webassemblyjs/ast@npm:1.11.1":
   version: 1.11.1
   resolution: "@webassemblyjs/ast@npm:1.11.1"
@@ -2598,6 +2605,7 @@ __metadata:
     "@types/webpack-node-externals": ^2.5.3
     "@typescript-eslint/eslint-plugin": latest
     "@typescript-eslint/parser": latest
+    "@vvo/tzdb": ^6.44.0
     "@wiisportsresorts/cowsay": ^0.2.0
     axios: ^0.25.0
     common-tags: ^1.8.2

@@ -1,3 +1,4 @@
+import { getTimeZones, TimeZone } from '@vvo/tzdb'
 import didYouMean from 'didyoumean'
 import {
   ApplicationCommandOptionChoice,
@@ -128,7 +129,7 @@ export const matchString = (
     return random.map((tz) => ({ name: tz, value: tz }))
   }
 
-  const matches = possible.filter((tz) => tz.toLowerCase().includes(input.toLowerCase()))
+  const matches = possible.filter((match) => match.toLowerCase().includes(input.toLowerCase()))
 
   if (!matches.length) {
     const match = didYouMean(input, possible) as string
@@ -151,4 +152,26 @@ export const matchString = (
   })
 
   return matches.slice(0, 25).map((match) => ({ name: match, value: match }))
+}
+
+// return a string like 'UTC+01:00' for a timezone offset in minutes
+export const formatUtcOffset = (offset: number): string => {
+  const hours = Math.floor(offset / 60)
+  const sign = hours >= 0 ? '+' : '-'
+  const hoursString = Math.abs(hours).toString().padStart(2, '0')
+  const minutesString = (offset % 60).toString().padStart(2, '0')
+
+  return `UTC${sign}${hoursString}:${minutesString}`
+}
+
+const timezones = getTimeZones()
+export const findTimeZone = (input: string): TimeZone | undefined => {
+  return timezones.find(
+    (tz) =>
+      input === tz.name ||
+      tz.group.includes(input) ||
+      tz.abbreviation === input ||
+      tz.mainCities.includes(input) ||
+      tz.alternativeName === input
+  )
 }

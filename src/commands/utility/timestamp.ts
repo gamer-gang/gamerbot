@@ -55,7 +55,7 @@ const COMMAND_TIMESTAMP = command('CHAT_INPUT', {
       description: `${getDateStringFromSnowflake(id).join('; ')}\n${Formatters.time(seconds, 'F')}`,
     })
 
-    embed.setFooter({ text: date.toISO() })
+    embed.setFooter({ text: date.toISO({ includeOffset: true }) })
 
     await interaction.reply({ embeds: [embed] })
 
