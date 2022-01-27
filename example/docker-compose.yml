@@ -11,6 +11,7 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_DB
   app:
+    restart: unless-stopped
     image: ghcr.io/gamer-gang/gamerbot:latest
     volumes:
       - ./logs:/app/logs
