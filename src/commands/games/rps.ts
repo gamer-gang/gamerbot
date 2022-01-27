@@ -33,7 +33,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
 
     const embed = new Embed({
       title: `${interaction.user.tag} has dueled ${opponent.tag} to a game of RPS!`,
-      description: 'Click ⚔️ to accept.',
+      description: 'Click ⚔ to accept.',
     })
 
     await interaction.reply({
@@ -45,7 +45,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
             new MessageButton({
               customId: 'start',
               style: 'PRIMARY',
-              emoji: '⚔️',
+              emoji: '⚔',
             }),
           ],
         }),
