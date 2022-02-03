@@ -26,6 +26,7 @@ import COMMAND_UNBAN from './commands/moderation/unban.js'
 import COMMAND_APIMESSAGE from './commands/utility/apimessage.js'
 import COMMAND_CHARACTER from './commands/utility/character.js'
 import COMMAND_COLOR from './commands/utility/color.js'
+import COMMAND_LATEX from './commands/utility/latex.js'
 import COMMAND_MATH from './commands/utility/math.js'
 import COMMAND_PING from './commands/utility/ping.js'
 import COMMAND_TIME from './commands/utility/time.js'
@@ -70,6 +71,7 @@ const DEFAULT_COMMANDS = [
   COMMAND_APIMESSAGE,
   COMMAND_CHARACTER,
   COMMAND_COLOR,
+  COMMAND_LATEX,
   COMMAND_MATH,
   COMMAND_PING,
   COMMAND_TIME,

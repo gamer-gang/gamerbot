@@ -14,7 +14,6 @@ const config = {
   mode: devMode ? 'development' : 'production',
   entry: {
     main: './src/index.ts',
-    // imagetest: './src/imagetest.ts',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
