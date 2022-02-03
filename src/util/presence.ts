@@ -3,39 +3,39 @@ import { Client, PresenceData } from 'discord.js'
 export class PresenceManager {
   static cooldown = 5000
 
-  private _presence: PresenceData = {}
-  private _needsUpdate = false
-  private _destroyed = false
-  queueWorker: NodeJS.Timeout
+  #presence: PresenceData = {}
+  #needsUpdate = false
+  #destroyed = false
+  worker: NodeJS.Timeout
 
   constructor(client: Client) {
-    this.queueWorker = setInterval(() => {
-      if (this._needsUpdate) {
+    this.worker = setInterval(() => {
+      if (this.#needsUpdate) {
         client.user?.setPresence(this.presence)
-        this._needsUpdate = false
+        this.#needsUpdate = false
       }
     }, 5000)
   }
 
   destroy(): void {
-    this._destroyed = true
-    clearInterval(this.queueWorker)
+    this.#destroyed = true
+    clearInterval(this.worker)
   }
 
   get destroyed(): boolean {
-    return this._destroyed
+    return this.#destroyed
   }
 
   get needsUpdate(): boolean {
-    return this._needsUpdate
+    return this.#needsUpdate
   }
 
   get presence(): PresenceData {
-    return this._presence
+    return this.#presence
   }
 
   set presence(data: PresenceData) {
-    this._presence = data
-    this._needsUpdate = true
+    this.#presence = data
+    this.#needsUpdate = true
   }
 }
