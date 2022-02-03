@@ -35,9 +35,9 @@ const COMMAND_TIMESTAMP = command('CHAT_INPUT', {
   },
 
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
-    const id = interaction.options.getString('id', true)
+    const id = options.getString('id', true)
 
     if (!id || !/^\d{18}$/.test(id)) {
       await interaction.reply({

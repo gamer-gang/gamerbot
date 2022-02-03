@@ -92,11 +92,11 @@ const COMMAND_TIME = command('CHAT_INPUT', {
   },
 
   async run(context) {
-    const { interaction } = context
+    const { options } = context
 
-    const handler = TIME_HANDLERS[interaction.options.getSubcommand(true)]
+    const handler = TIME_HANDLERS[options.getSubcommand(true)]
 
-    assert(handler, `Missing handler for /time subcommand ${interaction.options.getSubcommand()}`)
+    assert(handler, `Missing handler for /time subcommand ${options.getSubcommand()}`)
 
     return await handler(context)
   },

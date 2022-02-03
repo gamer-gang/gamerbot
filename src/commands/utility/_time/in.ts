@@ -5,8 +5,8 @@ import { CommandResult } from '../../command.js'
 import { TimeHandler } from '../time.js'
 
 const TIME_IN: TimeHandler = async (context) => {
-  const { interaction } = context
-  const zoneInput = interaction.options.getString('zone', true)
+  const { interaction, options } = context
+  const zoneInput = options.getString('zone', true)
 
   const zone = findTimeZone(zoneInput)
 

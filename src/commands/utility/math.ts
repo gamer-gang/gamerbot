@@ -61,9 +61,9 @@ const COMMAND_MATH = command('CHAT_INPUT', {
   },
 
   async run(context) {
-    const { interaction } = context
+    const { interaction, options } = context
 
-    const expression = cleanExpression(interaction.options.getString('expression', true))
+    const expression = cleanExpression(options.getString('expression', true))
 
     let invalid = !expression
 
