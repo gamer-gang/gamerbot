@@ -16,11 +16,15 @@ const intentText = (message: string, desc?: string): string =>
 
 const spacer = '  \u2002'
 
-export const colors = {
-  green: Color.from(0x8eef43),
-  blue: Color.from(0x209fd5),
-  red: Color.from(0xfb4b4e),
-  orange: Color.from(0xefa443),
+export const COLORS = {
+  // green: Color.from(0x8eef43),
+  // blue: Color.from(0x209fd5),
+  // red: Color.from(0xfb4b4e),
+  // orange: Color.from(0xefa443),
+  blue: Color.from('0284c7'),
+  green: Color.from('16a34a'),
+  red: Color.from('dc2626'),
+  orange: Color.from('d97706'),
 }
 
 export class Embed extends MessageEmbed {
@@ -65,25 +69,25 @@ export class Embed extends MessageEmbed {
   constructor(options?: (MessageEmbed | MessageEmbedOptions) & EmbedOptions) {
     super(options)
 
-    if (this.color == null && options?.noColor === false) {
-      this.setIntent(options?.intent ?? 'info')
+    if (this.color == null && options?.noColor !== true && options?.intent) {
+      this.setIntent(options?.intent)
     }
   }
 
   setIntent(intent: EmbedIntent): this {
     switch (intent) {
       case 'error':
-        this.setColor(colors.red.asNumber)
+        this.setColor(COLORS.red.asNumber)
         break
       case 'warning':
-        this.setColor(colors.orange.asNumber)
+        this.setColor(COLORS.orange.asNumber)
         break
       case 'success':
-        this.setColor(colors.green.asNumber)
+        this.setColor(COLORS.green.asNumber)
         break
       case 'info':
       default:
-        this.setColor(colors.blue.asNumber)
+        this.setColor(COLORS.blue.asNumber)
     }
 
     return this
