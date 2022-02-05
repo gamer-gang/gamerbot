@@ -7,6 +7,7 @@ import { Command, CommandResult } from './commands/command.js'
 import COMMAND_CONFIG from './commands/config/config.js'
 import { CommandContext, MessageCommandContext, UserCommandContext } from './commands/context.js'
 import COMMAND_RPS from './commands/games/rps.js'
+import COMMAND_ABOUT from './commands/general/about.js'
 import COMMAND_ANALYTICS from './commands/general/analytics.js'
 import COMMAND_AVATAR from './commands/general/avatar.js'
 import COMMAND_GETAVATAR from './commands/general/getavatar.js'
@@ -29,6 +30,7 @@ import COMMAND_COLOR from './commands/utility/color.js'
 import COMMAND_LATEX from './commands/utility/latex.js'
 import COMMAND_MATH from './commands/utility/math.js'
 import COMMAND_PING from './commands/utility/ping.js'
+import COMMAND_RUN from './commands/utility/run.js'
 import COMMAND_TIME from './commands/utility/time.js'
 import COMMAND_TIMESTAMP from './commands/utility/timestamp.js'
 import { IS_DEVELOPMENT } from './constants.js'
@@ -48,6 +50,7 @@ const DEFAULT_COMMANDS = [
   // games
   COMMAND_RPS,
   // general
+  COMMAND_ABOUT,
   COMMAND_ANALYTICS,
   COMMAND_AVATAR,
   COMMAND_GETAVATAR,
@@ -74,6 +77,7 @@ const DEFAULT_COMMANDS = [
   COMMAND_LATEX,
   COMMAND_MATH,
   COMMAND_PING,
+  COMMAND_RUN,
   COMMAND_TIME,
   COMMAND_TIMESTAMP,
 ]
