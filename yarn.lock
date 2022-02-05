@@ -2798,6 +2798,7 @@ __metadata:
     mathjs: ^10.1.1
     nodemon: ^2.0.15
     object-hash: ^2.2.0
+    piston-client: ^1.0.2
     prettier: ^2.5.1
     prisma: 3.9.1
     regenerator-runtime: ^0.13.9
@@ -4473,6 +4474,15 @@ __metadata:
   version: 2.3.0
   resolution: "picomatch@npm:2.3.0"
   checksum: 16818720ea7c5872b6af110760dee856c8e4cd79aed1c7a006d076b1cc09eff3ae41ca5019966694c33fbd2e1cc6ea617ab10e4adac6df06556168f13be3fca2
+  languageName: node
+  linkType: hard
+
+"piston-client@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "piston-client@npm:1.0.2"
+  dependencies:
+    node-fetch: ^2.6.1
+  checksum: 5b1e05bbdfedc5ba3535adf0eccb253f633c8715d62f72013a498922f8de8d321027b8a90e145cceb20361bf4d25231093488e9631e71ab8f1235621f94386b8
   languageName: node
   linkType: hard
 
