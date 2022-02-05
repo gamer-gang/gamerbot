@@ -4,6 +4,8 @@ services:
   db:
     restart: unless-stopped
     image: postgres:14
+    # uncomment and set if you are not root
+    # user: '1000:1001'
     volumes:
       - ./database:/var/lib/postgresql/data
     environment:
@@ -13,6 +15,8 @@ services:
   app:
     restart: unless-stopped
     image: ghcr.io/gamer-gang/gamerbot:latest
+    # uncomment and set if you are not root
+    # user: '1000:1001'
     volumes:
       - ./logs:/app/logs
     depends_on:
@@ -21,9 +25,10 @@ services:
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
     command: ['sh', '-c', 'npx prisma migrate deploy && node ./dist/main.mjs']
-  watchtower:
-    image: containrrr/watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /root/.docker/config.json:/config.json
-    command: --interval 30
+  # uncomment if you want
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - /root/.docker/config.json:/config.json
+  #   command: --interval 30

@@ -15,7 +15,7 @@ const fileAppender: Omit<DateFileAppender, 'filename'> = {
 }
 
 const file = (filename: string, level: string): { [name: string]: Appender } => ({
-  [`_${filename}`]: { ...fileAppender, filename: resolvePath(filename) },
+  [`_${filename}`]: { ...fileAppender, filename: resolvePath(`logs/${filename}`) },
   [filename]: {
     type: 'logLevelFilter',
     appender: `_${filename}`,

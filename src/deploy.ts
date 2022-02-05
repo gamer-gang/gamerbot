@@ -66,7 +66,7 @@ export const deployCommands = async (client: GamerbotClient): Promise<void> => {
       assert(guild != null)
       logger.debug(`No commands to deploy to ${guild.name} (${guild.id})`)
     } else {
-      logger.debug('No commands to deploy to application')
+      logger.info('No commands to deploy to application')
     }
     return
   }
@@ -76,6 +76,6 @@ export const deployCommands = async (client: GamerbotClient): Promise<void> => {
     assert(guild != null)
     logger.debug(`${commands.length} commands deployed to ${guild.name} (${guild.id})`)
   } else {
-    logger.debug(`${commands.length} commands deployed globally`)
+    logger.info(`${commands.length} commands deployed globally`)
   }
 }
