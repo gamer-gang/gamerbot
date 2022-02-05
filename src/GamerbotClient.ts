@@ -2,8 +2,8 @@ import {
   Client,
   ClientOptions,
   ClientUser,
+  Formatters,
   Guild,
-  GuildMemberRoleManager,
   Interaction,
   Message,
 } from 'discord.js'
@@ -334,14 +334,40 @@ export class GamerbotClient extends Client {
       }
 
       if (interaction.isButton()) {
-        const [action, id] = interaction.customId.split(':')
-        if (action === 'getRole') {
-          await (interaction.member?.roles as GuildMemberRoleManager).add(id)
-          await interaction.deferUpdate()
+        if (!interaction.customId.includes('_')) return
+
+        const [action, id] = interaction.customId.split('_')
+        if (action === 'role-add') {
+          if (interaction.guild == null) return
+          if (interaction.member == null) return
+
+          const member = interaction.guild.members.resolve(interaction.member.user.id)
+          if (!member) return
+
+          const role = interaction.guild.roles.resolve(id)
+          if (!role) return
+
+          await interaction.deferReply({ ephemeral: true })
+          await member.roles.add(id)
+          await interaction.editReply({
+            embeds: [Embed.success(`Success! Got role ${Formatters.roleMention(role.id)}.`)],
+          })
         }
-        if (action === 'removeRole') {
-          await (interaction.member?.roles as GuildMemberRoleManager).remove(id)
-          await interaction.deferUpdate()
+        if (action === 'role-remove') {
+          if (interaction.guild == null) return
+          if (interaction.member == null) return
+
+          const member = interaction.guild.members.resolve(interaction.member.user.id)
+          if (!member) return
+
+          const role = interaction.guild.roles.resolve(id)
+          if (!role) return
+
+          await interaction.deferReply({ ephemeral: true })
+          await member.roles.remove(id)
+          await interaction.editReply({
+            embeds: [Embed.success(`Success! Removed role ${Formatters.roleMention(role.id)}.`)],
+          })
         }
       }
 
