@@ -1,4 +1,12 @@
-import { Client, ClientOptions, ClientUser, Guild, Interaction, Message } from 'discord.js'
+import {
+  Client,
+  ClientOptions,
+  ClientUser,
+  Guild,
+  GuildMemberRoleManager,
+  Interaction,
+  Message,
+} from 'discord.js'
 import log4js from 'log4js'
 import assert from 'node:assert'
 import { AnalyticsEvent } from './analytics/event.js'
@@ -23,6 +31,7 @@ import COMMAND_BAN from './commands/moderation/ban.js'
 import COMMAND_KICK from './commands/moderation/kick.js'
 import COMMAND_PURGE from './commands/moderation/purge.js'
 import COMMAND_PURGETOHERE from './commands/moderation/purgetohere.js'
+import COMMAND_ROLE from './commands/moderation/role.js'
 import COMMAND_UNBAN from './commands/moderation/unban.js'
 import COMMAND_APIMESSAGE from './commands/utility/apimessage.js'
 import COMMAND_CHARACTER from './commands/utility/character.js'
@@ -69,6 +78,7 @@ const DEFAULT_COMMANDS = [
   COMMAND_KICK,
   COMMAND_PURGE,
   COMMAND_PURGETOHERE,
+  COMMAND_ROLE,
   COMMAND_UNBAN,
   // utility
   COMMAND_APIMESSAGE,
@@ -321,6 +331,18 @@ export class GamerbotClient extends Client {
         }
 
         this.#trackResult(result, command)
+      }
+
+      if (interaction.isButton()) {
+        const [action, id] = interaction.customId.split(':')
+        if (action === 'getRole') {
+          await (interaction.member?.roles as GuildMemberRoleManager).add(id)
+          await interaction.deferUpdate()
+        }
+        if (action === 'removeRole') {
+          await (interaction.member?.roles as GuildMemberRoleManager).remove(id)
+          await interaction.deferUpdate()
+        }
       }
 
       if (!interaction.isCommand()) return

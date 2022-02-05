@@ -3,6 +3,7 @@ import assert from 'node:assert'
 import { getDateFromSnowflake } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
+
 export const purgeTo = async (
   interaction: CommandInteraction | ContextMenuInteraction,
   to: string
