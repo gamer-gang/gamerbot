@@ -138,11 +138,9 @@ const COMMAND_RUN = command('CHAT_INPUT', {
 
     assert(interaction.channel, 'Interaction has no channel')
 
-    const outputMessage = await interaction
-      .followUp({
-        embeds: [Embed.info('Running code...').setColor(COLORS.orange.asNumber)],
-      })
-      .then((message) => interaction.channel!.messages.resolve(message.id))
+    const outputMessage = await interaction.followUp({
+      embeds: [Embed.info('Running code...').setColor(COLORS.orange.asNumber)],
+    })
 
     const codeResult = await pistonClient.execute({
       language: runtime.language,
@@ -186,18 +184,22 @@ const COMMAND_RUN = command('CHAT_INPUT', {
     embed.setFooter({ text: `Language: ${runtime.language} v${runtime.version}` })
 
     if (outputMessage) {
-      await outputMessage.edit({
-        embeds: [embed],
-        allowedMentions: { parse: [] },
-        files,
-      })
-    } else {
-      await interaction.followUp({
-        embeds: [embed],
-        allowedMentions: { parse: [] },
-        files,
-      })
+      const resolved = interaction.channel.messages.resolve(outputMessage.id)
+      if (resolved) {
+        await resolved.edit({
+          embeds: [embed],
+          allowedMentions: { parse: [] },
+          files,
+        })
+        return CommandResult.Success
+      }
     }
+
+    await interaction.followUp({
+      embeds: [embed],
+      allowedMentions: { parse: [] },
+      files,
+    })
 
     return CommandResult.Success
   },
