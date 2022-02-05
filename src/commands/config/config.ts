@@ -5,15 +5,13 @@ import {
 } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
-import CONFIG_OPTION_ALLOWSPAM from './_allowSpam.js'
 import { ConfigOption, ConfigValueType, helpers } from './_configOption.js'
 import CONFIG_OPTION_ENABLEEGG from './_enableEgg.js'
-import CONFIG_OPTION_LOGCHANNELS from './_logChannels.js'
 
 const CONFIG_OPTIONS: Array<ConfigOption<ConfigValueType>> = [
-  CONFIG_OPTION_ALLOWSPAM,
+  // CONFIG_OPTION_ALLOWSPAM,
   CONFIG_OPTION_ENABLEEGG,
-  CONFIG_OPTION_LOGCHANNELS,
+  // CONFIG_OPTION_LOGCHANNELS,
 ]
 
 const COMMAND_CONFIG = command('CHAT_INPUT', {
