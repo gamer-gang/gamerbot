@@ -339,7 +339,8 @@ export class GamerbotClient extends Client {
         if (!interaction.customId.includes('_')) return
 
         const [action, id] = interaction.customId.split('_')
-        if (action === 'role-add') {
+
+        if (action === 'role-toggle') {
           if (interaction.guild == null) return
           if (interaction.member == null) return
 
@@ -350,27 +351,20 @@ export class GamerbotClient extends Client {
           if (!role) return
 
           await interaction.deferReply({ ephemeral: true })
-          await member.roles.add(id)
-          await interaction.editReply({
-            embeds: [Embed.success(`Success! Got role ${Formatters.roleMention(role.id)}.`)],
-          })
+          if (member.roles.cache.has(role.id)) {
+            await member.roles.remove(role.id)
+            await interaction.editReply({
+              embeds: [Embed.success(`Success! Removed role ${Formatters.roleMention(role.id)}.`)],
+            })
+          } else {
+            await member.roles.add(role.id)
+            await interaction.editReply({
+              embeds: [Embed.success(`Success! Got role ${Formatters.roleMention(role.id)}.`)],
+            })
+          }
         }
-        if (action === 'role-remove') {
-          if (interaction.guild == null) return
-          if (interaction.member == null) return
 
-          const member = interaction.guild.members.resolve(interaction.member.user.id)
-          if (!member) return
-
-          const role = interaction.guild.roles.resolve(id)
-          if (!role) return
-
-          await interaction.deferReply({ ephemeral: true })
-          await member.roles.remove(id)
-          await interaction.editReply({
-            embeds: [Embed.success(`Success! Removed role ${Formatters.roleMention(role.id)}.`)],
-          })
-        }
+        return
       }
 
       if (!interaction.isCommand()) return

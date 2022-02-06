@@ -1,4 +1,5 @@
 import { Formatters, MessageActionRow, MessageButton, Role } from 'discord.js'
+import _ from 'lodash'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
@@ -16,26 +17,16 @@ const COMMAND_ROLE = command('CHAT_INPUT', {
       type: 'ROLE',
       required: true,
     },
-    {
-      name: 'role2',
-      description: 'Role to use, #2.',
-      type: 'ROLE',
-    },
-    {
-      name: 'role3',
-      description: 'Role to use, #3.',
-      type: 'ROLE',
-    },
-    {
-      name: 'role4',
-      description: 'Role to use, #4.',
-      type: 'ROLE',
-    },
-    {
-      name: 'role5',
-      description: 'Role to use, #5.',
-      type: 'ROLE',
-    },
+    ...Array(19)
+      .fill(0)
+      .map(
+        (_, i) =>
+          ({
+            name: `role${i + 2}`,
+            description: `Role to use, #${i + 2}.`,
+            type: 'ROLE',
+          } as const)
+      ),
   ],
 
   async run(context) {
@@ -51,8 +42,8 @@ const COMMAND_ROLE = command('CHAT_INPUT', {
 
     const roles: Role[] = []
 
-    for (const index of [1, 2, 3, 4, 5]) {
-      const roleInput = options.getRole(`role${index}`)
+    for (const index of Array(20).keys()) {
+      const roleInput = options.getRole(`role${index + 1}`)
 
       if (!roleInput) continue
 
@@ -77,21 +68,17 @@ const COMMAND_ROLE = command('CHAT_INPUT', {
       roles.push(role)
     }
 
-    const components = roles.map(
-      (role) =>
+    const components = _.chunk(roles, 5).map(
+      (roles) =>
         new MessageActionRow({
-          components: [
-            new MessageButton({
-              customId: `role-add_${role.id}`,
-              label: `Get @${role.name}`,
-              style: 'PRIMARY',
-            }),
-            new MessageButton({
-              customId: `role-remove_${role.id}`,
-              label: `Remove @${role.name}`,
-              style: 'DANGER',
-            }),
-          ],
+          components: roles.map(
+            (role) =>
+              new MessageButton({
+                customId: `role-toggle_${role.id}`,
+                label: `Get/Remove @${role.name}`,
+                style: 'PRIMARY',
+              })
+          ),
         })
     )
 
