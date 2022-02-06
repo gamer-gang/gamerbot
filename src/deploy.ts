@@ -45,7 +45,7 @@ export const deployCommands = async (client: GamerbotClient): Promise<void> => {
     (command) => ({
       type: command.type as never,
       name: command.name,
-      description: (command as any).description ?? '',
+      description: command.type === 'CHAT_INPUT' ? (command as any).description ?? '' : '',
       options: (command as any).options ?? [],
     })
   )
