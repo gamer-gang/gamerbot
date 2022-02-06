@@ -31,7 +31,7 @@ const askForCode = async (
     ],
   })
 
-  await interaction.reply({
+  await interaction.editReply({
     embeds: [embed],
     components: [row],
   })
@@ -96,6 +96,7 @@ const askForCode = async (
     if (
       attachment.contentType &&
       !attachment.contentType.startsWith('text/') &&
+      !attachment.contentType.startsWith('application/') &&
       !ALLOWED_MIME_TYPES.includes(attachment.contentType)
     ) {
       await interaction.followUp({

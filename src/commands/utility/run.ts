@@ -1,5 +1,6 @@
 /* eslint-disable import/no-named-as-default */
-import { FileOptions, Formatters } from 'discord.js'
+import { APIMessage } from 'discord-api-types'
+import { FileOptions, Formatters, Message, Util } from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'
 import piston, { ExecuteErrorResult, ExecuteSuccessResult } from 'piston-client'
@@ -18,6 +19,34 @@ const LANGUAGES_WITH_ALIASES = _.uniq([...LANGUAGES, ...ALIASES])
 const COMMAND_RUN = command('CHAT_INPUT', {
   name: 'run',
   description: 'Run a snippet of code.',
+  longDescription:
+    'Run a snippet of code. If code is not provided in the initial command, you will be asked to provide it.',
+  examples: [
+    {
+      options: { language: '`typescript`', code: '`console.log("Hello World!")`' },
+      description: 'Run `console.log("Hello World!")` in TypeScript.',
+    },
+    {
+      options: {
+        language: '`python`',
+        version: RUNTIMES.filter((l) => l.language === 'python').sort((a, b) =>
+          b.version.localeCompare(a.version)
+        )[0].version,
+        stdin: '`foo bar baz`',
+        args: '`foo bar baz`',
+      },
+      description: 'Run a Python script with stdin and arguments (prompting for code).',
+    },
+    {
+      options: {
+        language: '`c++`',
+        'ask-stdin': true,
+        'output-format': '`json`',
+      },
+      description:
+        'Run a C++ program and highlight the output as JSON (prompting for code and stdin).',
+    },
+  ],
   options: [
     {
       name: 'language',
@@ -33,7 +62,18 @@ const COMMAND_RUN = command('CHAT_INPUT', {
       autocomplete: true,
     },
     {
+      name: 'code',
+      description: 'The code to run; if not provided, you will be asked to provide it.',
+      type: 'STRING',
+    },
+    {
       name: 'stdin',
+      description:
+        'stdin to provide to the program; specify ask-stdin instead to be prompted for it.',
+      type: 'STRING',
+    },
+    {
+      name: 'ask-stdin',
       description: 'Whether to ask for stdin.',
       type: 'BOOLEAN',
     },
@@ -118,15 +158,21 @@ const COMMAND_RUN = command('CHAT_INPUT', {
       return CommandResult.Success
     }
 
-    const code = await askForCode(context, runtime)
+    await interaction.deferReply()
+
+    let code: string | number | undefined = options.getString('code') ?? undefined
+    code ??= await askForCode(context, runtime)
     if (typeof code === 'number') return code // CommandResult
 
-    await interaction.editReply({
-      embeds: [new Embed({ title: `Run code: ${runtime.language} v${runtime.version}` })],
-      components: [],
-    })
+    if (!options.getString('code')) {
+      await interaction.editReply({
+        embeds: [new Embed({ title: `Run code: ${runtime.language} v${runtime.version}` })],
+        components: [],
+      })
+    }
 
-    const stdin = options.getBoolean('stdin') ? await askForStdin(context, runtime) : ''
+    let stdin: string | number | undefined = options.getString('stdin') ?? undefined
+    if (options.getBoolean('ask-stdin')) stdin ??= (await askForStdin(context, runtime)) ?? ''
     if (typeof stdin === 'number') return stdin // CommandResult
 
     if (!code) {
@@ -138,9 +184,27 @@ const COMMAND_RUN = command('CHAT_INPUT', {
 
     assert(interaction.channel, 'Interaction has no channel')
 
-    const outputMessage = await interaction.followUp({
-      embeds: [Embed.info('Running code...').setColor(COLORS.orange.asNumber)],
-    })
+    let outputMessage: APIMessage | Message
+    if (
+      !options.getString('code') ||
+      (!options.getString('stdin') && options.getBoolean('ask-stdin'))
+    ) {
+      outputMessage = await interaction.followUp({
+        embeds: [
+          Embed.info('Running code...')
+            .setColor(COLORS.orange.asNumber)
+            .setTitle(`Run code: ${runtime.language} v${runtime.version}`),
+        ],
+      })
+    } else {
+      outputMessage = await interaction.editReply({
+        embeds: [
+          Embed.info('Running code...')
+            .setColor(COLORS.orange.asNumber)
+            .setTitle(`Run code: ${runtime.language} v${runtime.version}`),
+        ],
+      })
+    }
 
     const codeResult = await pistonClient.execute({
       language: runtime.language,
@@ -151,8 +215,11 @@ const COMMAND_RUN = command('CHAT_INPUT', {
     })
 
     const error = (codeResult as ExecuteErrorResult).error
-    if (error) {
-      throw new Error(`Code execution failed: ${error.message}`, { cause: error })
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-boolean-literal-compare
+    if (error || (codeResult as ExecuteErrorResult).success === false) {
+      throw new Error(`Code execution failed: ${error ? error.message : 'reason unknown'}`, {
+        cause: error,
+      })
     }
 
     const { compile, run } = codeResult as ExecuteSuccessResult
@@ -163,13 +230,26 @@ const COMMAND_RUN = command('CHAT_INPUT', {
     const files: FileOptions[] = []
 
     let embed: Embed
-    if (!compile?.stderr && !run.stdout) {
-      embed = Embed.info('Execution completed with no output.').setIntent('info')
+    if (run.signal) {
+      embed = Embed.error(
+        `Process killed by ${run.signal} (probably timed out or OOM).`,
+        output.length ? formattedOutput : undefined
+      )
+    } else if (!compile?.stderr && !run.stdout && !run.stderr) {
+      embed = Embed.info('Execution completed with no output.')
     } else if (compile?.stderr) {
       embed = Embed.error('Compilation errored:', formattedOutput)
     } else if (!run.stdout && run.stderr) {
-      embed = Embed.warning('Execution only produced stderr:', formattedOutput)
-    } else if (output.length > 1900) {
+      if (output.length > 1500) {
+        embed = Embed.warning('Execution only produced stderr, output is attached.')
+        files.push({
+          name: 'output.txt',
+          attachment: Buffer.from(output, 'utf8'),
+        })
+      } else {
+        embed = Embed.warning('Execution only produced stderr:', formattedOutput)
+      }
+    } else if (output.length > 1000) {
       embed = Embed.success('Execution completed, output is attached.')
       files.push({
         name: `output.${outputLanguage}`,
@@ -180,8 +260,24 @@ const COMMAND_RUN = command('CHAT_INPUT', {
     }
 
     embed.setAuthorToProfile(interaction.user.username, interaction.user)
+    embed.setTitle(`Run code: ${runtime.language} v${runtime.version}`)
 
-    embed.setFooter({ text: `Language: ${runtime.language} v${runtime.version}` })
+    if (run.signal && !(embed.description ?? 'OOM').includes('OOM')) {
+      embed.addField('Process killed by', run.signal, true)
+    }
+
+    if (run.code !== 0 && run.code != null) {
+      embed.addField('Exit code', run.code.toString(), true)
+    }
+
+    if (options.getString('code') && options.getString('code')!.length < 300) {
+      // add code to the embed
+      embed.setDescription(
+        `${Formatters.codeBlock(runtime.language, Util.escapeCodeBlock(code))}\n${
+          embed.description
+        }`
+      )
+    }
 
     if (outputMessage) {
       const resolved = interaction.channel.messages.resolve(outputMessage.id)
