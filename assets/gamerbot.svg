@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="64.0px"
+   height="64.0px"
+   viewBox="0 0 64.0 64.0"
+   version="1.1"
+   id="SVGRoot"
+   sodipodi:docname="gamerbot.svg"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
+   inkscape:export-filename="/home/wiisportsresorts/dev/gamer-gang/gamerbot2/assets/gamerbot.png"
+   inkscape:export-xdpi="1536"
+   inkscape:export-ydpi="1536"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview829"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="false"
+     inkscape:document-units="px"
+     showgrid="true"
+     inkscape:zoom="8"
+     inkscape:cx="23.875"
+     inkscape:cy="19.3125"
+     inkscape:window-width="1920"
+     inkscape:window-height="1024"
+     inkscape:window-x="0"
+     inkscape:window-y="28"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     inkscape:snap-grids="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid892" />
+  </sodipodi:namedview>
+  <defs
+     id="defs824" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#334155;fill-opacity:1;stroke:none;stroke-width:2.01852;stroke-linejoin:round"
+       id="rect2404"
+       width="70"
+       height="70"
+       x="-3"
+       y="-3"
+       sodipodi:insensitive="true" />
+    <g
+       id="g2750"
+       transform="translate(10.612451,-1.7533235)"
+       style="display:none">
+      <rect
+         style="fill:#ececec;fill-opacity:1;stroke:none;stroke-width:3.05191;stroke-linejoin:round"
+         id="rect1771"
+         width="42.518398"
+         height="4"
+         x="-9.1780577"
+         y="14.972064"
+         transform="rotate(30)" />
+      <rect
+         style="fill:#ececec;fill-opacity:1;stroke:none;stroke-width:3.05191;stroke-linejoin:round"
+         id="rect1771-6"
+         width="42.518398"
+         height="4"
+         x="3.7039821"
+         y="36.359612"
+         transform="rotate(-30)" />
+      <rect
+         style="fill:#ececec;fill-opacity:1;stroke:none;stroke-width:3.05191;stroke-linejoin:round"
+         id="rect1771-6-4"
+         width="42.518398"
+         height="4"
+         x="33.100456"
+         y="-23.387548"
+         transform="rotate(90)" />
+    </g>
+    <g
+       id="g2838"
+       transform="matrix(0.89602261,0,0,0.89602261,3.3264389,5.4635773)"
+       inkscape:export-filename="/home/wiisportsresorts/dev/gamer-gang/gamerbot2/assets/gamerbot.png"
+       inkscape:export-xdpi="1536"
+       inkscape:export-ydpi="1536">
+      <path
+         id="path1550"
+         style="fill:#84cc16;fill-opacity:1;stroke:none;stroke-width:4.13492;stroke-linejoin:round"
+         inkscape:transform-center-y="4.659809e-06"
+         d="M 53.687055,15.362949 31.999999,2.8428777 10.406868,15.306594 v 0.112724 l 21.593131,12.463715 z"
+         inkscape:transform-center-x="6.1721907" />
+      <path
+         id="path1550-59"
+         style="fill:#ef4444;fill-opacity:1;stroke:none;stroke-width:4.13492;stroke-linejoin:round"
+         inkscape:transform-center-y="-5.3572903"
+         d="M 33.999152,56.388714 55.685378,43.867208 55.688078,18.93515 55.590458,18.87879 33.999999,31.347133 Z"
+         inkscape:transform-center-x="-3.1069153" />
+      <path
+         id="path1550-8"
+         style="fill:#0ea5e9;fill-opacity:1;stroke:none;stroke-width:4.13492;stroke-linejoin:round"
+         inkscape:transform-center-y="5.3572882"
+         d="M 8.3137916,18.825638 8.3146206,43.867213 29.90508,56.335556 30.0027,56.279196 30,31.347137 Z"
+         inkscape:transform-center-x="-3.1069063" />
+    </g>
+  </g>
+</svg>
