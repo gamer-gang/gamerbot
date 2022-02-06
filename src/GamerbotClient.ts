@@ -14,6 +14,7 @@ import { AnalyticsManager } from './analytics/manager.js'
 import { Command, CommandResult } from './commands/command.js'
 import COMMAND_CONFIG from './commands/config/config.js'
 import { CommandContext, MessageCommandContext, UserCommandContext } from './commands/context.js'
+import COMMAND_DICE from './commands/games/dice.js'
 import COMMAND_RPS from './commands/games/rps.js'
 import COMMAND_ABOUT from './commands/general/about.js'
 import COMMAND_ANALYTICS from './commands/general/analytics.js'
@@ -57,6 +58,7 @@ const DEFAULT_COMMANDS = [
   // config
   COMMAND_CONFIG,
   // games
+  COMMAND_DICE,
   COMMAND_RPS,
   // general
   COMMAND_ABOUT,
