@@ -28,6 +28,24 @@ const timeZoneInputs = _.uniq([
 const COMMAND_TIME = command('CHAT_INPUT', {
   name: 'time',
   description: 'Show info about times and time zones around the world.',
+  examples: [
+    {
+      options: { epoch: null },
+      description: 'Show the current epoch time, e.g. 1644165981 seconds.',
+    },
+    {
+      options: { world: null },
+      description: 'Show common time zones around the world, e.g. `America/Los_Angeles`.',
+    },
+    {
+      options: { zoneinfo: null, zone: '`America/New_York`' },
+      description: 'Show time zone info for `America/New_York`.',
+    },
+    {
+      options: { in: null, time: '`Europe/Berlin`' },
+      description: 'Show the time in `Europe/Berlin`.',
+    },
+  ],
   options: [
     {
       name: 'epoch',
@@ -38,14 +56,6 @@ const COMMAND_TIME = command('CHAT_INPUT', {
       name: 'world',
       description: 'Show times in common time zones around the world.',
       type: 'SUB_COMMAND',
-      options: [
-        {
-          name: 'region',
-          description: 'Show times in a specific region.',
-          type: 'STRING',
-          autocomplete: true,
-        },
-      ],
     },
     {
       name: 'zoneinfo',

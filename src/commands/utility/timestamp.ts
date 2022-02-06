@@ -6,6 +6,13 @@ import command, { CommandResult } from '../command.js'
 const COMMAND_TIMESTAMP = command('CHAT_INPUT', {
   name: 'timestamp',
   description: 'Show timestamp of any Discord ID.',
+  examples: [
+    {
+      options: { id: '939924992345374730' },
+      description:
+        'Show the timestamp of the Discord ID 939924992345374730, which is 2022-02-06T11:46:21.137-05:00.',
+    },
+  ],
   options: [
     {
       type: 'STRING',
