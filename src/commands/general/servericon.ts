@@ -4,6 +4,16 @@ import command, { CommandResult } from '../command.js'
 const COMMAND_SERVERICON = command('CHAT_INPUT', {
   name: 'servericon',
   description: 'Get icon for a server.',
+  examples: [
+    {
+      options: {},
+      description: 'Get icon for the current server.',
+    },
+    {
+      options: { server: '222078108977594368' }, // discord.js server
+      description: 'Show icon for server with ID 222078108977594368.',
+    },
+  ],
   options: [
     {
       name: 'server',

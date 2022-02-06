@@ -2,6 +2,7 @@
 import {
   ApplicationCommandOptionChoice,
   ApplicationCommandOptionData,
+  ApplicationCommandType,
   AutocompleteInteraction,
   CommandInteraction,
   ContextMenuInteraction,
@@ -65,6 +66,10 @@ interface BaseCommand {
    */
   name: string
   /**
+   * Description of the command.
+   */
+  description?: string
+  /**
    * Whether this command is allowed to be used outside a guild (e.g. in a DM).
    *
    * @default false
@@ -86,6 +91,27 @@ interface BaseCommand {
    * not have these permissions.
    */
   botPermissions?: PermissionString[]
+  /**
+   * Longer description of the command. Markdown is supported.
+   *
+   * Defaults to the shorter description if not provided.
+   */
+  longDescription?: string
+  /**
+   * Example usages of the command.
+   */
+  examples?: CommandExample[]
+}
+
+export interface CommandExample {
+  /**
+   * Options given to the command.
+   */
+  options: { [key: string]: string | number | { mention: string } | null | boolean }
+  /**
+   * Description of what these options do. Markdown is supported.
+   */
+  description?: string
 }
 
 export type ChatCommandDef = CommandType<
@@ -115,3 +141,19 @@ export type ChatCommandDef = CommandType<
 export type UserCommandDef = CommandType<UserCommandContext, ContextMenuInteraction>
 
 export type MessageCommandDef = CommandType<MessageCommandContext, ContextMenuInteraction>
+
+export interface DocsJson {
+  version: string
+  commands: Array<{
+    name: string
+    type: ApplicationCommandType
+    description: string
+    longDescription: string
+    examples: CommandExample[]
+    options: ApplicationCommandOptionData[]
+    guildOnly: boolean
+    logUsage: boolean
+    userPermissions: PermissionString[]
+    botPermissions: PermissionString[]
+  }>
+}

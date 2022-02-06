@@ -5,6 +5,16 @@ import command, { CommandResult } from '../command.js'
 const COMMAND_SERVERINFO = command('CHAT_INPUT', {
   name: 'serverinfo',
   description: 'Get information about a server.',
+  examples: [
+    {
+      options: {},
+      description: 'Get information about the current server.',
+    },
+    {
+      options: { server: '222078108977594368' }, // discord.js server
+      description: 'Show information about server with ID 222078108977594368.',
+    },
+  ],
   options: [
     {
       name: 'server',

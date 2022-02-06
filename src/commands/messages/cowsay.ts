@@ -1,10 +1,54 @@
 import { CowFunction, say } from '@wiisportsresorts/cowsay'
 import * as cows from '@wiisportsresorts/cowsay/lib/cows.js'
+import { stripIndent } from 'common-tags'
 import command, { CommandResult } from '../command.js'
 
 const COMMAND_COWSAY = command('CHAT_INPUT', {
   name: 'cowsay',
   description: 'Make the cow say the funny',
+  examples: [
+    {
+      options: { text: 'Hello' },
+      description: stripIndent`
+        Make the cow say "Hello":
+        \`\`\`
+         _______
+        < Hello >
+         -------
+                \\   ^__^
+                 \\  (oo)\\_______
+                    (__)\\       )\\/\\
+                        ||----w |
+                        ||     ||
+      \`\`\``,
+    },
+    {
+      options: { text: 'calcium', cow: 'milk' },
+      description: stripIndent`
+      Make a milk carton say "calcium":
+      \`\`\`
+       _________
+      < Calcium >
+       ---------
+       \\     ____________
+        \\    |__________|
+            /           /\\
+           /           /  \\
+          /___________/___/|
+          |          |     |
+          |  ==\\ /== |     |
+          |   o   o  | \\ \\ |
+          |     <    |  \\ \\|
+         /|          |   \\ \\
+        / |  \\_____/ |   / /
+       / /|          |  / /|
+      /||\\|          | /||\\/
+          -------------|
+              | |    | |
+             <__/    \\__>
+      \`\`\``,
+    },
+  ],
   options: [
     {
       name: 'text',

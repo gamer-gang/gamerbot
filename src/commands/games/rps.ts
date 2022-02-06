@@ -12,6 +12,12 @@ const RPS_CHOICES = {
 const COMMAND_RPS = command('CHAT_INPUT', {
   name: 'rps',
   description: 'Duel a user in rock paper scissors.',
+  examples: [
+    {
+      options: { user: { mention: 'Frog' } },
+      description: 'Challenge @Frog to rock paper scissors.',
+    },
+  ],
   options: [
     {
       name: 'user',

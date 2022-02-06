@@ -6,6 +6,28 @@ import command, { CommandResult } from '../command.js'
 const COMMAND_USERNAME = command('CHAT_INPUT', {
   name: 'username',
   description: 'Retrieve/modify your Minecraft username/UUID',
+  examples: [
+    {
+      options: { set: null, identifier: 'ConnorLinfoot' },
+      description: 'Set your username to ConnorLinfoot.',
+    },
+    {
+      options: { set: null, identifier: '12345678-1234-1234-1234-123456789012' },
+      description: 'Set your UUID to 12345678-1234-1234-1234-123456789012.',
+    },
+    {
+      options: { get: null },
+      description: 'Get your username/UUID.',
+    },
+    {
+      options: { get: null, user: { mention: 'Frog' } },
+      description: "Get @Frog's username/UUID.",
+    },
+    {
+      options: { clear: null },
+      description: 'Clear your username/UUID.',
+    },
+  ],
   options: [
     {
       name: 'set',

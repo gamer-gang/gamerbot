@@ -18,6 +18,21 @@ const STATS_PROVIDERS = [STATS_PROVIDER_BEDWARS]
 const COMMAND_STATS = command('CHAT_INPUT', {
   name: 'stats',
   description: 'Hypixel stats.',
+  examples: [
+    {
+      options: { gamemode: 'bedwars', username: 'ConnorLinfoot' },
+      description: 'Get Bedwars stats for ConnorLinfoot.',
+    },
+    {
+      options: { gamemode: 'bedwars' },
+      description:
+        'Get Bedwars stats for yourself, provided you have set your username/UUID with /username.',
+    },
+    {
+      options: { gamemode: 'bedwarsdream', username: 'gamerboy80', debug: true },
+      description: 'Get Bedwars Dream stats for gamerboy80, with debug info.',
+    },
+  ],
   options: [
     {
       name: 'gamemode',

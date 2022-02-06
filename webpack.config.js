@@ -14,6 +14,7 @@ const config = {
   mode: devMode ? 'development' : 'production',
   entry: {
     main: './src/index.ts',
+    docgen: './src/docs/generate.ts',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),

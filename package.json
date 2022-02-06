@@ -10,10 +10,11 @@
     "dev": "NODE_ENV=development nodemon -r source-map-support/register ./dist/main.mjs",
     "prod": "NODE_ENV=production node ./dist/main.mjs",
     "docker": "docker-compose up --no-log-prefix --attach app",
-    "db": "docker-compose up db --no-log-prefix"
+    "db": "docker-compose up db --no-log-prefix",
+    "docgen": "node -r source-map-support/register ./dist/docgen.mjs"
   },
   "engines": {
-    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+    "node": ">=16.0.0"
   },
   "standard": {
     "engine": "ts-standard"
