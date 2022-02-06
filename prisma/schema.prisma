@@ -16,9 +16,8 @@ model Config {
   allowSpam Boolean @default(false)
   egg       Boolean @default(true)
 
-  welcomeMessages      WelcomeMessage?
-  logChannels          LogChannel[]
-  reactionRoleMessages ReactionRoleMessage[]
+  welcomeMessages WelcomeMessage?
+  logChannels     LogChannel[]
 }
 
 model WelcomeMessage {
@@ -58,26 +57,6 @@ model MinecraftPlayer {
 
   userId              String @id
   minecraftIdentifier String
-}
-
-model ReactionRoleMessage {
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  config    Config   @relation(fields: [guildId], references: [guildId], onDelete: Cascade, onUpdate: Cascade)
-  guildId   String
-
-  messageId String         @id
-  roles     ReactionRole[]
-}
-
-model ReactionRole {
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
-  message   ReactionRoleMessage @relation(fields: [messageId], references: [messageId], onDelete: Cascade, onUpdate: Cascade)
-  messageId String
-
-  roleId String @id
-  emoji  String
 }
 
 model AnalyticsReport {
