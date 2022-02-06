@@ -22,6 +22,16 @@ const formatCodePoints = (str: string): string => {
 const COMMAND_CHARACTER = command('CHAT_INPUT', {
   name: 'character',
   description: 'Show information about an ascii/unicode/whatever character.',
+  examples: [
+    {
+      options: { character: '🐶' },
+      description: 'Show information about the dog emoji.',
+    },
+    {
+      options: { character: '笑' },
+      description: 'Show information about the Chinese character 笑.',
+    },
+  ],
   options: [
     {
       name: 'character',

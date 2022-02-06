@@ -12,6 +12,20 @@ const hslRegex =
 const COMMAND_COLOR = command('CHAT_INPUT', {
   name: 'color',
   description: 'Get information about a color.',
+  examples: [
+    {
+      options: { color: '#0284c7' },
+      description: 'Get information about the color #0284c7.',
+    },
+    {
+      options: { color: 'rgb(2, 132, 199)' },
+      description: 'Get information about the color rgb(2, 132, 199).',
+    },
+    {
+      options: { color: 'hsl(200°, 98.01%, 39.41%)' },
+      description: 'Get information about the color hsl(200°, 98.01%, 39.41%).',
+    },
+  ],
   options: [
     {
       name: 'color',

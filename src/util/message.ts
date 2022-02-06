@@ -3,7 +3,7 @@ import { Formatters, MessageOptions } from 'discord.js'
 import { IS_DEVELOPMENT } from '../constants.js'
 import { Embed, EmbedOptions } from './embed.js'
 
-export const parseDiscohookJSON = (json: string): MessageOptions => {
+export const parseDiscordJson = (json: string): MessageOptions => {
   const data = JSON.parse(json) as APIMessage
 
   if (data == null) throw new Error('Empty message')

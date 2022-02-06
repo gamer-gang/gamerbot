@@ -1,17 +1,38 @@
 import { Embed } from '../../util/embed.js'
-import { parseDiscohookJSON } from '../../util/message.js'
+import { parseDiscordJson } from '../../util/message.js'
 import command, { CommandResult } from '../command.js'
 
 const COMMAND_APIMESSAGE = command('CHAT_INPUT', {
   name: 'apimessage',
   description: 'API Message',
+  examples: [
+    {
+      options: { json: '`{ "content": "Hello World!" }`' },
+      description: 'Create a message with the content "Hello World!".',
+    },
+    {
+      options: {
+        json: '`{ "embeds": [{ "title": "Hello World!", "description": "foo bar baz" }] }`',
+      },
+      description:
+        'Create a message with an embed titled "Hello World!" with a description of "foo bar baz".',
+    },
+  ],
+  options: [
+    {
+      name: 'json',
+      description: 'JSON message data to send',
+      type: 'STRING',
+      required: true,
+    },
+  ],
 
   async run(context) {
     const { interaction, options, client } = context
     const json = options.getString('json', true)
 
     try {
-      await interaction.reply(parseDiscohookJSON(json))
+      await interaction.reply(parseDiscordJson(json))
       return CommandResult.Success
     } catch (err) {
       client.getLogger('/apimessage').error(err)

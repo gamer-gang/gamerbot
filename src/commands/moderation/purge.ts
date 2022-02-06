@@ -7,6 +7,20 @@ const COMMAND_PURGE = command('CHAT_INPUT', {
   name: 'purge',
   description: 'Delete the last <n> messages, or delete all messages up to a message.',
   guildOnly: true,
+  logUsage: true,
+  botPermissions: ['MANAGE_MESSAGES'],
+  userPermissions: ['MANAGE_MESSAGES'],
+  examples: [
+    {
+      options: { n: 150 },
+      description: 'Delete the last 150 messages in the current channel.',
+    },
+    {
+      options: { to: '939727204823220225' },
+      description:
+        'Delete every message in the current channel up to the message with ID 939727204823220225.',
+    },
+  ],
   options: [
     {
       name: 'n',

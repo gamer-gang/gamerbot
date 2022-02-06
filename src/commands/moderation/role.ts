@@ -6,10 +6,18 @@ import command, { CommandResult } from '../command.js'
 const COMMAND_ROLE = command('CHAT_INPUT', {
   name: 'role',
   description: 'Create a role distributor.',
+  longDescription:
+    'Create a role distributor that can be used to assign roles to users. A maximum of 20 roles can be used.',
   guildOnly: true,
   logUsage: true,
-  botPermissions: ['MANAGE_ROLES'],
   userPermissions: ['MANAGE_ROLES'],
+  botPermissions: ['MANAGE_ROLES'],
+  examples: [
+    {
+      options: { role1: { mention: 'Role 1' }, role2: { mention: 'Role 2' } },
+      description: 'Create a role distributor with two roles.',
+    },
+  ],
   options: [
     {
       name: 'role1',

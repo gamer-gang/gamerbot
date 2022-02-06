@@ -4,9 +4,21 @@ import command, { CommandResult } from '../command.js'
 
 const COMMAND_KICK = command('CHAT_INPUT', {
   name: 'kick',
-  description: 'Ban a user.',
+  description: 'Kick a user from the server.',
   guildOnly: true,
   logUsage: true,
+  userPermissions: ['KICK_MEMBERS'],
+  botPermissions: ['KICK_MEMBERS'],
+  examples: [
+    {
+      options: { user: { mention: 'Frog' }, reason: 'Spamming' },
+      description: 'Kick @Frog for spamming.',
+    },
+    {
+      options: { user: { mention: 'Frog' } },
+      description: 'Kick @Frog without a reason.',
+    },
+  ],
   options: [
     {
       name: 'user',

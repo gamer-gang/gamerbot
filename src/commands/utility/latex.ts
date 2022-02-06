@@ -51,6 +51,25 @@ RegisterHTMLHandler(adaptor)
 const COMMAND_LATEX = command('CHAT_INPUT', {
   name: 'latex',
   description: 'Render a TeX expression.',
+  examples: [
+    {
+      options: { latex: '`\\frac{1}{2}`' },
+      description: 'Render the TeX expression that is the fraction 1/2.',
+    },
+    {
+      options: { latex: '`E=mc^2`', height: 200 },
+      description: 'Render the mass-energy equivalence formula E=mc^2, with a height of 200px.',
+    },
+    {
+      options: {
+        latex: '`\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}e^{-\\frac{x^2}{2}}dx`',
+        color: 'black',
+        background: 'white',
+      },
+      description:
+        'Render the integral of a Gaussian function, as black text on a white background.',
+    },
+  ],
   options: [
     {
       name: 'expression',
@@ -65,7 +84,7 @@ const COMMAND_LATEX = command('CHAT_INPUT', {
     },
     {
       name: 'height',
-      description: 'Height of image in pixels; defaults to 60.',
+      description: 'Height of image in pixels; defaults to 100.',
       type: 'INTEGER',
     },
     {
@@ -114,7 +133,7 @@ const COMMAND_LATEX = command('CHAT_INPUT', {
       // convert the svg to a png image
       let image = sharp(Buffer.from(text, 'utf8')).resize({
         width: options.getInteger('width') ?? undefined,
-        height: options.getInteger('height') ?? 60,
+        height: options.getInteger('height') ?? 100,
       })
 
       const background = options.getString('background') ?? 'transparent'

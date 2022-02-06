@@ -35,7 +35,11 @@ export const purgeTo = async (
 
 const COMMAND_PURGETOHERE = command('MESSAGE', {
   name: 'Purge to here',
+  description: 'Purge all messages newer than this message.',
   guildOnly: true,
+  logUsage: true,
+  userPermissions: ['MANAGE_MESSAGES'],
+  botPermissions: ['MANAGE_MESSAGES'],
 
   async run(context) {
     const { interaction } = context

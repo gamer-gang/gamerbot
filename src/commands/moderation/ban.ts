@@ -4,8 +4,21 @@ import command, { CommandResult } from '../command.js'
 const COMMAND_BAN = command('CHAT_INPUT', {
   name: 'ban',
   description: 'Ban a user.',
+  longDescription: 'Permanently ban a user from the server.',
   guildOnly: true,
   logUsage: true,
+  userPermissions: ['BAN_MEMBERS'],
+  botPermissions: ['BAN_MEMBERS'],
+  examples: [
+    {
+      options: { user: { mention: 'Frog' }, reason: 'Spamming' },
+      description: 'Ban @Frog for spamming.',
+    },
+    {
+      options: { user: { mention: 'Frog' } },
+      description: 'Ban @Frog without a reason.',
+    },
+  ],
   options: [
     {
       name: 'user',

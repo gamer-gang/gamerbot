@@ -6,6 +6,18 @@ const COMMAND_UNBAN = command('CHAT_INPUT', {
   description: 'Unban a user.',
   guildOnly: true,
   logUsage: true,
+  userPermissions: ['BAN_MEMBERS'],
+  botPermissions: ['BAN_MEMBERS'],
+  examples: [
+    {
+      options: { user: { mention: 'Frog' }, reason: 'foo bar baz' },
+      description: 'Unban @Frog given a reason.',
+    },
+    {
+      options: { user: { mention: 'Frog' } },
+      description: 'Unban @Frog without a reason.',
+    },
+  ],
   options: [
     {
       name: 'user',
@@ -15,7 +27,7 @@ const COMMAND_UNBAN = command('CHAT_INPUT', {
     },
     {
       name: 'reason',
-      description: 'Ban reason',
+      description: 'Unban reason',
       type: 'STRING',
     },
   ],
@@ -59,7 +71,7 @@ const COMMAND_UNBAN = command('CHAT_INPUT', {
     try {
       await interaction.guild.members.unban(
         user,
-        `${unbanner.user.tag} (${unbanner.id}) used unban command${
+        `${unbanner.user.tag} (${unbanner.id}) used /unban${
           reason != null ? `: '${reason}'` : ' (no reason provided)'
         }`
       )
