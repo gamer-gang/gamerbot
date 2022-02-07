@@ -3,7 +3,6 @@ import { Formatters } from 'discord.js'
 import emojiRegex from 'emoji-regex'
 import stringLength from 'string-length'
 import unicode, { type Character } from 'unicode/category/index.js'
-import '../../types/unicode.d.ts'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 

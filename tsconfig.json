@@ -1,11 +1,12 @@
 {
   "exclude": ["node_modules", "**/node_modules/*"],
-  "include": ["src", "webpack.*"],
+  "include": ["src", "webpack.*", "types"],
   "compilerOptions": {
     "module": "esnext",
     "target": "es2020",
     "jsx": "preserve",
     "lib": ["ESNext", "DOM"],
+    "incremental": true,
     "strict": true,
     "resolveJsonModule": true,
     "useUnknownInCatchVariables": false,
@@ -14,6 +15,9 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "skipDefaultLibCheck": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outFile": "out/types.d.ts"
   }
 }

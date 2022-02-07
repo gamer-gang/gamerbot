@@ -1,0 +1,17 @@
+{
+  "include": ["."],
+  "exclude": [],
+  "compilerOptions": {
+    "module": "esnext",
+    "outDir": ".",
+    "target": "es2020",
+    "typeRoots": ["../node_modules/@types", "../types"],
+    "jsx": "preserve",
+    "lib": ["ESNext", "DOM"],
+    "strict": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  }
+}

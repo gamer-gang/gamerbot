@@ -10,7 +10,7 @@
     "plugin:import/typescript",
     "standard-with-typescript"
   ],
-  "ignorePatterns": "dist/*",
+  "ignorePatterns": ["dist/*", "out/*"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2021,
