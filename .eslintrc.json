@@ -10,7 +10,7 @@
     "plugin:import/typescript",
     "standard-with-typescript"
   ],
-  "ignorePatterns": ["dist/*", "out/*"],
+  "ignorePatterns": ["dist/*", "types/gamerbot.d.ts"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2021,

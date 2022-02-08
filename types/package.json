@@ -1,0 +1,20 @@
+{
+  "name": "gamerbot-types",
+  "version": "2.0.0-3",
+  "description": "Types for gamerbot",
+  "types": "./gamerbot.d.ts",
+  "files": [
+    "./gamerbot.d.ts",
+    "piston-client.d.ts",
+    "unicode.d.ts"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gamer-gang/gamerbot.git"
+  },
+  "author": {
+    "name": "wiisportsresort",
+    "email": "devdoge1@gmail.com"
+  }
+}

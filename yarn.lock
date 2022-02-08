@@ -332,114 +332,114 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm-eabi@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-android-arm-eabi@npm:1.2.133"
+"@swc/core-android-arm-eabi@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-android-arm-eabi@npm:1.2.138"
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm64@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-android-arm64@npm:1.2.133"
+"@swc/core-android-arm64@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-android-arm64@npm:1.2.138"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-darwin-arm64@npm:1.2.133"
+"@swc/core-darwin-arm64@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-darwin-arm64@npm:1.2.138"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-darwin-x64@npm:1.2.133"
+"@swc/core-darwin-x64@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-darwin-x64@npm:1.2.138"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-freebsd-x64@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-freebsd-x64@npm:1.2.133"
+"@swc/core-freebsd-x64@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-freebsd-x64@npm:1.2.138"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.133"
+"@swc/core-linux-arm-gnueabihf@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.138"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.133"
+"@swc/core-linux-arm64-gnu@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.138"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-linux-arm64-musl@npm:1.2.133"
+"@swc/core-linux-arm64-musl@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-linux-arm64-musl@npm:1.2.138"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-linux-x64-gnu@npm:1.2.133"
+"@swc/core-linux-x64-gnu@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-linux-x64-gnu@npm:1.2.138"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-linux-x64-musl@npm:1.2.133"
+"@swc/core-linux-x64-musl@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-linux-x64-musl@npm:1.2.138"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.133"
+"@swc/core-win32-arm64-msvc@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.138"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.133"
+"@swc/core-win32-ia32-msvc@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.138"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.2.133":
-  version: 1.2.133
-  resolution: "@swc/core-win32-x64-msvc@npm:1.2.133"
+"@swc/core-win32-x64-msvc@npm:1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core-win32-x64-msvc@npm:1.2.138"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.2.131":
-  version: 1.2.133
-  resolution: "@swc/core@npm:1.2.133"
+"@swc/core@npm:^1.2.138":
+  version: 1.2.138
+  resolution: "@swc/core@npm:1.2.138"
   dependencies:
-    "@swc/core-android-arm-eabi": 1.2.133
-    "@swc/core-android-arm64": 1.2.133
-    "@swc/core-darwin-arm64": 1.2.133
-    "@swc/core-darwin-x64": 1.2.133
-    "@swc/core-freebsd-x64": 1.2.133
-    "@swc/core-linux-arm-gnueabihf": 1.2.133
-    "@swc/core-linux-arm64-gnu": 1.2.133
-    "@swc/core-linux-arm64-musl": 1.2.133
-    "@swc/core-linux-x64-gnu": 1.2.133
-    "@swc/core-linux-x64-musl": 1.2.133
-    "@swc/core-win32-arm64-msvc": 1.2.133
-    "@swc/core-win32-ia32-msvc": 1.2.133
-    "@swc/core-win32-x64-msvc": 1.2.133
+    "@swc/core-android-arm-eabi": 1.2.138
+    "@swc/core-android-arm64": 1.2.138
+    "@swc/core-darwin-arm64": 1.2.138
+    "@swc/core-darwin-x64": 1.2.138
+    "@swc/core-freebsd-x64": 1.2.138
+    "@swc/core-linux-arm-gnueabihf": 1.2.138
+    "@swc/core-linux-arm64-gnu": 1.2.138
+    "@swc/core-linux-arm64-musl": 1.2.138
+    "@swc/core-linux-x64-gnu": 1.2.138
+    "@swc/core-linux-x64-musl": 1.2.138
+    "@swc/core-win32-arm64-msvc": 1.2.138
+    "@swc/core-win32-ia32-msvc": 1.2.138
+    "@swc/core-win32-x64-msvc": 1.2.138
   dependenciesMeta:
     "@swc/core-android-arm-eabi":
       optional: true
@@ -467,7 +467,7 @@ __metadata:
       optional: true
     "@swc/core-win32-x64-msvc":
       optional: true
-  checksum: cc2f28ce7f70e7d94491fef9ed75f3db564f0f00c54d6230e8acac466ec0301481a2bbde8c85daa03bbf9f796cabf11e57b27524495e8db6daa62cdd9bb3ad9b
+  checksum: 151ded0768b3bbd7fc02d992086d676f5f6d89ac7a42e0ba2a5a13ef89514707f2984f15827d1e1271c54e5d4a9002832dfa659b506406ba266ac90560f60e82
   languageName: node
   linkType: hard
 
@@ -498,6 +498,13 @@ __metadata:
   version: 1.2.0
   resolution: "@types/didyoumean@npm:1.2.0"
   checksum: aa01420a3c41c95f43f1d77de0dbdf2920557a14dc3c1aca36ba89ef9fdf6bbbcfac1d08758af06eb540772669ecc88b241677ff9766fe088d4cda75d8e9f9b8
+  languageName: node
+  linkType: hard
+
+"@types/dts-bundle@npm:^0":
+  version: 0.0.32
+  resolution: "@types/dts-bundle@npm:0.0.32"
+  checksum: bae18255e7b8da44afd725d72c4aa44e5efd0be7f0e2e0a5e2954f8bea0bb48131fc4efc74286842a525f0b0bd861142e4869c7cc7cd12e593d43e5b619dc61c
   languageName: node
   linkType: hard
 
@@ -2625,9 +2632,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fork-ts-checker-webpack-plugin@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "fork-ts-checker-webpack-plugin@npm:7.0.0"
+"fork-ts-checker-webpack-plugin@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "fork-ts-checker-webpack-plugin@npm:7.2.0"
   dependencies:
     "@babel/code-frame": ^7.16.7
     chalk: ^4.1.2
@@ -2647,7 +2654,7 @@ __metadata:
   peerDependenciesMeta:
     vue-template-compiler:
       optional: true
-  checksum: b02a74ada4d3917fd2edbfbf13c5c17804e7a8669c785cd127c320983ce793042e50892c38e108bc52562b41ec8490bbfddc4963bf651629d4829d9bbc355d38
+  checksum: 767ed41ef3c1d0a88ca467e67a1f03a80049bdc610524b47dab51088a8174486c69a0c115fe7a2275773db215442694ecc6f549facadd105c19e880a786a9133
   languageName: node
   linkType: hard
 
@@ -2754,15 +2761,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"gamerbot-types@workspace:types":
+  version: 0.0.0-use.local
+  resolution: "gamerbot-types@workspace:types"
+  languageName: unknown
+  linkType: soft
+
 "gamerbot@workspace:.":
   version: 0.0.0-use.local
   resolution: "gamerbot@workspace:."
   dependencies:
     "@napi-rs/canvas": ^0.1.19
     "@prisma/client": 3.9.1
-    "@swc/core": ^1.2.131
+    "@swc/core": ^1.2.138
     "@types/common-tags": ^1
     "@types/didyoumean": ^1
+    "@types/dts-bundle": ^0
     "@types/js-yaml": ^4
     "@types/lodash": ^4
     "@types/luxon": ^2
@@ -2787,7 +2801,7 @@ __metadata:
     eslint-plugin-import: ^2.25.4
     eslint-plugin-node: ^11.1.0
     eslint-plugin-promise: ^5.2.0
-    fork-ts-checker-webpack-plugin: ^7.0.0
+    fork-ts-checker-webpack-plugin: ^7.2.0
     hypixel-cache: "https://github.com/wiisportsresort/hypixel-cache"
     hypixel-types: "https://github.com/wiisportsresort/hypixel-types"
     js-yaml: ^4.1.0
@@ -2807,7 +2821,7 @@ __metadata:
     source-map-support: ^0.5.21
     string-length: ^5.0.1
     swc-loader: ^0.1.15
-    typescript: ^4.6.0-dev.20220203
+    typescript: ^4.6.0-dev.20220208
     tzdata: ^1.0.29
     unicode: ^14.0.0
     webpack: ^5.68.0
@@ -5523,23 +5537,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.6.0-dev.20220203":
-  version: 4.6.0-dev.20220203
-  resolution: "typescript@npm:4.6.0-dev.20220203"
+"typescript@npm:^4.6.0-dev.20220208":
+  version: 4.6.0-dev.20220208
+  resolution: "typescript@npm:4.6.0-dev.20220208"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 23f6b934b690da9baa76bc107ffd4faf605bfefa387046dabe0c0fb439efdc4286de6367bc08fff227e9f9e992ba2ebc9d1e18d31c9991b5a58fc812f57c7238
+  checksum: 3713fd3b7685c119e90dfe3a063a7023197fc439f3a1f8c39f8d757d26ecc25d8b5175e5d123e119f4b3b0406babbf3122966411eea2f0671183ad033da612cb
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.6.0-dev.20220203#~builtin<compat/typescript>":
-  version: 4.6.0-dev.20220203
-  resolution: "typescript@patch:typescript@npm%3A4.6.0-dev.20220203#~builtin<compat/typescript>::version=4.6.0-dev.20220203&hash=ddd1e8"
+"typescript@patch:typescript@^4.6.0-dev.20220208#~builtin<compat/typescript>":
+  version: 4.6.0-dev.20220208
+  resolution: "typescript@patch:typescript@npm%3A4.6.0-dev.20220208#~builtin<compat/typescript>::version=4.6.0-dev.20220208&hash=ddd1e8"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 1f9afe863912d1676575850b130abb025a48e61b2dc36c1903b7aa94da4c4b74106076d7fabedb9daf380f17821f7ba852f6d7f0420d76e912891e2966ab04bc
+  checksum: 0846c955d3faa3c6c14f9eb8c9a217bbc413f40d37658ca85040ad3efa366dc22dc289128b52007acc674ce457a9d915c0e76fd98ca6d38dd1a7079ac0e27348
   languageName: node
   linkType: hard
 

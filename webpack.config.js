@@ -34,7 +34,6 @@ const config = {
   },
   target: 'async-node16',
   plugins: [
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     new webpack.EnvironmentPlugin({ WEBPACK: true }),
     new webpack.NormalModuleReplacementPlugin(/\.js$/, (resource) => {
       resource.request = resource.request.replace('.js', '')

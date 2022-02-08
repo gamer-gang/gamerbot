@@ -1,5 +1,5 @@
 {
-  "exclude": ["node_modules", "**/node_modules/*"],
+  "exclude": ["node_modules", "**/node_modules/*", "types/gamerbot.d.ts"],
   "include": ["src", "webpack.*", "types"],
   "compilerOptions": {
     "module": "esnext",
@@ -17,7 +17,8 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "declaration": true,
+    "baseUrl": "gamerbot",
     "emitDeclarationOnly": true,
-    "outFile": "out/types.d.ts"
+    "outFile": "types/gamerbot.d.ts"
   }
 }
