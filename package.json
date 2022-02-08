@@ -27,6 +27,9 @@
   "ts-standard": {
     "project": "./tsconfig.json"
   },
+  "resolutions": {
+    "node-fetch": "^2.6.7"
+  },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.19",
     "@prisma/client": "3.9.1",
