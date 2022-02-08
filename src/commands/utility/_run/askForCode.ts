@@ -116,7 +116,7 @@ const askForCode = async (
 
   // check if the message is a code block
   const codeBlock = message.content.match(/^```.*?\n((?:.|\n)*?)```$/)
-  const isGist = message.content.match(/^https?:\/\/gist.githubusercontent.com\/.+$/)
+  const isGist = message.content.match(/^https?:\/\/gist\.githubusercontent\.com\/.+$/)
   const urlLike = message.content.match(/^https?:\/\/.*$/)
 
   if (codeBlock) {
