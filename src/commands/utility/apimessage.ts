@@ -4,7 +4,7 @@ import command, { CommandResult } from '../command.js'
 
 const COMMAND_APIMESSAGE = command('CHAT_INPUT', {
   name: 'apimessage',
-  description: 'API Message',
+  description: 'Create a message from a JSON message payload.',
   examples: [
     {
       options: { json: '`{ "content": "Hello World!" }`' },
@@ -21,7 +21,7 @@ const COMMAND_APIMESSAGE = command('CHAT_INPUT', {
   options: [
     {
       name: 'json',
-      description: 'JSON message data to send',
+      description: 'JSON message data to create.',
       type: 'STRING',
       required: true,
     },

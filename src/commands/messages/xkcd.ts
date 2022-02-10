@@ -6,15 +6,15 @@ const BASE_URL = 'https://xkcd.com'
 
 const COMMAND_XKCD = command('CHAT_INPUT', {
   name: 'xkcd',
-  description: 'Returns a link to a random xkcd comic.',
+  description: 'Display a link to a random xkcd comic, or a specific comic if specified.',
   examples: [
     {
       options: {},
-      description: 'Returns a link to a random xkcd comic.',
+      description: 'Display a link to a random xkcd comic.',
     },
     {
       options: { num: '123' },
-      description: 'Returns https://xkcd.com/123.',
+      description: 'Display https://xkcd.com/123.',
     },
   ],
   options: [

@@ -5,7 +5,7 @@ import { configOption } from './_configOption.js'
 const CONFIG_OPTION_ALLOWSPAM = configOption({
   internalName: 'allow-spam',
   displayName: 'allow spam commands',
-  description: 'Allow spam commands like /lorem',
+  description: 'Allow spam commands like /lorem.',
   type: 'BOOLEAN',
 
   async handle(context, { getValue, getConfig, updateConfig }) {

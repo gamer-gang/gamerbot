@@ -5,7 +5,7 @@ import { configOption } from './_configOption.js'
 const CONFIG_OPTION_ENABLEEGG = configOption({
   internalName: 'enable-egg',
   displayName: 'enable egg reactions',
-  description: 'Enable gamerbot egg reactions',
+  description: 'Enable gamerbot egg reactions.',
   type: 'BOOLEAN',
 
   async handle(context, { getValue, getConfig, updateConfig }) {

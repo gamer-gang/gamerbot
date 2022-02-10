@@ -17,7 +17,7 @@ const STATS_PROVIDERS = [STATS_PROVIDER_BEDWARS]
 
 const COMMAND_STATS = command('CHAT_INPUT', {
   name: 'stats',
-  description: 'Hypixel stats.',
+  description: 'Show stats for Hypixel games.',
   examples: [
     {
       options: { gamemode: 'bedwars', username: 'ConnorLinfoot' },

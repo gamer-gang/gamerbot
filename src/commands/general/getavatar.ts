@@ -4,6 +4,7 @@ import command, { CommandResult } from '../command.js'
 
 const COMMAND_GETAVATAR = command('USER', {
   name: 'Get avatar',
+  description: 'Get the avatar of a user.',
 
   async run(context) {
     const { interaction } = context

@@ -5,7 +5,7 @@ import command, { CommandResult } from '../command.js'
 
 const COMMAND_COWSAY = command('CHAT_INPUT', {
   name: 'cowsay',
-  description: 'Make the cow say the funny',
+  description: 'Make the cow say the funny.',
   examples: [
     {
       options: { text: 'Hello' },
@@ -52,13 +52,13 @@ const COMMAND_COWSAY = command('CHAT_INPUT', {
   options: [
     {
       name: 'text',
-      description: 'The text to make the cow say',
+      description: 'The text to make the cow say.',
       type: 'STRING',
       required: true,
     },
     {
       name: 'cow',
-      description: 'The cow to use',
+      description: 'The cow to use.',
       type: 'STRING',
       autocomplete: true,
     },

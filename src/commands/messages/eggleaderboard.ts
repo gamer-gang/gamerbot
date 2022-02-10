@@ -48,11 +48,11 @@ const makeEmbed = ({
 
 const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
   name: 'eggleaderboard',
-  description: 'Show top egg olders',
+  description: 'Show top egg holders.',
   options: [
     {
       name: 'type',
-      description: 'Type of eggs',
+      description: 'Type of eggs.',
       type: 'STRING',
       choices: [
         { name: 'collected', value: 'collected' },
@@ -61,7 +61,7 @@ const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
     },
     {
       name: 'user',
-      description: 'User to show',
+      description: 'User to show.',
       type: 'USER',
     },
   ],

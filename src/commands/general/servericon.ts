@@ -17,7 +17,7 @@ const COMMAND_SERVERICON = command('CHAT_INPUT', {
   options: [
     {
       name: 'server',
-      description: 'Server to show icon for',
+      description: 'Server to show icon for.',
       type: 'STRING',
     },
   ],

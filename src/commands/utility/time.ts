@@ -49,7 +49,7 @@ const COMMAND_TIME = command('CHAT_INPUT', {
   options: [
     {
       name: 'epoch',
-      description: 'Show epoch time',
+      description: 'Show epoch time.',
       type: 'SUB_COMMAND',
     },
     {

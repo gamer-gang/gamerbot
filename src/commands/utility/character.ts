@@ -1,4 +1,4 @@
-import { stripIndents } from 'common-tags'
+import { stripIndent, stripIndents } from 'common-tags'
 import { Formatters } from 'discord.js'
 import emojiRegex from 'emoji-regex'
 import stringLength from 'string-length'
@@ -20,7 +20,13 @@ const formatCodePoints = (str: string): string => {
 
 const COMMAND_CHARACTER = command('CHAT_INPUT', {
   name: 'character',
-  description: 'Show information about an ascii/unicode/whatever character.',
+  description: 'Show information about a Unicode character.',
+  longDescription: stripIndent`
+    Show information about a single Unicode character.
+    Characters can be specified by their code point (e.g. U+1F4A9, 1f4a9) or by the character itself (e.g. 💩, 笑, あ).
+
+    Some emojis are actually composed of multiple other characters, and thus are not supported.
+  `,
   examples: [
     {
       options: { character: '🐶' },

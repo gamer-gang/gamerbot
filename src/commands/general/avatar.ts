@@ -8,7 +8,7 @@ const COMMAND_AVATAR = command('CHAT_INPUT', {
   options: [
     {
       name: 'user',
-      description: 'User to show avatar for',
+      description: 'User to show avatar for.',
       type: 'USER',
     },
   ],

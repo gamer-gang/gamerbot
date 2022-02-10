@@ -1,4 +1,5 @@
 /* eslint-disable import/no-named-as-default */
+import { stripIndent } from 'common-tags'
 import { APIMessage } from 'discord-api-types'
 import { FileOptions, Formatters, Message, Util } from 'discord.js'
 import _ from 'lodash'
@@ -19,8 +20,10 @@ const LANGUAGES_WITH_ALIASES = _.uniq([...LANGUAGES, ...ALIASES])
 const COMMAND_RUN = command('CHAT_INPUT', {
   name: 'run',
   description: 'Run a snippet of code.',
-  longDescription:
-    'Run a snippet of code. If code is not provided in the initial command, you will be asked to provide it.',
+  longDescription: stripIndent`
+    Run a snippet of code. Code will be run in a sandboxed environment.
+    Input code is capped at 64 KiB, and stdout is capped at 64 KiB.
+  `,
   examples: [
     {
       options: { language: '`typescript`', code: '`console.log("Hello World!")`' },

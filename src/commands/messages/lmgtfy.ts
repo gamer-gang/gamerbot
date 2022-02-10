@@ -3,8 +3,7 @@ import command, { CommandResult } from '../command.js'
 
 const COMMAND_LMGTFY = command('CHAT_INPUT', {
   name: 'lmgtfy',
-  description:
-    "Let me google that for you. (note: you need to disable adblockers on this site if it doesn't work)",
+  description: 'Let me get that for you.',
   options: [
     {
       name: 'query',

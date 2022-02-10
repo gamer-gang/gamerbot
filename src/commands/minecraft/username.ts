@@ -5,7 +5,7 @@ import command, { CommandResult } from '../command.js'
 
 const COMMAND_USERNAME = command('CHAT_INPUT', {
   name: 'username',
-  description: 'Retrieve/modify your Minecraft username/UUID',
+  description: 'Retrieve/modify your Minecraft username/UUID.',
   examples: [
     {
       options: { set: null, identifier: 'ConnorLinfoot' },
@@ -31,12 +31,12 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
   options: [
     {
       name: 'set',
-      description: 'Set your Minecraft username/UUID',
+      description: 'Set your Minecraft username/UUID.',
       type: 'SUB_COMMAND',
       options: [
         {
           name: 'identifier',
-          description: 'The username/UUID to set',
+          description: 'The username/UUID to set.',
           type: 'STRING',
           required: true,
         },
@@ -49,14 +49,14 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
       options: [
         {
           name: 'user',
-          description: 'The user to get the username/UUID of',
+          description: 'The user to get the username/UUID of.',
           type: 'USER',
         },
       ],
     },
     {
       name: 'clear',
-      description: 'Clear your Minecraft username/UUID',
+      description: 'Clear your Minecraft username/UUID.',
       type: 'SUB_COMMAND',
     },
   ],

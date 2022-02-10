@@ -18,7 +18,7 @@ const cleanExpression = (expr: string): string | false => {
 
 const COMMAND_MATH = command('CHAT_INPUT', {
   name: 'math',
-  description: 'Evaluate mathematical expressions.',
+  description: 'Evaluate a mathematical expression.',
   examples: [
     {
       options: { expression: '`1 + 1`' },

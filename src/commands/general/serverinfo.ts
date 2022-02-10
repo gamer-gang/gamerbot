@@ -18,7 +18,7 @@ const COMMAND_SERVERINFO = command('CHAT_INPUT', {
   options: [
     {
       name: 'server',
-      description: 'Server to show info for',
+      description: 'Server to show info for.',
       type: 'STRING',
     },
   ],

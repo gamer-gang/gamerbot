@@ -22,13 +22,13 @@ const COMMAND_BAN = command('CHAT_INPUT', {
   options: [
     {
       name: 'user',
-      description: 'User to ban',
+      description: 'User to ban.',
       type: 'USER',
       required: true,
     },
     {
       name: 'reason',
-      description: 'Ban reason',
+      description: 'Ban reason.',
       type: 'STRING',
     },
   ],
