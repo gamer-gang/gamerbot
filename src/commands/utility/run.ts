@@ -232,31 +232,26 @@ const COMMAND_RUN = command('CHAT_INPUT', {
     let embed: Embed
     if (run.signal) {
       embed = Embed.error(
-        `Process killed by ${run.signal} (probably timed out or OOM).`,
-        output.length ? formattedOutput : undefined
+        `Process killed by ${run.signal} (probably timed out, OOM, or exceeded size limits).`
       )
     } else if (!compile?.stderr && !run.stdout && !run.stderr) {
       embed = Embed.info('Execution completed with no output.')
     } else if (compile?.stderr) {
-      embed = Embed.error('Compilation errored:', formattedOutput)
+      embed = Embed.error('Compilation errored.')
     } else if (!run.stdout && run.stderr) {
-      if (output.length > 1500) {
-        embed = Embed.warning('Execution only produced stderr, output is attached.')
-        files.push({
-          name: 'output.txt',
-          attachment: Buffer.from(output, 'utf8'),
-        })
-      } else {
-        embed = Embed.warning('Execution only produced stderr:', formattedOutput)
-      }
-    } else if (output.length > 1000) {
-      embed = Embed.success('Execution completed, output is attached.')
+      embed = Embed.warning('Execution only produced stderr.')
+    } else {
+      embed = Embed.success('Execution completed.')
+    }
+
+    if (output.length > 1500) {
+      embed.setDescription(`${embed.description}\nOutput is attached.`)
       files.push({
-        name: `output.${outputLanguage}`,
+        name: 'output.txt',
         attachment: Buffer.from(output, 'utf8'),
       })
-    } else {
-      embed = Embed.success('Execution completed, output:', formattedOutput)
+    } else if (output.length) {
+      embed.setDescription(`${embed.description}\n\n${formattedOutput}`)
     }
 
     embed.setAuthorToProfile(interaction.user.username, interaction.user)
