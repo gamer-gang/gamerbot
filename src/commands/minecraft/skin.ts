@@ -40,6 +40,22 @@ const skinTypes: SkinTypeMap = {
 const COMMAND_SKIN = command('CHAT_INPUT', {
   name: 'skin',
   description: 'Display a Minecraft skin.',
+  longDescription: stripIndent`
+    Display a Minecraft skin. Skins can be of type \`body\` (3D body render), \`head\` (3D head render), \`avatar\` (2d face), or \`skin\` (original skin texture).
+    The default skin type is body render.
+    Skins are fetched from [visage.surgeplay.com](https://visage.surgeplay.com), or [crafatar.com](https://crafatar.com) if the \`use-craftar\` option is set.
+  `,
+  examples: [
+    {
+      options: { identifier: 'hypixel', type: 'body' },
+      description: 'Display the 3D body render of the player with the username `hypixel`.',
+    },
+    {
+      options: { type: 'avatar', 'use-craftar': true, debug: true },
+      description:
+        'Display the 2d face for the current user (provided it was set by /username) from Crafatar with debug information.',
+    },
+  ],
   options: [
     {
       name: 'identifier',
@@ -73,6 +89,11 @@ const COMMAND_SKIN = command('CHAT_INPUT', {
           value: 'skin',
         },
       ],
+    },
+    {
+      name: 'use-craftar',
+      description: 'Use https://crafatar.com to fetch skins.',
+      type: 'BOOLEAN',
     },
   ],
 
@@ -118,6 +139,7 @@ const COMMAND_SKIN = command('CHAT_INPUT', {
       return CommandResult.Success
     }
 
+    const useCraftar = options.getBoolean('use-craftar') ?? false
     const debug = IS_DEVELOPMENT || options.getBoolean('debug') != null
     const type = (options.getString('type') ?? 'body') as SkinTypes
     const resolvers = skinTypes[type]
@@ -153,7 +175,7 @@ const COMMAND_SKIN = command('CHAT_INPUT', {
     // const isVisageOnline = visageResponse.status === 200 && visageResponse.data.byteLength > 0
     // const url = isVisageOnline ? resolvers.visage(uuid) : resolvers.crafatar(uuid)
 
-    const url = resolvers.visage(uuid)
+    const url = useCraftar ? resolvers.crafatar(uuid) : resolvers.visage(uuid)
 
     const embed = new Embed({
       title: `Skin (${type})`,
