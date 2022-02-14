@@ -1,9 +1,4 @@
 {
-  "Import node:assert": {
-    "prefix": "ima",
-    "description": "Import node:assert",
-    "body": "import assert from 'node:assert'"
-  },
   "Embed reply": {
     "prefix": "rem",
     "description": "Reply with embed",
