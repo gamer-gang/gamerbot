@@ -69,6 +69,7 @@ export const initLogger = (): void => {
       ...stdout('command', '%[ﲵ %m%]'),
       ...stdout('analytics', '%[ %m%]'),
       ...stdout('api', '%[ %m%]'),
+      ...stdout('counts', '%[濫 %m%]'),
     },
     categories: {
       ...category('default', 'console', 'warn.log', 'info.log'),
@@ -78,6 +79,7 @@ export const initLogger = (): void => {
       ...category('command', 'command'),
       ...category('analytics', 'analytics'),
       ...category('api', 'api'),
+      ...category('counts', 'counts'),
     },
   })
 }

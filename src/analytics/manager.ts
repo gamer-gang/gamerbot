@@ -1,6 +1,7 @@
 import { AnalyticsReport, CommandReport, CommandType as DatabaseCommandType } from '@prisma/client'
 import { DateTime } from 'luxon'
 import { createHash } from 'node:crypto'
+import { Command, CommandResult } from '../commands/command.js'
 import type { GamerbotClient } from '../GamerbotClient.js'
 import { prisma } from '../prisma.js'
 import { AnalyticsEvent, EventData, EventReturnType, events } from './event.js'
@@ -53,7 +54,7 @@ export class AnalyticsManager {
     this.#ensureInitialized()
 
     const logger = this.client.getLogger('analytics.flush')
-    logger.debug(`FLUSH all ${this.#report.month}`)
+    logger.debug(`FLUSH all ${this.#report.month.toISOString()}`)
 
     await this.flushGlobal()
     await this.flushCommands()
@@ -66,7 +67,7 @@ export class AnalyticsManager {
 
     const month = this.#getMonth()
     // check if month is the same, ± 1 day just in case timezones or something
-    if (Math.abs(month.getTime() - this.#report.month.getTime()) < 1000 * 60 * 60 * 24) {
+    if (Math.abs(month.getTime() - this.#report.month.getTime()) < 24 * 60 * 60_000) {
       logger.debug(`UPDATE skipped, same month ${month.toISOString()}`)
       return
     }
@@ -90,7 +91,7 @@ export class AnalyticsManager {
     }
 
     const logger = this.client.getLogger('analytics.flush.global')
-    logger.debug(`FLUSH global ${this.#report.month}`)
+    logger.debug(`FLUSH global ${this.#report.month.toISOString()}`)
 
     this.#flushingGlobal = true
 
@@ -135,7 +136,7 @@ export class AnalyticsManager {
     this.#flushingCommands = true
 
     const logger = this.client.getLogger('analytics.flush.commands')
-    logger.debug(`FLUSH commands ${this.#report.month}`)
+    logger.debug(`FLUSH commands ${this.#report.month.toISOString()}`)
 
     for (const [command, commandStats] of this.commandCache) {
       const existing = await prisma.commandReport.findUnique({
@@ -219,5 +220,21 @@ export class AnalyticsManager {
     logger.debug(`TRACK ${AnalyticsEvent[event]} ${data.map((d) => d.toString()).join(' ')}`)
 
     return events[event](this, ...data)
+  }
+
+  trackCommandResult(result: CommandResult, command: Command): void {
+    switch (result) {
+      case CommandResult.Success: {
+        this.trackEvent(AnalyticsEvent.CommandSuccess, command.name, command.type)
+        break
+      }
+      case CommandResult.Failure: {
+        this.trackEvent(AnalyticsEvent.CommandFailure, command.name, command.type)
+        break
+      }
+      default: {
+        throw new Error(`Unknown command result: ${result}`)
+      }
+    }
   }
 }

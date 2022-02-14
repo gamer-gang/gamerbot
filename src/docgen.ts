@@ -2,14 +2,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import fs from 'node:fs'
 import packageJson from '../package.json'
-import { GamerbotClient } from './GamerbotClient.js'
+import { DEFAULT_COMMANDS } from './commands.js'
 import { DocsJson } from './types.js'
 import { resolvePath } from './util/path.js'
-const commands = GamerbotClient.DEFAULT_COMMANDS
 
 const json: DocsJson = { version: packageJson.version, commands: [] }
 
-for (const command of commands) {
+for (const command of DEFAULT_COMMANDS) {
   const {
     name,
     description,

@@ -11,42 +11,13 @@ import log4js from 'log4js'
 import assert from 'node:assert'
 import { AnalyticsEvent } from './analytics/event.js'
 import { AnalyticsManager } from './analytics/manager.js'
+import { DEFAULT_COMMANDS } from './commands.js'
 import { Command, CommandResult } from './commands/command.js'
-import COMMAND_CONFIG from './commands/config/config.js'
 import { CommandContext, MessageCommandContext, UserCommandContext } from './commands/context.js'
-import COMMAND_DICE from './commands/games/dice.js'
-import COMMAND_RPS from './commands/games/rps.js'
-import COMMAND_ABOUT from './commands/general/about.js'
-import COMMAND_ANALYTICS from './commands/general/analytics.js'
-import COMMAND_AVATAR from './commands/general/avatar.js'
-import COMMAND_GETAVATAR from './commands/general/getavatar.js'
-import COMMAND_SERVERICON from './commands/general/servericon.js'
-import COMMAND_SERVERINFO from './commands/general/serverinfo.js'
-import COMMAND_COWSAY from './commands/messages/cowsay.js'
-import COMMAND_EGGLEADERBOARD from './commands/messages/eggleaderboard.js'
-import COMMAND_LMGTFY from './commands/messages/lmgtfy.js'
-import COMMAND_XKCD from './commands/messages/xkcd.js'
-import COMMAND_STATS from './commands/minecraft/stats.js'
-import COMMAND_USERNAME from './commands/minecraft/username.js'
-import COMMAND_BAN from './commands/moderation/ban.js'
-import COMMAND_KICK from './commands/moderation/kick.js'
-import COMMAND_PURGE from './commands/moderation/purge.js'
-import COMMAND_PURGETOHERE from './commands/moderation/purgetohere.js'
-import COMMAND_ROLE from './commands/moderation/role.js'
-import COMMAND_UNBAN from './commands/moderation/unban.js'
-import COMMAND_APIMESSAGE from './commands/utility/apimessage.js'
-import COMMAND_CHARACTER from './commands/utility/character.js'
-import COMMAND_COLOR from './commands/utility/color.js'
-import COMMAND_LATEX from './commands/utility/latex.js'
-import COMMAND_MATH from './commands/utility/math.js'
-import COMMAND_PING from './commands/utility/ping.js'
-import COMMAND_RUN from './commands/utility/run.js'
-import COMMAND_TIME from './commands/utility/time.js'
-import COMMAND_TIMESTAMP from './commands/utility/timestamp.js'
 import { IS_DEVELOPMENT } from './constants.js'
+import { CountManager } from './CountManager.js'
 import * as eggs from './egg.js'
 import { initLogger } from './logger.js'
-import { Plugin } from './Plugin.js'
 import { prisma } from './prisma.js'
 import { formatOptions, hasPermissions } from './util.js'
 import { interactionReplySafe } from './util/discord.js'
@@ -54,49 +25,7 @@ import { Embed } from './util/embed.js'
 import { formatErrorMessage } from './util/message.js'
 import { PresenceManager } from './util/presence.js'
 
-const DEFAULT_COMMANDS = [
-  // config
-  COMMAND_CONFIG,
-  // games
-  COMMAND_DICE,
-  COMMAND_RPS,
-  // general
-  COMMAND_ABOUT,
-  COMMAND_ANALYTICS,
-  COMMAND_AVATAR,
-  COMMAND_GETAVATAR,
-  COMMAND_SERVERICON,
-  COMMAND_SERVERINFO,
-  // messages
-  COMMAND_COWSAY,
-  COMMAND_EGGLEADERBOARD,
-  COMMAND_LMGTFY,
-  COMMAND_XKCD,
-  // minecraft
-  COMMAND_STATS,
-  COMMAND_USERNAME,
-  // moderation
-  COMMAND_BAN,
-  COMMAND_KICK,
-  COMMAND_PURGE,
-  COMMAND_PURGETOHERE,
-  COMMAND_ROLE,
-  COMMAND_UNBAN,
-  // utility
-  COMMAND_APIMESSAGE,
-  COMMAND_CHARACTER,
-  COMMAND_COLOR,
-  COMMAND_LATEX,
-  COMMAND_MATH,
-  COMMAND_PING,
-  COMMAND_RUN,
-  COMMAND_TIME,
-  COMMAND_TIMESTAMP,
-]
-
-export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {
-  plugins?: Plugin[]
-}
+export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {}
 
 export class GamerbotClient extends Client {
   readonly user!: ClientUser
@@ -104,17 +33,16 @@ export class GamerbotClient extends Client {
   readonly #discordLogger = log4js.getLogger('discord')
   readonly #commandLogger = log4js.getLogger('command')
 
-  getLogger(category: string): log4js.Logger {
-    return log4js.getLogger(category)
-  }
-
-  readonly commands: Map<string, Command> = new Map()
-  readonly presenceManager: PresenceManager = new PresenceManager(this)
-  readonly analytics: AnalyticsManager = new AnalyticsManager(this)
-
-  static readonly DEFAULT_COMMANDS = DEFAULT_COMMANDS
+  readonly commands = new Map<string, Command>()
+  readonly presenceManager = new PresenceManager(this)
+  readonly analytics = new AnalyticsManager(this)
+  readonly countManager = new CountManager(this)
 
   #updateAnalyticsInterval: NodeJS.Timeout | null = null
+  #updateCountsInterval: NodeJS.Timeout | null = null
+  /** set of guild ids that are already known to have config rows in the db to save queries */
+  #hasConfig = new Set<string>()
+
   async #updateAnalytics(): Promise<void> {
     await this.analytics.flushAll()
     await this.analytics.update()
@@ -137,47 +65,32 @@ export class GamerbotClient extends Client {
 
     initLogger()
 
-    GamerbotClient.DEFAULT_COMMANDS.forEach((command) => {
+    DEFAULT_COMMANDS.forEach((command) => {
       this.commands.set(command.name, command)
     })
 
-    this.on('debug', this.onDebug.bind(this))
-    this.on('messageCreate', this.onMessage.bind(this))
-    this.on('interactionCreate', this.onInteraction.bind(this))
-    this.on('guildCreate', this.onGuildCreate.bind(this))
-    this.on('guildDelete', this.onGuildDelete.bind(this))
-    // this.on('apiRequest', (req) => {
-    //   this.#apiLogger.trace(`REQUEST ${req.method} ${req.path}`)
-    // })
-    // this.on('apiResponse', (res) => {
-    //   this.#apiLogger.trace(`RESPONSE ${res.method} ${res.path}`)
-    // })
-    this.on('error', (err) => {
-      this.#discordLogger.error(err)
-    })
-    this.on('warn', (warn) => {
-      this.#discordLogger.warn(warn)
-    })
+    this.on('error', (err) => this.#discordLogger.error(err))
+    this.on('warn', (warn) => this.#discordLogger.warn(warn))
 
     this.on('ready', async () => {
       await this.analytics.initialize()
       this.analytics.trackEvent(AnalyticsEvent.BotLogin)
+
+      await this.countManager.update()
     })
 
-    this.#updateAnalyticsInterval = setInterval(() => void this.#updateAnalytics(), 1000 * 60 * 5) // 5 minutes
+    this.on('debug', this.onDebug.bind(this))
+    this.on('messageCreate', this.onMessageCreate.bind(this))
+    this.on('guildCreate', this.onGuildCreate.bind(this))
+    this.on('guildDelete', this.onGuildDelete.bind(this))
+    this.on('interactionCreate', this.onInteractionCreate.bind(this))
+
+    this.#updateAnalyticsInterval = setInterval(() => void this.#updateAnalytics(), 5 * 60_000)
+    this.#updateCountsInterval = setInterval(() => void this.countManager.update(), 5 * 60_000)
   }
 
-  registerPlugins(...plugins: Plugin[]): void {
-    plugins.forEach((plugin) => {
-      plugin.commands.forEach((command) => {
-        const name = command.name.toLowerCase()
-        if (this.commands.has(name)) {
-          throw new Error(`Command ${name} already exists`)
-        }
-
-        this.commands.set(name, command)
-      })
-    })
+  getLogger(category: string): log4js.Logger {
+    return log4js.getLogger(category)
   }
 
   async refreshPresence(): Promise<void> {
@@ -191,63 +104,6 @@ export class GamerbotClient extends Client {
       ],
     }
   }
-
-  async countGuilds(): Promise<number> {
-    const shard = this.shard
-
-    if (shard == null) {
-      return this.guilds.cache.size
-    }
-
-    const guilds = await shard.fetchClientValues('guilds.cache.size')
-
-    assert(
-      Array.isArray(guilds) && guilds.every((guild) => typeof guild === 'number'),
-      'guilds is not an array of numbers'
-    )
-
-    return (guilds as number[]).reduce((a, b) => a + b, 0)
-  }
-
-  async #countUsers(client: Client): Promise<string[]> {
-    const guilds = await Promise.all(client.guilds.cache.map((guild) => guild.members.fetch()))
-    const users = guilds.reduce<string[]>((acc, guildMembers) => {
-      return [...acc, ...guildMembers.mapValues((member) => member.user.id).values()]
-    }, [])
-    return users.flat(1)
-  }
-
-  async countUsers(): Promise<number> {
-    const shard = this.shard
-
-    if (shard == null) {
-      const users = await this.#countUsers(this)
-      return new Set(users).size
-    }
-
-    const users = await shard.broadcastEval((client) => this.#countUsers(client))
-    return new Set(users.flat(1)).size
-  }
-
-  onDebug(content: string): void {
-    if (content.includes('Heartbeat')) return
-
-    if (content.includes('Remaining: ')) {
-      this.#logger.info(`Remaining gateway sessions: ${content.split(' ').reverse()[0]}`)
-    }
-
-    if (content.includes('Manager was destroyed. Called by:')) return
-
-    this.#discordLogger.trace(content)
-  }
-
-  async onMessage(message: Message): Promise<void> {
-    if (message.author.id === this.user.id) return
-    void eggs.onMessage(this, message)
-  }
-
-  /** set of guild ids that are already known to have config rows in the db to save queries */
-  #hasConfig = new Set<string>()
 
   async ensureConfig(guildId: string): Promise<void> {
     if (this.#hasConfig.has(guildId)) return
@@ -265,6 +121,26 @@ export class GamerbotClient extends Client {
     this.#hasConfig.add(guildId)
   }
 
+  countUsers = this.countManager.countUsers.bind(this.countManager)
+  countGuilds = this.countManager.countGuilds.bind(this.countManager)
+
+  onDebug(content: string): void {
+    if (content.includes('Heartbeat')) return
+
+    if (content.includes('Remaining: ')) {
+      this.#logger.info(`Remaining gateway sessions: ${content.split(' ').reverse()[0]}`)
+    }
+
+    if (content.includes('Manager was destroyed. Called by:')) return
+
+    this.#discordLogger.trace(content)
+  }
+
+  async onMessageCreate(message: Message): Promise<void> {
+    if (message.author.id === this.user.id) return
+    void eggs.onMessage(this, message)
+  }
+
   async onGuildCreate(guild: Guild): Promise<void> {
     await this.ensureConfig(guild.id)
   }
@@ -275,7 +151,7 @@ export class GamerbotClient extends Client {
     this.#hasConfig.delete(guild.id)
   }
 
-  async onInteraction(interaction: Interaction): Promise<void> {
+  async onInteractionCreate(interaction: Interaction): Promise<void> {
     if (interaction.guild != null) {
       await this.ensureConfig(interaction.guild.id)
     }
@@ -332,7 +208,7 @@ export class GamerbotClient extends Client {
           result = CommandResult.Success
         }
 
-        this.#trackResult(result, command)
+        this.analytics.trackCommandResult(result, command)
       }
 
       if (interaction.isButton()) {
@@ -402,29 +278,13 @@ export class GamerbotClient extends Client {
         result = CommandResult.Success
       }
 
-      this.#trackResult(result, command)
+      this.analytics.trackCommandResult(result, command)
     } catch (err) {
       this.#logger.error(err)
 
       await interactionReplySafe(interaction, { embeds: [Embed.error(formatErrorMessage(err))] })
       if (command != null) {
-        this.#trackResult(CommandResult.Failure, command)
-      }
-    }
-  }
-
-  #trackResult(result: CommandResult, command: Command): void {
-    switch (result) {
-      case CommandResult.Success: {
-        this.analytics.trackEvent(AnalyticsEvent.CommandSuccess, command.name, command.type)
-        break
-      }
-      case CommandResult.Failure: {
-        this.analytics.trackEvent(AnalyticsEvent.CommandFailure, command.name, command.type)
-        break
-      }
-      default: {
-        throw new Error(`Unknown command result: ${result}`)
+        this.analytics.trackCommandResult(CommandResult.Failure, command)
       }
     }
   }

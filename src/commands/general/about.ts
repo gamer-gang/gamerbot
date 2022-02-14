@@ -11,8 +11,7 @@ const COMMAND_ABOUT = command('CHAT_INPUT', {
 
     const embed = new Embed({ title: 'About' })
 
-    const guilds = await client.countGuilds()
-    const users = await client.countUsers()
+    const [guilds, users] = await Promise.all([client.countGuilds(), client.countUsers()])
 
     embed
       .setAuthorToProfile(client.user.username, client.user)

@@ -5,7 +5,7 @@
     "module": "esnext",
     "target": "es2020",
     "jsx": "preserve",
-    "lib": ["ESNext", "DOM"],
+    "lib": ["ESNext"],
     "incremental": true,
     "strict": true,
     "resolveJsonModule": true,
@@ -19,6 +19,7 @@
     "declaration": true,
     "baseUrl": "gamerbot",
     "emitDeclarationOnly": true,
+    "experimentalDecorators": true,
     "outFile": "types/gamerbot.d.ts"
   }
 }
