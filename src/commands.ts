@@ -7,6 +7,7 @@ import COMMAND_AVATAR from './commands/general/avatar.js'
 import COMMAND_GETAVATAR from './commands/general/getavatar.js'
 import COMMAND_SERVERICON from './commands/general/servericon.js'
 import COMMAND_SERVERINFO from './commands/general/serverinfo.js'
+import COMMAND_UPTIME from './commands/general/uptime.js'
 import COMMAND_COWSAY from './commands/messages/cowsay.js'
 import COMMAND_EGGLEADERBOARD from './commands/messages/eggleaderboard.js'
 import COMMAND_LMGTFY from './commands/messages/lmgtfy.js'
@@ -42,6 +43,7 @@ export const DEFAULT_COMMANDS = [
   COMMAND_GETAVATAR,
   COMMAND_SERVERICON,
   COMMAND_SERVERINFO,
+  COMMAND_UPTIME,
   // messages
   COMMAND_COWSAY,
   COMMAND_EGGLEADERBOARD,
