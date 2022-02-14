@@ -1,4 +1,17 @@
 /// <reference types="node" />
+declare module "src/CountManager" {
+    import { Client } from 'discord.js';
+    import { Logger } from 'log4js';
+    export class CountManager {
+        #private;
+        readonly client: Client;
+        logger: Logger;
+        constructor(client: Client);
+        countGuilds(): Promise<number>;
+        countUsers(): Promise<number>;
+        update(): Promise<void>;
+    }
+}
 declare module "src/commands/context" {
     import { PrismaClient } from '@prisma/client';
     import { CommandInteraction, ContextMenuInteraction, Interaction, Message, User } from 'discord.js';
@@ -297,6 +310,7 @@ declare module "src/analytics/types" {
 }
 declare module "src/analytics/manager" {
     import { AnalyticsReport, CommandReport, CommandType as DatabaseCommandType } from '@prisma/client';
+    import { Command, CommandResult } from "src/commands/command";
     import type { GamerbotClient } from "src/GamerbotClient";
     import { AnalyticsEvent, EventData, EventReturnType } from "src/analytics/event";
     import { CommandReportStats } from "src/analytics/types";
@@ -318,6 +332,7 @@ declare module "src/analytics/manager" {
         hashUser(userId: string): string;
         getCommandReport(command: string, type: DatabaseCommandType): Promise<CommandReport>;
         trackEvent<E extends AnalyticsEvent>(event: E, ...data: EventData[E]): EventReturnType<E>;
+        trackCommandResult(result: CommandResult, command: Command): void;
     }
 }
 declare module "src/analytics/event" {
@@ -427,6 +442,10 @@ declare module "src/commands/general/serverinfo" {
     const COMMAND_SERVERINFO: import("src/commands/command").ChatCommand;
     export default COMMAND_SERVERINFO;
 }
+declare module "src/commands/general/uptime" {
+    const COMMAND_UPTIME: import("src/commands/command").ChatCommand;
+    export default COMMAND_UPTIME;
+}
 declare module "src/commands/messages/cowsay" {
     const COMMAND_COWSAY: import("src/commands/command").ChatCommand;
     export default COMMAND_COWSAY;
@@ -446,6 +465,13 @@ declare module "src/commands/messages/xkcd" {
 declare module "src/util/regex" {
     export const usernameRegex: RegExp;
     export const uuidRegex: RegExp;
+}
+declare module "src/util/minecraft" {
+    export const resolveMinecraftUuid: (usernameOrUuid: string) => Promise<string | undefined>;
+}
+declare module "src/commands/minecraft/skin" {
+    const COMMAND_SKIN: import("src/commands/command").ChatCommand;
+    export default COMMAND_SKIN;
 }
 declare module "src/style" {
     import { SKRSContext2D } from '@napi-rs/canvas';
@@ -658,19 +684,15 @@ declare module "src/commands/utility/timestamp" {
     const COMMAND_TIMESTAMP: import("src/commands/command").ChatCommand;
     export default COMMAND_TIMESTAMP;
 }
+declare module "src/commands" {
+    export const DEFAULT_COMMANDS: (import("src/commands/command").ChatCommand | import("src/commands/command").UserCommand | import("src/commands/command").MessageCommand)[];
+}
 declare module "src/egg" {
     import { Message, PartialMessage } from 'discord.js';
     import { GamerbotClient } from "src/GamerbotClient";
     export const hasEggs: (msg: Message | PartialMessage) => boolean;
     export const getTotal: () => Promise<BigInt>;
     export const onMessage: (client: GamerbotClient, message: Message | PartialMessage) => Promise<void>;
-}
-declare module "src/Plugin" {
-    import { Command } from "src/commands/command";
-    export abstract class Plugin {
-        abstract id: string;
-        commands: Command[];
-    }
 }
 declare module "src/util/presence" {
     import { Client, PresenceData } from 'discord.js';
@@ -691,30 +713,35 @@ declare module "src/GamerbotClient" {
     import log4js from 'log4js';
     import { AnalyticsManager } from "src/analytics/manager";
     import { Command } from "src/commands/command";
-    import { Plugin } from "src/Plugin";
+    import { CountManager } from "src/CountManager";
     import { PresenceManager } from "src/util/presence";
     export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {
-        plugins?: Plugin[];
     }
     export class GamerbotClient extends Client {
         #private;
         readonly user: ClientUser;
-        getLogger(category: string): log4js.Logger;
         readonly commands: Map<string, Command>;
         readonly presenceManager: PresenceManager;
         readonly analytics: AnalyticsManager;
-        static readonly DEFAULT_COMMANDS: (import("src/commands/command").ChatCommand | import("src/commands/command").UserCommand | import("src/commands/command").MessageCommand)[];
+        readonly countManager: CountManager;
         constructor(options?: GamerbotClientOptions);
-        registerPlugins(...plugins: Plugin[]): void;
+        getLogger(category: string): log4js.Logger;
         refreshPresence(): Promise<void>;
-        countGuilds(): Promise<number>;
-        countUsers(): Promise<number>;
-        onDebug(content: string): void;
-        onMessage(message: Message): Promise<void>;
         ensureConfig(guildId: string): Promise<void>;
+        countUsers: () => Promise<number>;
+        countGuilds: () => Promise<number>;
+        onDebug(content: string): void;
+        onMessageCreate(message: Message): Promise<void>;
         onGuildCreate(guild: Guild): Promise<void>;
         onGuildDelete(guild: Guild): Promise<void>;
-        onInteraction(interaction: Interaction): Promise<void>;
+        onInteractionCreate(interaction: Interaction): Promise<void>;
+    }
+}
+declare module "src/Plugin" {
+    import { Command } from "src/commands/command";
+    export abstract class Plugin {
+        abstract id: string;
+        commands: Command[];
     }
 }
 declare module "src/deploy" {
