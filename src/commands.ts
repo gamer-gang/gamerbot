@@ -12,6 +12,7 @@ import COMMAND_COWSAY from './commands/messages/cowsay.js'
 import COMMAND_EGGLEADERBOARD from './commands/messages/eggleaderboard.js'
 import COMMAND_LMGTFY from './commands/messages/lmgtfy.js'
 import COMMAND_XKCD from './commands/messages/xkcd.js'
+import COMMAND_SKIN from './commands/minecraft/skin.js'
 import COMMAND_STATS from './commands/minecraft/stats.js'
 import COMMAND_USERNAME from './commands/minecraft/username.js'
 import COMMAND_BAN from './commands/moderation/ban.js'
@@ -50,6 +51,7 @@ export const DEFAULT_COMMANDS = [
   COMMAND_LMGTFY,
   COMMAND_XKCD,
   // minecraft
+  COMMAND_SKIN,
   COMMAND_STATS,
   COMMAND_USERNAME,
   // moderation
