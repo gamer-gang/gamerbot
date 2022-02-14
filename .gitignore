@@ -41,3 +41,5 @@ yarn-error.log*
 
 /example/database
 /example/logs
+
+/logs
