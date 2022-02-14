@@ -64,7 +64,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
       .awaitMessageComponent({
         componentType: 'BUTTON',
         filter: (i) => i.user.id === opponent.id,
-        time: 120 * 1000,
+        time: 120_000,
       })
       .catch()
 
@@ -98,7 +98,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
 
       const dmResponse = await msg.awaitMessageComponent({
         componentType: 'BUTTON',
-        time: 60 * 1000,
+        time: 60_000,
       })
 
       if (dmResponse == null) {

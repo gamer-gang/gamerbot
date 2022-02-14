@@ -164,7 +164,7 @@ const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
     const reply = interaction.channel.messages.cache.get((await interaction.fetchReply()).id)!
 
     const collector = reply.createMessageComponentCollector({
-      idle: 1000 * 60 * 5,
+      idle: 5 * 60_000,
     })
 
     collector.on('collect', (interaction) => {

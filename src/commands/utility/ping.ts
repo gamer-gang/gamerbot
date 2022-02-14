@@ -11,7 +11,7 @@ const COMMAND_PING = command('CHAT_INPUT', {
     await interaction.reply('Ping! ...')
     const end = process.hrtime.bigint()
 
-    await interaction.editReply(`Pong! ${((end - start) / 1000000n).toLocaleString()}ms`)
+    await interaction.editReply(`Pong! ${((end - start) / 1_000_000n).toLocaleString()}ms`)
     return CommandResult.Success
   },
 })

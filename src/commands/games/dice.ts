@@ -60,7 +60,7 @@ const COMMAND_DICE = command('CHAT_INPUT', {
       .awaitMessageComponent({
         componentType: 'BUTTON',
         filter: (i) => i.user.id === opponent.id,
-        time: 120 * 1000,
+        time: 120_000,
       })
       .catch()
 

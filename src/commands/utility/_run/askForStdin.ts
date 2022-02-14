@@ -37,7 +37,7 @@ const askForStdin = async (
 
   const result = await Promise.any([
     interaction.channel.awaitMessages({
-      idle: 1000 * 60 * 5, // 5 minutes
+      idle: 5 * 60_000,
       filter: (message) => message.author.id === interaction.user.id,
       max: 1,
       dispose: true,
@@ -46,7 +46,7 @@ const askForStdin = async (
     interaction.channel
       .awaitMessageComponent({
         componentType: 'BUTTON',
-        idle: 1000 * 60 * 5, // 5 minutes
+        idle: 5 * 60_000,
         filter: (component) =>
           component.customId === 'cancel' &&
           component.message.id === followUp.id &&
