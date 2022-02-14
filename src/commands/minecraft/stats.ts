@@ -1,8 +1,10 @@
 import { Image } from '@napi-rs/canvas'
 import axios from 'axios'
 import { stripIndent, stripIndents } from 'common-tags'
+import { Formatters } from 'discord.js'
 import { HypixelCacheResponse } from 'hypixel-cache'
 import assert from 'node:assert'
+import { performance } from 'node:perf_hooks'
 import { IS_DEVELOPMENT } from '../../constants.js'
 import { formatBytes } from '../../util.js'
 import { interactionReplySafe } from '../../util/discord.js'
@@ -72,16 +74,16 @@ const COMMAND_STATS = command('CHAT_INPUT', {
     }
 
     const timers = {
-      resolveNs: 0n,
-      dataNs: 0n,
-      cacheMs: 0,
-      avatarNs: 0n,
-      imageNs: 0n,
-      totalNs: 0n,
+      resolve: 0,
+      data: 0,
+      cache: 0,
+      avatar: 0,
+      image: 0,
+      total: 0,
     }
 
-    timers.totalNs = process.hrtime.bigint()
-    timers.resolveNs = process.hrtime.bigint()
+    timers.total = performance.now()
+    timers.resolve = performance.now()
 
     const gamemode = options.getString('gamemode') ?? 'bedwars'
     let identifier = options.getString('username')
@@ -117,7 +119,6 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       })
       return CommandResult.Success
     }
-    timers.resolveNs = process.hrtime.bigint() - timers.resolveNs
 
     const provider = STATS_PROVIDERS.find((provider) => provider.name === gamemode)
 
@@ -128,10 +129,14 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       return CommandResult.Success
     }
 
+    timers.resolve = Math.round(performance.now() - timers.resolve)
+
     await interaction.deferReply()
     try {
       const inputType = uuidRegex.test(identifier) ? 'uuid' : 'name'
-      timers.dataNs = process.hrtime.bigint()
+
+      timers.data = performance.now()
+
       const response = await axios.get<HypixelCacheResponse>(
         `${process.env.HYPIXEL_CACHE_URL}/${inputType}/${identifier}`,
         {
@@ -165,10 +170,9 @@ const COMMAND_STATS = command('CHAT_INPUT', {
         })
         return CommandResult.Failure
       }
-      timers.cacheMs = Math.round(
-        parseFloat(response.headers['x-response-time'].replace(/ms/g, ''))
-      )
-      timers.dataNs = process.hrtime.bigint() - timers.dataNs
+      timers.cache = Math.round(parseFloat(response.headers['x-response-time'].replace(/ms/g, '')))
+
+      timers.data = Math.round(performance.now() - timers.data)
 
       const player = response.data.player
 
@@ -176,14 +180,14 @@ const COMMAND_STATS = command('CHAT_INPUT', {
         await interaction.editReply({
           embeds: [
             Embed.error('Could not find player.').setFooter(stripIndents`
-            Cache time: ${timers.cacheMs}ms
-            Data time: ${timers.dataNs / 1000n}ms`),
+            Cache time: ${timers.cache}ms
+            Data time: ${timers.data / 1000}ms`),
           ],
         })
         return CommandResult.Success
       }
 
-      timers.avatarNs = process.hrtime.bigint()
+      timers.avatar = performance.now()
       // TODO improve avatar fetching
       const avatarResponse = await axios.get(
         `https://crafatar.com/avatars/${player.uuid}?size=${AVATAR_SIZE}&overlay`,
@@ -191,37 +195,32 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       )
       const avatar = new Image(AVATAR_SIZE, AVATAR_SIZE)
       avatar.src = avatarResponse.data
+      timers.avatar = Math.round(performance.now() - timers.avatar)
 
-      const isAvatarSuccess = (status: number): boolean => {
-        return status >= 200 && status < 300
-      }
-
-      timers.avatarNs = process.hrtime.bigint() - timers.avatarNs
-
-      timers.imageNs = process.hrtime.bigint()
+      timers.image = performance.now()
       const { image, metadata } = await provider.makeStats(
         player,
-        isAvatarSuccess(avatarResponse.status) ? avatar : undefined
+        avatarResponse.status >= 200 && avatarResponse.status < 300 ? avatar : undefined
       )
-      timers.imageNs = process.hrtime.bigint() - timers.imageNs
+      timers.image = Math.round(performance.now() - timers.image)
 
-      timers.totalNs = process.hrtime.bigint() - timers.totalNs
+      timers.total = Math.round(performance.now() - timers.total)
 
       const debugInfo = stripIndent`
-        resolve ${timers.resolveNs / 1_000_000n}ms
-        data ${timers.dataNs / 1_000_000n}ms
-          cache ${timers.cacheMs}ms
-        avatar ${timers.avatarNs / 1_000_000n}ms
-        image ${timers.imageNs / 1_000_000n}ms
+        resolve ${timers.resolve}ms
+        data ${timers.data}ms
+          cache ${timers.cache}ms
+        avatar ${timers.avatar}ms
+        image ${timers.image}ms
           provider ${provider.name}
           format ${metadata.format}
           size ${Math.round(metadata.width)}x${Math.round(metadata.height)}
           space ${formatBytes(metadata.bytes)}
-        total ${timers.totalNs / 1_000_000n}ms
+        total ${timers.total}ms
       `
 
       await interaction.editReply({
-        embeds: debug ? [Embed.info('Debug information', `\`\`\`${debugInfo}\`\`\``)] : [],
+        embeds: debug ? [Embed.info('Debug information', Formatters.codeBlock(debugInfo))] : [],
         files: [{ name: 'stats.png', attachment: image }],
       })
       return CommandResult.Success
