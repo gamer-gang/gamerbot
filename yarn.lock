@@ -283,9 +283,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:3.9.1":
-  version: 3.9.1
-  resolution: "@prisma/client@npm:3.9.1"
+"@prisma/client@npm:3.9.2":
+  version: 3.9.2
+  resolution: "@prisma/client@npm:3.9.2"
   dependencies:
     "@prisma/engines-version": 3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009
   peerDependencies:
@@ -293,7 +293,7 @@ __metadata:
   peerDependenciesMeta:
     prisma:
       optional: true
-  checksum: ab18181b29df6868a8209e8f86d665f9a19253f330102a6c345044acbefa5796bfa22f092709c7c1aa618a364c9a47000b131701f90bcdd84333ed93c438c93a
+  checksum: 5b4b8f252624250f609d57ed3939f3dbecb174c297691476050f48d6c24dd41ca2f70f9e5a52729a4e875527e56a2d564a116c0ada8f5fc935c558f09d2759e3
   languageName: node
   linkType: hard
 
@@ -1952,7 +1952,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord-api-types@npm:^0.26.0, discord-api-types@npm:^0.26.1":
+"discord-api-types@npm:^0.26.0":
   version: 0.26.1
   resolution: "discord-api-types@npm:0.26.1"
   checksum: e53bfa7589b24108e6b403dbe213da34c4592f72e2b8fde6800dcb6c703065887ecbd644e1cdf694e4c7796954bc51462ced868f26ec45dc1e0dc4fa8d3c723c
@@ -2632,9 +2632,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fork-ts-checker-webpack-plugin@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "fork-ts-checker-webpack-plugin@npm:7.2.0"
+"fork-ts-checker-webpack-plugin@npm:^7.2.1":
+  version: 7.2.1
+  resolution: "fork-ts-checker-webpack-plugin@npm:7.2.1"
   dependencies:
     "@babel/code-frame": ^7.16.7
     chalk: ^4.1.2
@@ -2654,7 +2654,7 @@ __metadata:
   peerDependenciesMeta:
     vue-template-compiler:
       optional: true
-  checksum: 767ed41ef3c1d0a88ca467e67a1f03a80049bdc610524b47dab51088a8174486c69a0c115fe7a2275773db215442694ecc6f549facadd105c19e880a786a9133
+  checksum: cc4a5caafc4df43324e03944e4cbbccf356f0ea09cf3694835729dc63b82eb0d630675b9ab5f5e45764f24242ea6f3bd2e5fd26256351eeef4e740785eec26c2
   languageName: node
   linkType: hard
 
@@ -2772,7 +2772,7 @@ __metadata:
   resolution: "gamerbot@workspace:."
   dependencies:
     "@napi-rs/canvas": ^0.1.19
-    "@prisma/client": 3.9.1
+    "@prisma/client": 3.9.2
     "@swc/core": ^1.2.138
     "@types/common-tags": ^1
     "@types/didyoumean": ^1
@@ -2792,7 +2792,6 @@ __metadata:
     axios: ^0.25.0
     common-tags: ^1.8.2
     didyoumean: ^1.2.2
-    discord-api-types: ^0.26.1
     discord.js: ^13.6.0
     dotenv: ^16.0.0
     emoji-regex: ^10.0.0
@@ -2801,7 +2800,7 @@ __metadata:
     eslint-plugin-import: ^2.25.4
     eslint-plugin-node: ^11.1.0
     eslint-plugin-promise: ^5.2.0
-    fork-ts-checker-webpack-plugin: ^7.2.0
+    fork-ts-checker-webpack-plugin: ^7.2.1
     hypixel-cache: "https://github.com/wiisportsresort/hypixel-cache"
     hypixel-types: "https://github.com/wiisportsresort/hypixel-types"
     js-yaml: ^4.1.0
@@ -2814,14 +2813,14 @@ __metadata:
     object-hash: ^2.2.0
     piston-client: ^1.0.2
     prettier: ^2.5.1
-    prisma: 3.9.1
+    prisma: 3.9.2
     regenerator-runtime: ^0.13.9
-    sharp: ^0.30.0
+    sharp: ^0.30.1
     source-map-loader: ^3.0.1
     source-map-support: ^0.5.21
     string-length: ^5.0.1
     swc-loader: ^0.1.15
-    typescript: ^4.6.0-dev.20220208
+    typescript: ^4.6.1-rc
     tzdata: ^1.0.29
     unicode: ^14.0.0
     webpack: ^5.68.0
@@ -4560,15 +4559,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma@npm:3.9.1":
-  version: 3.9.1
-  resolution: "prisma@npm:3.9.1"
+"prisma@npm:3.9.2":
+  version: 3.9.2
+  resolution: "prisma@npm:3.9.2"
   dependencies:
     "@prisma/engines": 3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009
   bin:
     prisma: build/index.js
     prisma2: build/index.js
-  checksum: c6feb7d0eb21bbf92d411dac0c39b7dd416840b305c180a1cf3a3699b0887160a4e9ca4a50bb4e5e255e80707b5f03643cc4a91590dc4852200b8e6e6570b5fd
+  checksum: 4070b61b09f45229680e1beeb14a95716353493032abaac9f6664bc60eba8279e165d446e8a12457a6d6a0e80d100c09228d00e7e1986e504fc8ceb9a16316f2
   languageName: node
   linkType: hard
 
@@ -4956,9 +4955,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.30.0":
-  version: 0.30.0
-  resolution: "sharp@npm:0.30.0"
+"sharp@npm:^0.30.1":
+  version: 0.30.1
+  resolution: "sharp@npm:0.30.1"
   dependencies:
     color: ^4.2.0
     detect-libc: ^2.0.0
@@ -4969,7 +4968,7 @@ __metadata:
     simple-get: ^4.0.1
     tar-fs: ^2.1.1
     tunnel-agent: ^0.6.0
-  checksum: 64f78d22bf9c86634d6bad967269da9c17a1e63c193ebcc591f6cc27ac936eaded8f8671dc9943968bc4a71ce0f5b3c4bf4fcf55d90fb40e71cf456f83d74467
+  checksum: 4297d9819936500656cd06fdeb13b164318d7f90cfe19896adfa1f7373c5ac39f2f11c43872a15f5931b9dfa14df90c0cb498f9b46086e1d00522680e9c9b3ef
   languageName: node
   linkType: hard
 
@@ -5542,23 +5541,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.6.0-dev.20220208":
-  version: 4.6.0-dev.20220208
-  resolution: "typescript@npm:4.6.0-dev.20220208"
+"typescript@npm:^4.6.1-rc":
+  version: 4.6.1-rc
+  resolution: "typescript@npm:4.6.1-rc"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 3713fd3b7685c119e90dfe3a063a7023197fc439f3a1f8c39f8d757d26ecc25d8b5175e5d123e119f4b3b0406babbf3122966411eea2f0671183ad033da612cb
+  checksum: d456efbc299b3569e049b4cefb92c920b9b631d88f3e85ea9326ee185cb872de98fb02e4ad9e998ae12491e9d5025ee4a85f45f6fe938709cabae9d419c6108b
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.6.0-dev.20220208#~builtin<compat/typescript>":
-  version: 4.6.0-dev.20220208
-  resolution: "typescript@patch:typescript@npm%3A4.6.0-dev.20220208#~builtin<compat/typescript>::version=4.6.0-dev.20220208&hash=ddd1e8"
+"typescript@patch:typescript@^4.6.1-rc#~builtin<compat/typescript>":
+  version: 4.6.1-rc
+  resolution: "typescript@patch:typescript@npm%3A4.6.1-rc#~builtin<compat/typescript>::version=4.6.1-rc&hash=ddd1e8"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 0846c955d3faa3c6c14f9eb8c9a217bbc413f40d37658ca85040ad3efa366dc22dc289128b52007acc674ce457a9d915c0e76fd98ca6d38dd1a7079ac0e27348
+  checksum: 27bc11254482fa74b50a2a9d4c8114ecbaf02b129ac523de49703dec4efe61831ab8235f5a412fbc8c14d51f2d1c4d7313216ab40e47bfb2524bad6e70bf2243
   languageName: node
   linkType: hard
 
