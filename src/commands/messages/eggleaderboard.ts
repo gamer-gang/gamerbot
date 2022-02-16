@@ -79,6 +79,7 @@ const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
     }
 
     const eggers = _.sortBy((await prisma.eggLeaderboard.findMany()) ?? [], type)
+    eggers.reverse()
 
     // eggers.sort((a, b) => {
     //   const aVal = a[type]
