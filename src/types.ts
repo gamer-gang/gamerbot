@@ -155,5 +155,6 @@ export interface DocsJson {
     logUsage: boolean
     userPermissions: PermissionString[]
     botPermissions: PermissionString[]
+    sourceLocation: string
   }>
 }
