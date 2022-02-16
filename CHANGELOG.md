@@ -1,3 +1,19 @@
+# v2.2.0
+
+## Features
+
+- Add [`/trivia`](https://gamerbot.dev/commands#command-trivia)
+
+## Changes
+
+- Send `/run` output as file if output is over 40 lines long
+- Fix order of eggers in `/eggleaderboard`
+- Add source locations for commands to generated documentation JSON
+
+## Bugfixes
+
+No notable bugfixes.
+
 # v2.1.0
 
 ## Features

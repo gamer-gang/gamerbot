@@ -166,6 +166,7 @@ declare module "src/types" {
             logUsage: boolean;
             userPermissions: PermissionString[];
             botPermissions: PermissionString[];
+            sourceLocation: string;
         }>;
     }
 }
@@ -197,9 +198,11 @@ declare module "src/constants" {
     export const IS_DEVELOPMENT: boolean;
     export const IS_DEBUG: boolean;
 }
-declare module "src/util/message" {
-    import { MessageOptions } from 'discord.js';
-    export const parseDiscordJson: (json: string) => MessageOptions;
+declare module "src/util/format" {
+    import { CommandInteractionOption } from 'discord.js';
+    export const formatOptions: (options: readonly CommandInteractionOption[]) => string;
+    export const formatBytes: (bytes: number, decimals?: number) => string;
+    export const formatUtcOffset: (offset: number) => string;
     export const formatErrorMessage: (err: unknown) => string;
 }
 declare module "src/util/embed" {
@@ -231,17 +234,15 @@ declare module "src/util/embed" {
 }
 declare module "src/util" {
     import { TimeZone } from '@vvo/tzdb';
-    import { ApplicationCommandOptionChoice, CommandInteraction, CommandInteractionOption, ContextMenuInteraction } from 'discord.js';
+    import { ApplicationCommandOptionChoice, CommandInteraction, ContextMenuInteraction } from 'discord.js';
     import { Command } from "src/commands/command";
     import { ChatCommandDef, MessageCommandDef, UserCommandDef } from "src/types";
-    export const formatOptions: (options: readonly CommandInteractionOption[]) => string;
     export const isChatCommand: (def: ChatCommandDef | UserCommandDef | MessageCommandDef) => def is ChatCommandDef;
-    export const formatBytes: (bytes: number, decimals?: number) => string;
     export const insertUuidDashes: (uuid: string) => string;
     export const hasPermissions: (interaction: CommandInteraction | ContextMenuInteraction, command: Command) => boolean;
     export const matchString: (input: string, possible: string[]) => ApplicationCommandOptionChoice[];
-    export const formatUtcOffset: (offset: number) => string;
     export const findTimeZone: (input: string) => TimeZone | undefined;
+    export const escapeMarkdown: (str: string) => string;
 }
 declare module "src/commands/command" {
     import { ChatCommandDef, MessageCommandDef, UserCommandDef } from "src/types";
@@ -417,6 +418,80 @@ declare module "src/commands/games/dice" {
 declare module "src/commands/games/rps" {
     const COMMAND_RPS: import("src/commands/command").ChatCommand;
     export default COMMAND_RPS;
+}
+declare module "src/types/trivia" {
+    export interface CategoriesResponse {
+        trivia_categories: Array<{
+            id: number;
+            name: string;
+        }>;
+    }
+    export interface TriviaOptions {
+        category?: number | string;
+        type?: 'boolean' | 'multiple';
+        difficulty?: 'easy' | 'medium' | 'hard';
+    }
+    export interface TriviaQuestion {
+        category: string;
+        type: 'boolean' | 'multiple';
+        difficulty: 'easy' | 'medium' | 'hard';
+        question: string;
+        correct_answer: string;
+        incorrect_answers: string[];
+    }
+    export const enum TriviaResponseType {
+        Success = 0,
+        NoResults = 1,
+        InvalidParameters = 2,
+        InvalidToken = 3,
+        QuestionsExhausted = 4
+    }
+    export interface TriviaResponse {
+        /**
+         * #### Response Codes
+         *
+         * The API appends a "Response Code" to each API Call to help tell developers what the API is
+         * doing.
+         *
+         * - Code 0: Success Returned results successfully.
+         * - Code 1: No Results Could not return results. The API doesn't have enough questions for your
+         *   query. (Ex. Asking for 50 Questions in a Category that only has 20.)
+         * - Code 2: Invalid Parameter Contains an invalid parameter. Arguements passed in aren't valid.
+         *   (Ex. Amount = Five)
+         * - Code 3: Token Not Found Session Token does not exist.
+         * - Code 4: Token Empty Session Token has returned all possible questions for the specified
+         *   query. Resetting the Token is necessary.
+         */
+        response_code: 0 | 1 | 2 | 3 | 4;
+        results: TriviaQuestion[];
+    }
+    export interface TokenRequestResponse {
+        response_code: number;
+        response_message: string;
+        token: string;
+    }
+    export interface TokenResetResponse {
+        response_code: number;
+        token: string;
+    }
+}
+declare module "src/TriviaManager" {
+    import { Logger } from 'log4js';
+    import { GamerbotClient } from "src/GamerbotClient";
+    import { CategoriesResponse, TriviaOptions, TriviaResponse } from "src/types/trivia";
+    export class TriviaManager {
+        #private;
+        readonly client: GamerbotClient;
+        logger: Logger;
+        constructor(client: GamerbotClient);
+        resetToken(): Promise<boolean>;
+        static getCategories(): Promise<CategoriesResponse['trivia_categories']>;
+        fetchQuestion(options?: TriviaOptions): Promise<TriviaResponse>;
+    }
+}
+declare module "src/commands/games/trivia" {
+    const COMMAND_TRIVIA: import("src/commands/command").ChatCommand;
+    export default COMMAND_TRIVIA;
 }
 declare module "src/commands/general/about" {
     const COMMAND_ABOUT: import("src/commands/command").ChatCommand;
@@ -612,6 +687,10 @@ declare module "src/commands/moderation/unban" {
     const COMMAND_UNBAN: import("src/commands/command").ChatCommand;
     export default COMMAND_UNBAN;
 }
+declare module "src/util/message" {
+    import { MessageOptions } from 'discord.js';
+    export const parseDiscordJson: (json: string) => MessageOptions;
+}
 declare module "src/commands/utility/apimessage" {
     const COMMAND_APIMESSAGE: import("src/commands/command").ChatCommand;
     export default COMMAND_APIMESSAGE;
@@ -714,6 +793,7 @@ declare module "src/GamerbotClient" {
     import { AnalyticsManager } from "src/analytics/manager";
     import { Command } from "src/commands/command";
     import { CountManager } from "src/CountManager";
+    import { TriviaManager } from "src/TriviaManager";
     import { PresenceManager } from "src/util/presence";
     export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {
     }
@@ -724,6 +804,7 @@ declare module "src/GamerbotClient" {
         readonly presenceManager: PresenceManager;
         readonly analytics: AnalyticsManager;
         readonly countManager: CountManager;
+        readonly triviaManager: TriviaManager;
         constructor(options?: GamerbotClientOptions);
         getLogger(category: string): log4js.Logger;
         refreshPresence(): Promise<void>;
