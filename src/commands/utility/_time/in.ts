@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
-import { findTimeZone, formatUtcOffset } from '../../../util.js'
+import { findTimeZone } from '../../../util.js'
 import { Embed } from '../../../util/embed.js'
+import { formatUtcOffset } from '../../../util/format.js'
 import { CommandResult } from '../../command.js'
 import { TimeHandler } from '../time.js'
 

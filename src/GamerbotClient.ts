@@ -19,10 +19,10 @@ import { CountManager } from './CountManager.js'
 import * as eggs from './egg.js'
 import { initLogger } from './logger.js'
 import { prisma } from './prisma.js'
-import { formatOptions, hasPermissions } from './util.js'
+import { hasPermissions } from './util.js'
 import { interactionReplySafe } from './util/discord.js'
 import { Embed } from './util/embed.js'
-import { formatErrorMessage } from './util/message.js'
+import { formatErrorMessage, formatOptions } from './util/format.js'
 import { PresenceManager } from './util/presence.js'
 
 export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {}

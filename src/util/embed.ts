@@ -1,7 +1,7 @@
 import { MessageEmbed, MessageEmbedOptions, User } from 'discord.js'
 import { Color } from './color.js'
 import { getProfileImageUrl } from './discord.js'
-import { formatErrorMessage } from './message.js'
+import { formatErrorMessage } from './format.js'
 
 type EmbedIntent = 'info' | 'success' | 'warning' | 'error'
 
