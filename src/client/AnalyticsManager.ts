@@ -2,10 +2,10 @@ import { AnalyticsReport, CommandReport, CommandType as DatabaseCommandType } fr
 import { DateTime } from 'luxon'
 import { createHash } from 'node:crypto'
 import { Command, CommandResult } from '../commands/command.js'
-import type { GamerbotClient } from '../GamerbotClient.js'
 import { prisma } from '../prisma.js'
-import { AnalyticsEvent, EventData, EventReturnType, events } from './event.js'
-import { CommandReportStats } from './types.js'
+import type { GamerbotClient } from './GamerbotClient.js'
+import { AnalyticsEvent, EventData, EventReturnType, events } from './_analytics/event.js'
+import { CommandReportStats } from './_analytics/types.js'
 
 export class AnalyticsManager {
   #initialized = false

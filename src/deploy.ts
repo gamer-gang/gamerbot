@@ -7,8 +7,8 @@ import {
 } from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'
+import { GamerbotClient } from './client/GamerbotClient.js'
 import { IS_DEVELOPMENT } from './constants.js'
-import { GamerbotClient } from './GamerbotClient.js'
 
 export const deployCommands = async (client: GamerbotClient): Promise<void> => {
   let commandManager: GuildApplicationCommandManager | ApplicationCommandManager | undefined

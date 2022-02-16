@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import dotenv from 'dotenv'
 import log4js from 'log4js'
+import { GamerbotClient } from './client/GamerbotClient.js'
 import { deployCommands } from './deploy.js'
-import { GamerbotClient } from './GamerbotClient.js'
 import { prisma } from './prisma.js'
 
 dotenv.config()

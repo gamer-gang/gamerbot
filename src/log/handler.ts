@@ -1,5 +1,5 @@
 import { ClientEvents, Guild } from 'discord.js'
-import { GamerbotClient } from '../GamerbotClient.js'
+import { GamerbotClient } from '../client/GamerbotClient.js'
 import { Embed } from '../util/embed.js'
 
 interface LogHandlerContext {
