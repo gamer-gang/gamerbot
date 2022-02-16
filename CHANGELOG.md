@@ -1,3 +1,9 @@
+# v2.2.1
+
+## Bugfixes
+
+- Correct .js extensions to .ts in generated documentation JSON
+
 # v2.2.0
 
 ## Features
