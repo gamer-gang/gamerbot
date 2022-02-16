@@ -247,8 +247,8 @@ const COMMAND_RUN = command('CHAT_INPUT', {
       embed = Embed.success('Execution completed.')
     }
 
-    if (output.length > 1500) {
-      embed.setDescription(`${embed.description}\nOutput is attached.`)
+    if (output.length > 1500 || output.split('\n').length > 40) {
+      embed.setDescription(`${embed.description} Output is attached.`)
       files.push({
         name: 'output.txt',
         attachment: Buffer.from(output, 'utf8'),
