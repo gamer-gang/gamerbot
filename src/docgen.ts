@@ -18,7 +18,9 @@ const commandsTs = fs.readFileSync(path.resolve(__dirname, 'commands.ts'), 'utf8
 
 const commandImports = commandsTs
   .filter((line) => /^import COMMAND_/.test(line))
-  .map((line) => /^import COMMAND_([^ ]+) from '\.\/([^']+)'$/.exec(line)!)
+  .map(
+    (line) => /^import COMMAND_([^ ]+) from '\.\/([^']+)'$/.exec(line.replace(/\.js'$/, ".ts'"))!
+  )
   .reduce<Record<string, string>>((obj, match) => ((obj[match[1]] = `src/${match[2]}`), obj), {})
 
 const commandNames = commandsTs.flatMap((line) => /^\s+COMMAND_([^,\n]+),$/.exec(line)?.at(1) ?? [])
