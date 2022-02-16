@@ -132,3 +132,8 @@ export const findTimeZone = (input: string): TimeZone | undefined => {
       tz.alternativeName === input
   )
 }
+
+export const escapeMarkdown = (str: string): string => {
+  // escape markdown using 0-width spaces
+  return str.replace(/[-~*_`[\]()#+]/g, '\u200b$&')
+}

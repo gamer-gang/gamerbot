@@ -19,6 +19,7 @@ import { CountManager } from './CountManager.js'
 import * as eggs from './egg.js'
 import { initLogger } from './logger.js'
 import { prisma } from './prisma.js'
+import { TriviaManager } from './TriviaManager.js'
 import { hasPermissions } from './util.js'
 import { interactionReplySafe } from './util/discord.js'
 import { Embed } from './util/embed.js'
@@ -37,6 +38,7 @@ export class GamerbotClient extends Client {
   readonly presenceManager = new PresenceManager(this)
   readonly analytics = new AnalyticsManager(this)
   readonly countManager = new CountManager(this)
+  readonly triviaManager = new TriviaManager(this)
 
   #updateAnalyticsInterval: NodeJS.Timeout | null = null
   #updateCountsInterval: NodeJS.Timeout | null = null
