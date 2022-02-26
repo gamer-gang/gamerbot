@@ -3,7 +3,7 @@
   "version": "2.2.2",
   "license": "MIT",
   "type": "module",
-  "packageManager": "yarn@3.1.0",
+  "packageManager": "yarn@3.2.0",
   "private": true,
   "workspaces": [
     "types"
@@ -43,7 +43,7 @@
     "emoji-regex": "^10.0.0",
     "he": "^1.2.0",
     "hypixel-cache": "https://github.com/wiisportsresort/hypixel-cache#a41080bde6cd365f8b063cbe60ac48e020d72f57",
-    "hypixel-types": "https://github.com/wiisportsresort/hypixel-types",
+    "hypixel-types": "https://github.com/wiisportsresort/hypixel-types#839190e9cbffeb7bb846fd5e414f36a1554ead4c",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "log4js": "^6.4.1",
