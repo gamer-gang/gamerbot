@@ -1,6 +1,6 @@
 import { Image } from '@napi-rs/canvas'
 import axios from 'axios'
-import { stripIndent, stripIndents } from 'common-tags'
+import { stripIndent } from 'common-tags'
 import { Formatters } from 'discord.js'
 import { HypixelCacheResponse } from 'hypixel-cache'
 import assert from 'node:assert'
@@ -179,9 +179,9 @@ const COMMAND_STATS = command('CHAT_INPUT', {
       if (player == null) {
         await interaction.editReply({
           embeds: [
-            Embed.error('Could not find player.').setFooter(stripIndents`
-            Cache time: ${timers.cache}ms
-            Data time: ${timers.data / 1000}ms`),
+            Embed.error('Could not find player.').setFooter({
+              text: `data ${Math.round(timers.data / 1000)}ms (cache ${timers.cache}ms)`,
+            }),
           ],
         })
         return CommandResult.Success

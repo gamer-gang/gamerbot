@@ -1,5 +1,8 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference lib="DOM" />
 import { SKRSContext2D } from '@napi-rs/canvas'
 import { Player } from 'hypixel-types'
+import assert from 'node:assert'
 import * as s from '../../../style.js'
 import { Color } from '../../../util/color.js'
 import { colors, parseFormattedText, stripFormatting } from './style.js'
@@ -73,7 +76,13 @@ export const drawRank = (
 
   const charWidth = s.getCharWidth(c)
 
-  const split = parseFormattedText(rankPrefixes[getRank(player)]).map((segment) => {
+  const rank = getRank(player)
+
+  if (rank === 'NON_DONOR') {
+    return [x, colors.gray]
+  }
+
+  const split = parseFormattedText(rankPrefixes[rank]).map((segment) => {
     if (/^\*+$/.test(segment.text)) {
       segment.color = colors[(player.rankPlusColor ?? 'red').toLowerCase() as keyof typeof colors]
       segment.text = segment.text.replace(/\*/g, '+')
@@ -82,6 +91,7 @@ export const drawRank = (
     return segment
   })
 
+  assert(split.every((s) => s.text != null))
   const prefixWidth = split.reduce((offset, segment) => {
     c.fillStyle = segment.color.hex
     c.fillText(segment.text, offset - charWidth * 0.2, y)

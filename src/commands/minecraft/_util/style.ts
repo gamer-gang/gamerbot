@@ -10,7 +10,7 @@ export const transaction = <T>(c: SKRSContext2D, f: () => T): T => {
   return ret
 }
 
-export const colors: { [key: string]: Color } = {
+export const colors = {
   black: Color.from(0x000000),
   dark_blue: Color.from(0x0000aa),
   dark_green: Color.from(0x00aa00),
@@ -29,7 +29,8 @@ export const colors: { [key: string]: Color } = {
   white: Color.from(0xffffff),
 }
 
-export const colorCode = (num: number): Color => colors[Object.keys(colors)[num]]
+export const colorCode = (num: number): Color =>
+  colors[Object.keys(colors)[num] as keyof typeof colors]
 
 interface Text {
   color: Color
