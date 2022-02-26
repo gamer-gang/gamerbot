@@ -137,82 +137,82 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@napi-rs/canvas-android-arm64@npm:0.1.19":
-  version: 0.1.19
-  resolution: "@napi-rs/canvas-android-arm64@npm:0.1.19"
+"@napi-rs/canvas-android-arm64@npm:0.1.20":
+  version: 0.1.20
+  resolution: "@napi-rs/canvas-android-arm64@npm:0.1.20"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@napi-rs/canvas-darwin-arm64@npm:0.1.19":
-  version: 0.1.19
-  resolution: "@napi-rs/canvas-darwin-arm64@npm:0.1.19"
+"@napi-rs/canvas-darwin-arm64@npm:0.1.20":
+  version: 0.1.20
+  resolution: "@napi-rs/canvas-darwin-arm64@npm:0.1.20"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@napi-rs/canvas-darwin-x64@npm:0.1.19":
-  version: 0.1.19
-  resolution: "@napi-rs/canvas-darwin-x64@npm:0.1.19"
+"@napi-rs/canvas-darwin-x64@npm:0.1.20":
+  version: 0.1.20
+  resolution: "@napi-rs/canvas-darwin-x64@npm:0.1.20"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@napi-rs/canvas-linux-arm-gnueabihf@npm:0.1.19":
-  version: 0.1.19
-  resolution: "@napi-rs/canvas-linux-arm-gnueabihf@npm:0.1.19"
+"@napi-rs/canvas-linux-arm-gnueabihf@npm:0.1.20":
+  version: 0.1.20
+  resolution: "@napi-rs/canvas-linux-arm-gnueabihf@npm:0.1.20"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@napi-rs/canvas-linux-arm64-gnu@npm:0.1.19":
-  version: 0.1.19
-  resolution: "@napi-rs/canvas-linux-arm64-gnu@npm:0.1.19"
+"@napi-rs/canvas-linux-arm64-gnu@npm:0.1.20":
+  version: 0.1.20
+  resolution: "@napi-rs/canvas-linux-arm64-gnu@npm:0.1.20"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@napi-rs/canvas-linux-arm64-musl@npm:0.1.19":
-  version: 0.1.19
-  resolution: "@napi-rs/canvas-linux-arm64-musl@npm:0.1.19"
+"@napi-rs/canvas-linux-arm64-musl@npm:0.1.20":
+  version: 0.1.20
+  resolution: "@napi-rs/canvas-linux-arm64-musl@npm:0.1.20"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@napi-rs/canvas-linux-x64-gnu@npm:0.1.19":
-  version: 0.1.19
-  resolution: "@napi-rs/canvas-linux-x64-gnu@npm:0.1.19"
+"@napi-rs/canvas-linux-x64-gnu@npm:0.1.20":
+  version: 0.1.20
+  resolution: "@napi-rs/canvas-linux-x64-gnu@npm:0.1.20"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@napi-rs/canvas-linux-x64-musl@npm:0.1.19":
-  version: 0.1.19
-  resolution: "@napi-rs/canvas-linux-x64-musl@npm:0.1.19"
+"@napi-rs/canvas-linux-x64-musl@npm:0.1.20":
+  version: 0.1.20
+  resolution: "@napi-rs/canvas-linux-x64-musl@npm:0.1.20"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@napi-rs/canvas-win32-x64-msvc@npm:0.1.19":
-  version: 0.1.19
-  resolution: "@napi-rs/canvas-win32-x64-msvc@npm:0.1.19"
+"@napi-rs/canvas-win32-x64-msvc@npm:0.1.20":
+  version: 0.1.20
+  resolution: "@napi-rs/canvas-win32-x64-msvc@npm:0.1.20"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@napi-rs/canvas@npm:^0.1.19":
-  version: 0.1.19
-  resolution: "@napi-rs/canvas@npm:0.1.19"
+"@napi-rs/canvas@npm:^0.1.20":
+  version: 0.1.20
+  resolution: "@napi-rs/canvas@npm:0.1.20"
   dependencies:
-    "@napi-rs/canvas-android-arm64": 0.1.19
-    "@napi-rs/canvas-darwin-arm64": 0.1.19
-    "@napi-rs/canvas-darwin-x64": 0.1.19
-    "@napi-rs/canvas-linux-arm-gnueabihf": 0.1.19
-    "@napi-rs/canvas-linux-arm64-gnu": 0.1.19
-    "@napi-rs/canvas-linux-arm64-musl": 0.1.19
-    "@napi-rs/canvas-linux-x64-gnu": 0.1.19
-    "@napi-rs/canvas-linux-x64-musl": 0.1.19
-    "@napi-rs/canvas-win32-x64-msvc": 0.1.19
+    "@napi-rs/canvas-android-arm64": 0.1.20
+    "@napi-rs/canvas-darwin-arm64": 0.1.20
+    "@napi-rs/canvas-darwin-x64": 0.1.20
+    "@napi-rs/canvas-linux-arm-gnueabihf": 0.1.20
+    "@napi-rs/canvas-linux-arm64-gnu": 0.1.20
+    "@napi-rs/canvas-linux-arm64-musl": 0.1.20
+    "@napi-rs/canvas-linux-x64-gnu": 0.1.20
+    "@napi-rs/canvas-linux-x64-musl": 0.1.20
+    "@napi-rs/canvas-win32-x64-msvc": 0.1.20
   dependenciesMeta:
     "@napi-rs/canvas-android-arm64":
       optional: true
@@ -232,7 +232,7 @@ __metadata:
       optional: true
     "@napi-rs/canvas-win32-x64-msvc":
       optional: true
-  checksum: 39fd50c54ea014eac3f5d0bf4ff69ad4f326d80743e3d6e736fe3e961c1e039a822cc4d2465b2eda9c8d7b4a1c638d6e0f78b05fc7fb42d9a9c373122af010e6
+  checksum: 31d8904e5d2ff9517cf8f2655fdaf206eb47e6969f6b77e6857417222789d9a56939223a73a576561fb7814182c51006505ca1798c044ea864e158f4e7ef4d93
   languageName: node
   linkType: hard
 
@@ -283,31 +283,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:3.9.2":
-  version: 3.9.2
-  resolution: "@prisma/client@npm:3.9.2"
+"@prisma/client@npm:3.10.0":
+  version: 3.10.0
+  resolution: "@prisma/client@npm:3.10.0"
   dependencies:
-    "@prisma/engines-version": 3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009
+    "@prisma/engines-version": 3.10.0-50.73e60b76d394f8d37d8ebd1f8918c79029f0db86
   peerDependencies:
     prisma: "*"
   peerDependenciesMeta:
     prisma:
       optional: true
-  checksum: 5b4b8f252624250f609d57ed3939f3dbecb174c297691476050f48d6c24dd41ca2f70f9e5a52729a4e875527e56a2d564a116c0ada8f5fc935c558f09d2759e3
+  checksum: c9fe863abfbcecff6b26c2fc4c93de77fd11c8209e91b8e2cba13ba3f0866d228eb5e92fac43e1f75497b652db54cb5e309320c3d51e603a4ecb4125dbf3a872
   languageName: node
   linkType: hard
 
-"@prisma/engines-version@npm:3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009":
-  version: 3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009
-  resolution: "@prisma/engines-version@npm:3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009"
-  checksum: 413d478fc1980604de1f46a0d53ae6c752965283a7d8c51d8fb3881c371b4a71ab4aa10002dba411d961286caf1141871c3c85d209a316421cdf1e1fdac71b4e
+"@prisma/engines-version@npm:3.10.0-50.73e60b76d394f8d37d8ebd1f8918c79029f0db86":
+  version: 3.10.0-50.73e60b76d394f8d37d8ebd1f8918c79029f0db86
+  resolution: "@prisma/engines-version@npm:3.10.0-50.73e60b76d394f8d37d8ebd1f8918c79029f0db86"
+  checksum: ddcb3bfdab61ac74e2df9e57562ccc7f0eb863955c8cf711f52f45572168f65e030e5070dfc9fc2e37d916b97b236576006b5cd56c813257a96b825c598e79fa
   languageName: node
   linkType: hard
 
-"@prisma/engines@npm:3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009":
-  version: 3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009
-  resolution: "@prisma/engines@npm:3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009"
-  checksum: f934a02f0d12b67a8b878da5b854a2df0b1d5adbedb9d6df552dddcb4f58af9401268c2066180a337daa0fd22d9005eae2197bf8a4cc7b9e1a20764fe93f1244
+"@prisma/engines@npm:3.10.0-50.73e60b76d394f8d37d8ebd1f8918c79029f0db86":
+  version: 3.10.0-50.73e60b76d394f8d37d8ebd1f8918c79029f0db86
+  resolution: "@prisma/engines@npm:3.10.0-50.73e60b76d394f8d37d8ebd1f8918c79029f0db86"
+  checksum: 7faa8659dd72e70f9b24be291e3660d086d5b2ee1b6557bf783100a2efaf4f7087882196191c845f96c3953a55ea8bcb03110af98a18e803b90084c0c2211444
   languageName: node
   linkType: hard
 
@@ -332,114 +332,140 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm-eabi@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-android-arm-eabi@npm:1.2.138"
+"@swc/core-android-arm-eabi@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-android-arm-eabi@npm:1.2.145"
+  bin:
+    swcx: swc
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm64@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-android-arm64@npm:1.2.138"
+"@swc/core-android-arm64@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-android-arm64@npm:1.2.145"
+  bin:
+    swcx: swc
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-darwin-arm64@npm:1.2.138"
+"@swc/core-darwin-arm64@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-darwin-arm64@npm:1.2.145"
+  bin:
+    swcx: swc
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-darwin-x64@npm:1.2.138"
+"@swc/core-darwin-x64@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-darwin-x64@npm:1.2.145"
+  bin:
+    swcx: swc
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-freebsd-x64@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-freebsd-x64@npm:1.2.138"
+"@swc/core-freebsd-x64@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-freebsd-x64@npm:1.2.145"
+  bin:
+    swcx: swc
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.138"
+"@swc/core-linux-arm-gnueabihf@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.145"
+  bin:
+    swcx: swc
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.138"
+"@swc/core-linux-arm64-gnu@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.145"
+  bin:
+    swcx: swc
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-linux-arm64-musl@npm:1.2.138"
+"@swc/core-linux-arm64-musl@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-linux-arm64-musl@npm:1.2.145"
+  bin:
+    swcx: swc
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-linux-x64-gnu@npm:1.2.138"
+"@swc/core-linux-x64-gnu@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-linux-x64-gnu@npm:1.2.145"
+  bin:
+    swcx: swc
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-linux-x64-musl@npm:1.2.138"
+"@swc/core-linux-x64-musl@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-linux-x64-musl@npm:1.2.145"
+  bin:
+    swcx: swc
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.138"
+"@swc/core-win32-arm64-msvc@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.145"
+  bin:
+    swcx: swc.exe
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.138"
+"@swc/core-win32-ia32-msvc@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.145"
+  bin:
+    swcx: swc.exe
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core-win32-x64-msvc@npm:1.2.138"
+"@swc/core-win32-x64-msvc@npm:1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core-win32-x64-msvc@npm:1.2.145"
+  bin:
+    swcx: swc.exe
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.2.138":
-  version: 1.2.138
-  resolution: "@swc/core@npm:1.2.138"
+"@swc/core@npm:^1.2.145":
+  version: 1.2.145
+  resolution: "@swc/core@npm:1.2.145"
   dependencies:
-    "@swc/core-android-arm-eabi": 1.2.138
-    "@swc/core-android-arm64": 1.2.138
-    "@swc/core-darwin-arm64": 1.2.138
-    "@swc/core-darwin-x64": 1.2.138
-    "@swc/core-freebsd-x64": 1.2.138
-    "@swc/core-linux-arm-gnueabihf": 1.2.138
-    "@swc/core-linux-arm64-gnu": 1.2.138
-    "@swc/core-linux-arm64-musl": 1.2.138
-    "@swc/core-linux-x64-gnu": 1.2.138
-    "@swc/core-linux-x64-musl": 1.2.138
-    "@swc/core-win32-arm64-msvc": 1.2.138
-    "@swc/core-win32-ia32-msvc": 1.2.138
-    "@swc/core-win32-x64-msvc": 1.2.138
+    "@swc/core-android-arm-eabi": 1.2.145
+    "@swc/core-android-arm64": 1.2.145
+    "@swc/core-darwin-arm64": 1.2.145
+    "@swc/core-darwin-x64": 1.2.145
+    "@swc/core-freebsd-x64": 1.2.145
+    "@swc/core-linux-arm-gnueabihf": 1.2.145
+    "@swc/core-linux-arm64-gnu": 1.2.145
+    "@swc/core-linux-arm64-musl": 1.2.145
+    "@swc/core-linux-x64-gnu": 1.2.145
+    "@swc/core-linux-x64-musl": 1.2.145
+    "@swc/core-win32-arm64-msvc": 1.2.145
+    "@swc/core-win32-ia32-msvc": 1.2.145
+    "@swc/core-win32-x64-msvc": 1.2.145
   dependenciesMeta:
     "@swc/core-android-arm-eabi":
       optional: true
@@ -467,7 +493,7 @@ __metadata:
       optional: true
     "@swc/core-win32-x64-msvc":
       optional: true
-  checksum: 151ded0768b3bbd7fc02d992086d676f5f6d89ac7a42e0ba2a5a13ef89514707f2984f15827d1e1271c54e5d4a9002832dfa659b506406ba266ac90560f60e82
+  checksum: c34ff054cb4af53966c9607ba60180e2c653cc7a093f3511174462e072ebc41b4bd698f522330cc1de84f05f3f20e21152cef3d661a3361a3a49ff8cf84f357e
   languageName: node
   linkType: hard
 
@@ -518,6 +544,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/eslint-scope@npm:^3.7.3":
+  version: 3.7.3
+  resolution: "@types/eslint-scope@npm:3.7.3"
+  dependencies:
+    "@types/eslint": "*"
+    "@types/estree": "*"
+  checksum: 6772b05e1b92003d1f295e81bc847a61f4fbe8ddab77ffa49e84ed3f9552513bdde677eb53ef167753901282857dd1d604d9f82eddb34a233495932b2dc3dc17
+  languageName: node
+  linkType: hard
+
 "@types/eslint@npm:*":
   version: 7.28.2
   resolution: "@types/eslint@npm:7.28.2"
@@ -532,6 +568,13 @@ __metadata:
   version: 0.0.50
   resolution: "@types/estree@npm:0.0.50"
   checksum: 9a2b6a4a8c117f34d08fbda5e8f69b1dfb109f7d149b60b00fd7a9fb6ac545c078bc590aa4ec2f0a256d680cf72c88b3b28b60c326ee38a7bc8ee1ee95624922
+  languageName: node
+  linkType: hard
+
+"@types/estree@npm:^0.0.51":
+  version: 0.0.51
+  resolution: "@types/estree@npm:0.0.51"
+  checksum: e56a3bcf759fd9185e992e7fdb3c6a5f81e8ff120e871641607581fb3728d16c811702a7d40fa5f869b7f7b4437ab6a87eb8d98ffafeee51e85bbe955932a189
   languageName: node
   linkType: hard
 
@@ -832,10 +875,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vvo/tzdb@npm:^6.45.0":
-  version: 6.45.0
-  resolution: "@vvo/tzdb@npm:6.45.0"
-  checksum: dd29e91ee85ba6d38ede528165672f95c18490d773b346185d89e32e110885b1969e91bebafbe8032d0a18c7c407251ba9c17e7411201c9e5c5bb26781d7fcc1
+"@vvo/tzdb@npm:^6.47.0":
+  version: 6.47.0
+  resolution: "@vvo/tzdb@npm:6.47.0"
+  checksum: 1a9c71fe2f6d61b10217a7548ceab2d63888062557de951a3f755852d8ded178de1d48827eb6a7bf2c35f7dc9fe54f493f814773697cdb1377b1a6d31790270a
   languageName: node
   linkType: hard
 
@@ -1313,12 +1356,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^0.25.0":
-  version: 0.25.0
-  resolution: "axios@npm:0.25.0"
+"axios@npm:^0.26.0":
+  version: 0.26.0
+  resolution: "axios@npm:0.26.0"
   dependencies:
-    follow-redirects: ^1.14.7
-  checksum: 2a8a3787c05f2a0c9c3878f49782357e2a9f38945b93018fb0c4fd788171c43dceefbb577988628e09fea53952744d1ecebde234b561f1e703aa43e0a598a3ad
+    follow-redirects: ^1.14.8
+  checksum: d7a8b898f4157bedeb2e06c03b16133b91b354c041205bea732ce58b7a21f373d22057b0eea0d482838145ce6ff482b359750d9bcb8dd19d45e3928e3c65c280
   languageName: node
   linkType: hard
 
@@ -2629,13 +2672,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.14.7":
-  version: 1.14.7
-  resolution: "follow-redirects@npm:1.14.7"
+"follow-redirects@npm:^1.14.8":
+  version: 1.14.9
+  resolution: "follow-redirects@npm:1.14.9"
   peerDependenciesMeta:
     debug:
       optional: true
-  checksum: f6d03e5e30877431065bca0d1b2e3db93949eb799d368a5c07ea8a4b71205f0349a3f8f0191bf13a07c93885522834dca1dc8e527dc99a772c6911fba24edc5f
+  checksum: f5982e0eb481818642492d3ca35a86989c98af1128b8e1a62911a3410621bc15d2b079e8170b35b19d3bdee770b73ed431a257ed86195af773771145baa57845
   languageName: node
   linkType: hard
 
@@ -2778,9 +2821,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "gamerbot@workspace:."
   dependencies:
-    "@napi-rs/canvas": ^0.1.19
-    "@prisma/client": 3.9.2
-    "@swc/core": ^1.2.138
+    "@napi-rs/canvas": ^0.1.20
+    "@prisma/client": 3.10.0
+    "@swc/core": ^1.2.145
     "@types/common-tags": ^1
     "@types/didyoumean": ^1
     "@types/dts-bundle": ^0
@@ -2795,9 +2838,9 @@ __metadata:
     "@types/webpack-node-externals": ^2.5.3
     "@typescript-eslint/eslint-plugin": latest
     "@typescript-eslint/parser": latest
-    "@vvo/tzdb": ^6.45.0
+    "@vvo/tzdb": ^6.47.0
     "@wiisportsresorts/cowsay": ^0.2.0
-    axios: ^0.25.0
+    axios: ^0.26.0
     common-tags: ^1.8.2
     didyoumean: ^1.2.2
     discord.js: ^13.6.0
@@ -2810,19 +2853,19 @@ __metadata:
     eslint-plugin-promise: ^5.2.0
     fork-ts-checker-webpack-plugin: ^7.2.1
     he: ^1.2.0
-    hypixel-cache: "https://github.com/wiisportsresort/hypixel-cache"
+    hypixel-cache: "https://github.com/wiisportsresort/hypixel-cache#a41080bde6cd365f8b063cbe60ac48e020d72f57"
     hypixel-types: "https://github.com/wiisportsresort/hypixel-types"
     js-yaml: ^4.1.0
     lodash: ^4.17.21
     log4js: ^6.4.1
-    luxon: ^2.3.0
+    luxon: ^2.3.1
     mathjax-full: ^3.2.0
     mathjs: ^10.1.1
     nodemon: ^2.0.15
-    object-hash: ^2.2.0
+    object-hash: ^3.0.0
     piston-client: ^1.0.2
     prettier: ^2.5.1
-    prisma: 3.9.2
+    prisma: 3.10.0
     regenerator-runtime: ^0.13.9
     sharp: ^0.30.1
     source-map-loader: ^3.0.1
@@ -2832,7 +2875,7 @@ __metadata:
     typescript: ^4.6.1-rc
     tzdata: ^1.0.29
     unicode: ^14.0.0
-    webpack: ^5.68.0
+    webpack: ^5.69.1
     webpack-cli: ^4.9.2
     webpack-node-externals: ^3.0.0
   languageName: unknown
@@ -3124,14 +3167,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hypixel-cache@https://github.com/wiisportsresort/hypixel-cache":
-  version: 0.0.0
-  resolution: "hypixel-cache@https://github.com/wiisportsresort/hypixel-cache.git#commit=9bf9f8d5fd1a67845751d2d5d585dc607dfb97c2"
-  checksum: a28ff62d06ffd7140fd72377d4817ab77ef5c40330872e12cb9c67f69cbd468d57caef425982c98eaad55771e5c33188e9419933cd4c613b1f6478ddad1d0dd1
+"hypixel-cache@https://github.com/wiisportsresort/hypixel-cache#a41080bde6cd365f8b063cbe60ac48e020d72f57":
+  version: 1.0.0
+  resolution: "hypixel-cache@https://github.com/wiisportsresort/hypixel-cache.git#commit=a41080bde6cd365f8b063cbe60ac48e020d72f57"
+  dependencies:
+    hypixel-types: "https://github.com/wiisportsresort/hypixel-types#839190e9cbffeb7bb846fd5e414f36a1554ead4c"
+  checksum: eb34a1d21ac2689b7812abb9b2340ebbf9f92d3b6a00415d09bb2d01c5239f2bc3d4c99551d3927aac223e50eeb7a9c7f527bc2df543c26f5aaf40c19e6c5945
   languageName: node
   linkType: hard
 
-"hypixel-types@https://github.com/wiisportsresort/hypixel-types":
+"hypixel-types@https://github.com/wiisportsresort/hypixel-types, hypixel-types@https://github.com/wiisportsresort/hypixel-types#839190e9cbffeb7bb846fd5e414f36a1554ead4c":
   version: 0.1.0
   resolution: "hypixel-types@https://github.com/wiisportsresort/hypixel-types.git#commit=839190e9cbffeb7bb846fd5e414f36a1554ead4c"
   checksum: 02bae3c37c99ed87b17ea038311400ba3e27e8713341f43234db4cbaaa0bbd7f0d59cd9ed69e4eb2e34e24705b91befa72c726410d359b1ae6aaeacee9dc0cb8
@@ -3817,10 +3862,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"luxon@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "luxon@npm:2.3.0"
-  checksum: 3d00e1b812a31082cf0d97e844d7354c93891fbd14795756f396ee5656387e21d2c862edb841516114eb391f8314a6cf3848799acc6d59cf9560c88c909b91f0
+"luxon@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "luxon@npm:2.3.1"
+  checksum: ce5eec873a0172a0956618531e28010e8d8319a8b3a836b893d0f92239413a1fc5f77841ca24988e27bd61e8b2748e160e9dfcb13e92d7f031c1e31ad1c8ae91
   languageName: node
   linkType: hard
 
@@ -4273,10 +4318,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-hash@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "object-hash@npm:2.2.0"
-  checksum: 55ba841e3adce9c4f1b9b46b41983eda40f854e0d01af2802d3ae18a7085a17168d6b81731d43fdf1d6bcbb3c9f9c56d22c8fea992203ad90a38d7d919bc28f1
+"object-hash@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "object-hash@npm:3.0.0"
+  checksum: 80b4904bb3857c52cc1bfd0b52c0352532ca12ed3b8a6ff06a90cd209dfda1b95cee059a7625eb9da29537027f68ac4619363491eedb2f5d3dddbba97494fd6c
   languageName: node
   linkType: hard
 
@@ -4577,15 +4622,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma@npm:3.9.2":
-  version: 3.9.2
-  resolution: "prisma@npm:3.9.2"
+"prisma@npm:3.10.0":
+  version: 3.10.0
+  resolution: "prisma@npm:3.10.0"
   dependencies:
-    "@prisma/engines": 3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009
+    "@prisma/engines": 3.10.0-50.73e60b76d394f8d37d8ebd1f8918c79029f0db86
   bin:
     prisma: build/index.js
     prisma2: build/index.js
-  checksum: 4070b61b09f45229680e1beeb14a95716353493032abaac9f6664bc60eba8279e165d446e8a12457a6d6a0e80d100c09228d00e7e1986e504fc8ceb9a16316f2
+  checksum: da693ebd69ec5f5a8132a86f1c6e300033a5ea869016e19364f514fdda6143f0d6236982a26b431313f06fecfaa2d1bd82eac3ebbf5b58082271f1a65c8a683d
   languageName: node
   linkType: hard
 
@@ -5828,12 +5873,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:^5.68.0":
-  version: 5.68.0
-  resolution: "webpack@npm:5.68.0"
+"webpack@npm:^5.69.1":
+  version: 5.69.1
+  resolution: "webpack@npm:5.69.1"
   dependencies:
-    "@types/eslint-scope": ^3.7.0
-    "@types/estree": ^0.0.50
+    "@types/eslint-scope": ^3.7.3
+    "@types/estree": ^0.0.51
     "@webassemblyjs/ast": 1.11.1
     "@webassemblyjs/wasm-edit": 1.11.1
     "@webassemblyjs/wasm-parser": 1.11.1
@@ -5861,7 +5906,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: ac6efd861a0bfb35d8a467fba0d87f905ef6e1a9a9f7e3db42ea459cf191268094cedd025d3eb36a1464e2208a0c193f3f4a92531ba58850246f3c6b8f210b03
+  checksum: 490a6e9e4cd9d0ed3b6c7ca08015da2628919fda8fcf9c36f0f6c0e3ad71eaaaf4b0d12753109f22a4faf79fe9a9063552d9708e0ee2352cf8568433b8e296a7
   languageName: node
   linkType: hard
 
