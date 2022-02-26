@@ -1,3 +1,13 @@
+# v2.2.2
+
+## Changes
+
+- Prefix module names with `gamerbot/` in types package
+
+## Bugfixes
+
+- Fix crash when using `/stats` on a non-ranked player
+
 # v2.2.1
 
 ## Bugfixes

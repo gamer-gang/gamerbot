@@ -1,5 +1,192 @@
 /// <reference types="node" />
-declare module "src/CountManager" {
+/// <reference lib="dom" />
+declare module "gamerbot/src/util/color" {
+    export type ColorFormat = 'number' | 'hex' | 'plain' | 'rgb' | 'hsl';
+    export type RgbTriple = [r: number, g: number, b: number];
+    export type HslTriple = [h: number, s: number, l: number];
+    export class Color {
+        #private;
+        private readonly num;
+        static from(input: RgbTriple | HslTriple | number | string, type?: 'rgb' | 'hsl'): Color;
+        constructor(num: number);
+        get asNumber(): number;
+        get plain(): string;
+        get rgb(): RgbTriple;
+        get hsl(): HslTriple;
+        get hex(): string;
+    }
+}
+declare module "gamerbot/src/util/discord" {
+    import { Interaction, InteractionReplyOptions, MessagePayload, User } from 'discord.js';
+    import { DateTime } from 'luxon';
+    export const getDateStringFromSnowflake: (id: string) => [timestamp: string, age: string];
+    export const getDateFromSnowflake: (id: string) => DateTime;
+    export const getProfileImageUrl: (user: User) => string;
+    export const interactionReplySafe: (interaction: Interaction, content: string | MessagePayload | InteractionReplyOptions) => Promise<void>;
+}
+declare module "gamerbot/src/constants" {
+    export const IS_DEVELOPMENT: boolean;
+    export const IS_DEBUG: boolean;
+}
+declare module "gamerbot/src/util/format" {
+    import { CommandInteractionOption } from 'discord.js';
+    export const formatOptions: (options: readonly CommandInteractionOption[]) => string;
+    export const formatBytes: (bytes: number, decimals?: number) => string;
+    export const formatUtcOffset: (offset: number) => string;
+    export const formatErrorMessage: (err: unknown) => string;
+}
+declare module "gamerbot/src/util/embed" {
+    import { MessageEmbed, MessageEmbedOptions, User } from 'discord.js';
+    import { Color } from "gamerbot/src/util/color";
+    type EmbedIntent = 'info' | 'success' | 'warning' | 'error';
+    export interface EmbedOptions {
+        noColor?: boolean;
+        noAuthor?: boolean;
+        intent?: EmbedIntent;
+    }
+    export const COLORS: {
+        blue: Color;
+        green: Color;
+        red: Color;
+        orange: Color;
+    };
+    export class Embed extends MessageEmbed {
+        static error(error: unknown): Embed;
+        static error(message: string, description?: string): Embed;
+        static warning(message: string, description?: string): Embed;
+        static success(message: string, description?: string): Embed;
+        static info(message: string, description?: string): Embed;
+        constructor(options?: (MessageEmbed | MessageEmbedOptions) & EmbedOptions);
+        setIntent(intent: EmbedIntent): this;
+        setAuthorToProfile(name: string, user: User, url?: string): this;
+        setThumbnailToProfileImage(user: User): this;
+    }
+}
+declare module "gamerbot/src/util/path" {
+    export const resolvePath: (dir: string) => string;
+}
+declare module "gamerbot/src/logger" {
+    export const initLogger: () => void;
+}
+declare module "gamerbot/src/prisma" {
+    import Prisma from '@prisma/client';
+    export const prisma: Prisma.PrismaClient<{
+        errorFormat: "pretty" | "colorless";
+        log: ({
+            emit: "event";
+            level: "query";
+        } | {
+            emit: "event";
+            level: "info";
+        } | {
+            emit: "event";
+            level: "warn";
+        } | {
+            emit: "event";
+            level: "error";
+        })[];
+    }, "info" | "error" | "warn" | "query", false>;
+}
+declare module "gamerbot/src/util" {
+    import { TimeZone } from '@vvo/tzdb';
+    import { ApplicationCommandOptionChoice, CommandInteraction, ContextMenuInteraction } from 'discord.js';
+    import { Command } from "gamerbot/src/commands/command";
+    import { ChatCommandDef, MessageCommandDef, UserCommandDef } from "gamerbot/src/types";
+    export const isChatCommand: (def: ChatCommandDef | UserCommandDef | MessageCommandDef) => def is ChatCommandDef;
+    export const insertUuidDashes: (uuid: string) => string;
+    export const hasPermissions: (interaction: CommandInteraction | ContextMenuInteraction, command: Command) => boolean;
+    export const matchString: (input: string, possible: string[]) => ApplicationCommandOptionChoice[];
+    export const findTimeZone: (input: string) => TimeZone | undefined;
+    export const escapeMarkdown: (str: string) => string;
+}
+declare module "gamerbot/src/util/presence" {
+    import { Client, PresenceData } from 'discord.js';
+    export class PresenceManager {
+        #private;
+        static cooldown: number;
+        worker: NodeJS.Timeout;
+        constructor(client: Client);
+        destroy(): void;
+        get destroyed(): boolean;
+        get needsUpdate(): boolean;
+        get presence(): PresenceData;
+        set presence(data: PresenceData);
+    }
+}
+declare module "gamerbot/src/client/_analytics/types" {
+    import { CommandType as DatabaseCommandType } from '@prisma/client';
+    export interface CommandReportStats {
+        type: DatabaseCommandType;
+        sent: number;
+        successful: number;
+        failed: number;
+        users: Set<string>;
+    }
+    export const defaultCommandStats: (type: DatabaseCommandType) => CommandReportStats;
+}
+declare module "gamerbot/src/client/_analytics/event" {
+    import { CommandType as DatabaseCommandType } from '@prisma/client';
+    import type { AnalyticsManager } from "gamerbot/src/client/AnalyticsManager";
+    export enum AnalyticsEvent {
+        /**
+         * Should be tracked when the client connects to the gateway.
+         */
+        BotLogin = 0,
+        /**
+         * Should be tracked when a command is sent and will be executed.
+         */
+        CommandSent = 1,
+        /**
+         * Should be tracked when a command is executed successfully (see {@link CommandResult.Success}).
+         */
+        CommandSuccess = 2,
+        /**
+         * Should be tracked when a command fails (see {@link CommandResult.Failure}).
+         */
+        CommandFailure = 3
+    }
+    export interface EventData {
+        [AnalyticsEvent.BotLogin]: [];
+        [AnalyticsEvent.CommandSent]: [command: string, type: DatabaseCommandType, user: string];
+        [AnalyticsEvent.CommandSuccess]: [command: string, type: DatabaseCommandType];
+        [AnalyticsEvent.CommandFailure]: [command: string, type: DatabaseCommandType];
+    }
+    export interface AnalyticsEventReturn {
+        [AnalyticsEvent.CommandSent]: number;
+    }
+    export type EventReturnType<E extends AnalyticsEvent> = E extends keyof AnalyticsEventReturn ? AnalyticsEventReturn[E] : void;
+    export const events: {
+        [E in AnalyticsEvent]: (manager: AnalyticsManager, ...data: EventData[E]) => EventReturnType<E>;
+    };
+}
+declare module "gamerbot/src/client/AnalyticsManager" {
+    import { AnalyticsReport, CommandReport, CommandType as DatabaseCommandType } from '@prisma/client';
+    import { Command, CommandResult } from "gamerbot/src/commands/command";
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    import { AnalyticsEvent, EventData, EventReturnType } from "gamerbot/src/client/_analytics/event";
+    import { CommandReportStats } from "gamerbot/src/client/_analytics/types";
+    export class AnalyticsManager {
+        #private;
+        client: GamerbotClient;
+        get initialized(): boolean;
+        get report(): AnalyticsReport;
+        usersInteracted: Set<string>;
+        commandCache: Map<string, CommandReportStats>;
+        constructor(client: GamerbotClient);
+        initialize(force?: boolean): Promise<void>;
+        flushAll(): Promise<void>;
+        update(): Promise<void>;
+        /** Push global analytics changes to the database */
+        flushGlobal(): Promise<void>;
+        /** Push all command changes to the database and clear the cache. */
+        flushCommands(): Promise<void>;
+        hashUser(userId: string): string;
+        getCommandReport(command: string, type: DatabaseCommandType): Promise<CommandReport>;
+        trackEvent<E extends AnalyticsEvent>(event: E, ...data: EventData[E]): EventReturnType<E>;
+        trackCommandResult(result: CommandResult, command: Command): void;
+    }
+}
+declare module "gamerbot/src/client/CountManager" {
     import { Client } from 'discord.js';
     import { Logger } from 'log4js';
     export class CountManager {
@@ -12,10 +199,118 @@ declare module "src/CountManager" {
         update(): Promise<void>;
     }
 }
-declare module "src/commands/context" {
+declare module "gamerbot/src/client/egg" {
+    import { Message, PartialMessage } from 'discord.js';
+    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    export const hasEggs: (msg: Message | PartialMessage) => boolean;
+    export const getTotal: () => Promise<BigInt>;
+    export const onMessage: (client: GamerbotClient, message: Message | PartialMessage) => Promise<void>;
+}
+declare module "gamerbot/src/types/trivia" {
+    export interface CategoriesResponse {
+        trivia_categories: Array<{
+            id: number;
+            name: string;
+        }>;
+    }
+    export interface TriviaOptions {
+        category?: number | string;
+        type?: 'boolean' | 'multiple';
+        difficulty?: 'easy' | 'medium' | 'hard';
+    }
+    export interface TriviaQuestion {
+        category: string;
+        type: 'boolean' | 'multiple';
+        difficulty: 'easy' | 'medium' | 'hard';
+        question: string;
+        correct_answer: string;
+        incorrect_answers: string[];
+    }
+    export const enum TriviaResponseType {
+        Success = 0,
+        NoResults = 1,
+        InvalidParameters = 2,
+        InvalidToken = 3,
+        QuestionsExhausted = 4
+    }
+    export interface TriviaResponse {
+        /**
+         * #### Response Codes
+         *
+         * The API appends a "Response Code" to each API Call to help tell developers what the API is
+         * doing.
+         *
+         * - Code 0: Success Returned results successfully.
+         * - Code 1: No Results Could not return results. The API doesn't have enough questions for your
+         *   query. (Ex. Asking for 50 Questions in a Category that only has 20.)
+         * - Code 2: Invalid Parameter Contains an invalid parameter. Arguements passed in aren't valid.
+         *   (Ex. Amount = Five)
+         * - Code 3: Token Not Found Session Token does not exist.
+         * - Code 4: Token Empty Session Token has returned all possible questions for the specified
+         *   query. Resetting the Token is necessary.
+         */
+        response_code: 0 | 1 | 2 | 3 | 4;
+        results: TriviaQuestion[];
+    }
+    export interface TokenRequestResponse {
+        response_code: number;
+        response_message: string;
+        token: string;
+    }
+    export interface TokenResetResponse {
+        response_code: number;
+        token: string;
+    }
+}
+declare module "gamerbot/src/client/TriviaManager" {
+    import { Logger } from 'log4js';
+    import { CategoriesResponse, TriviaOptions, TriviaResponse } from "gamerbot/src/types/trivia";
+    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    export class TriviaManager {
+        #private;
+        readonly client: GamerbotClient;
+        logger: Logger;
+        constructor(client: GamerbotClient);
+        resetToken(): Promise<boolean>;
+        static getCategories(): Promise<CategoriesResponse['trivia_categories']>;
+        fetchQuestion(options?: TriviaOptions): Promise<TriviaResponse>;
+    }
+}
+declare module "gamerbot/src/client/GamerbotClient" {
+    import { Client, ClientOptions, ClientUser, Guild, Interaction, Message } from 'discord.js';
+    import log4js from 'log4js';
+    import { Command } from "gamerbot/src/commands/command";
+    import { PresenceManager } from "gamerbot/src/util/presence";
+    import { AnalyticsManager } from "gamerbot/src/client/AnalyticsManager";
+    import { CountManager } from "gamerbot/src/client/CountManager";
+    import { TriviaManager } from "gamerbot/src/client/TriviaManager";
+    export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {
+    }
+    export class GamerbotClient extends Client {
+        #private;
+        readonly user: ClientUser;
+        readonly commands: Map<string, Command>;
+        readonly presenceManager: PresenceManager;
+        readonly analytics: AnalyticsManager;
+        readonly countManager: CountManager;
+        readonly triviaManager: TriviaManager;
+        constructor(options?: GamerbotClientOptions);
+        getLogger(category: string): log4js.Logger;
+        refreshPresence(): Promise<void>;
+        ensureConfig(guildId: string): Promise<void>;
+        countUsers: () => Promise<number>;
+        countGuilds: () => Promise<number>;
+        onDebug(content: string): void;
+        onMessageCreate(message: Message): Promise<void>;
+        onGuildCreate(guild: Guild): Promise<void>;
+        onGuildDelete(guild: Guild): Promise<void>;
+        onInteractionCreate(interaction: Interaction): Promise<void>;
+    }
+}
+declare module "gamerbot/src/commands/context" {
     import { PrismaClient } from '@prisma/client';
     import { CommandInteraction, ContextMenuInteraction, Interaction, Message, User } from 'discord.js';
-    import { GamerbotClient } from "src/GamerbotClient";
+    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
     export class BaseContext {
         readonly interaction: Interaction;
         readonly prisma: PrismaClient;
@@ -44,10 +339,10 @@ declare module "src/commands/context" {
         get targetMessage(): Message;
     }
 }
-declare module "src/types" {
+declare module "gamerbot/src/types" {
     import { ApplicationCommandOptionChoice, ApplicationCommandOptionData, ApplicationCommandType, AutocompleteInteraction, CommandInteraction, ContextMenuInteraction, Guild, GuildChannel, GuildMember, Interaction, PermissionString } from 'discord.js';
-    import type { CommandResult } from "src/commands/command";
-    import { BaseContext, CommandContext, MessageCommandContext, UserCommandContext } from "src/commands/context";
+    import type { CommandResult } from "gamerbot/src/commands/command";
+    import { BaseContext, CommandContext, MessageCommandContext, UserCommandContext } from "gamerbot/src/commands/context";
     export interface GuildRequired<Context extends BaseContext, Int extends Interaction> {
         /**
          * Whether this command is allowed to be used outside a guild (e.g. in a DM).
@@ -170,82 +465,8 @@ declare module "src/types" {
         }>;
     }
 }
-declare module "src/util/color" {
-    export type ColorFormat = 'number' | 'hex' | 'plain' | 'rgb' | 'hsl';
-    export type RgbTriple = [r: number, g: number, b: number];
-    export type HslTriple = [h: number, s: number, l: number];
-    export class Color {
-        #private;
-        private readonly num;
-        static from(input: RgbTriple | HslTriple | number | string, type?: 'rgb' | 'hsl'): Color;
-        constructor(num: number);
-        get asNumber(): number;
-        get plain(): string;
-        get rgb(): RgbTriple;
-        get hsl(): HslTriple;
-        get hex(): string;
-    }
-}
-declare module "src/util/discord" {
-    import { Interaction, InteractionReplyOptions, MessagePayload, User } from 'discord.js';
-    import { DateTime } from 'luxon';
-    export const getDateStringFromSnowflake: (id: string) => [timestamp: string, age: string];
-    export const getDateFromSnowflake: (id: string) => DateTime;
-    export const getProfileImageUrl: (user: User) => string;
-    export const interactionReplySafe: (interaction: Interaction, content: string | MessagePayload | InteractionReplyOptions) => Promise<void>;
-}
-declare module "src/constants" {
-    export const IS_DEVELOPMENT: boolean;
-    export const IS_DEBUG: boolean;
-}
-declare module "src/util/format" {
-    import { CommandInteractionOption } from 'discord.js';
-    export const formatOptions: (options: readonly CommandInteractionOption[]) => string;
-    export const formatBytes: (bytes: number, decimals?: number) => string;
-    export const formatUtcOffset: (offset: number) => string;
-    export const formatErrorMessage: (err: unknown) => string;
-}
-declare module "src/util/embed" {
-    import { MessageEmbed, MessageEmbedOptions, User } from 'discord.js';
-    import { Color } from "src/util/color";
-    type EmbedIntent = 'info' | 'success' | 'warning' | 'error';
-    export interface EmbedOptions {
-        noColor?: boolean;
-        noAuthor?: boolean;
-        intent?: EmbedIntent;
-    }
-    export const COLORS: {
-        blue: Color;
-        green: Color;
-        red: Color;
-        orange: Color;
-    };
-    export class Embed extends MessageEmbed {
-        static error(error: unknown): Embed;
-        static error(message: string, description?: string): Embed;
-        static warning(message: string, description?: string): Embed;
-        static success(message: string, description?: string): Embed;
-        static info(message: string, description?: string): Embed;
-        constructor(options?: (MessageEmbed | MessageEmbedOptions) & EmbedOptions);
-        setIntent(intent: EmbedIntent): this;
-        setAuthorToProfile(name: string, user: User, url?: string): this;
-        setThumbnailToProfileImage(user: User): this;
-    }
-}
-declare module "src/util" {
-    import { TimeZone } from '@vvo/tzdb';
-    import { ApplicationCommandOptionChoice, CommandInteraction, ContextMenuInteraction } from 'discord.js';
-    import { Command } from "src/commands/command";
-    import { ChatCommandDef, MessageCommandDef, UserCommandDef } from "src/types";
-    export const isChatCommand: (def: ChatCommandDef | UserCommandDef | MessageCommandDef) => def is ChatCommandDef;
-    export const insertUuidDashes: (uuid: string) => string;
-    export const hasPermissions: (interaction: CommandInteraction | ContextMenuInteraction, command: Command) => boolean;
-    export const matchString: (input: string, possible: string[]) => ApplicationCommandOptionChoice[];
-    export const findTimeZone: (input: string) => TimeZone | undefined;
-    export const escapeMarkdown: (str: string) => string;
-}
-declare module "src/commands/command" {
-    import { ChatCommandDef, MessageCommandDef, UserCommandDef } from "src/types";
+declare module "gamerbot/src/commands/command" {
+    import { ChatCommandDef, MessageCommandDef, UserCommandDef } from "gamerbot/src/types";
     export type ChatCommand = Required<ChatCommandDef> & {
         type: 'CHAT_INPUT';
     };
@@ -273,110 +494,12 @@ declare module "src/commands/command" {
     function command(type: 'MESSAGE', def: MessageCommandDef): MessageCommand;
     export default command;
 }
-declare module "src/util/path" {
-    export const resolvePath: (dir: string) => string;
-}
-declare module "src/logger" {
-    export const initLogger: () => void;
-}
-declare module "src/prisma" {
-    import Prisma from '@prisma/client';
-    export const prisma: Prisma.PrismaClient<{
-        errorFormat: "pretty" | "colorless";
-        log: ({
-            emit: "event";
-            level: "query";
-        } | {
-            emit: "event";
-            level: "info";
-        } | {
-            emit: "event";
-            level: "warn";
-        } | {
-            emit: "event";
-            level: "error";
-        })[];
-    }, "info" | "query" | "warn" | "error", false>;
-}
-declare module "src/analytics/types" {
-    import { CommandType as DatabaseCommandType } from '@prisma/client';
-    export interface CommandReportStats {
-        type: DatabaseCommandType;
-        sent: number;
-        successful: number;
-        failed: number;
-        users: Set<string>;
-    }
-    export const defaultCommandStats: (type: DatabaseCommandType) => CommandReportStats;
-}
-declare module "src/analytics/manager" {
-    import { AnalyticsReport, CommandReport, CommandType as DatabaseCommandType } from '@prisma/client';
-    import { Command, CommandResult } from "src/commands/command";
-    import type { GamerbotClient } from "src/GamerbotClient";
-    import { AnalyticsEvent, EventData, EventReturnType } from "src/analytics/event";
-    import { CommandReportStats } from "src/analytics/types";
-    export class AnalyticsManager {
-        #private;
-        client: GamerbotClient;
-        get initialized(): boolean;
-        get report(): AnalyticsReport;
-        usersInteracted: Set<string>;
-        commandCache: Map<string, CommandReportStats>;
-        constructor(client: GamerbotClient);
-        initialize(force?: boolean): Promise<void>;
-        flushAll(): Promise<void>;
-        update(): Promise<void>;
-        /** Push global analytics changes to the database */
-        flushGlobal(): Promise<void>;
-        /** Push all command changes to the database and clear the cache. */
-        flushCommands(): Promise<void>;
-        hashUser(userId: string): string;
-        getCommandReport(command: string, type: DatabaseCommandType): Promise<CommandReport>;
-        trackEvent<E extends AnalyticsEvent>(event: E, ...data: EventData[E]): EventReturnType<E>;
-        trackCommandResult(result: CommandResult, command: Command): void;
-    }
-}
-declare module "src/analytics/event" {
-    import { CommandType as DatabaseCommandType } from '@prisma/client';
-    import type { AnalyticsManager } from "src/analytics/manager";
-    export enum AnalyticsEvent {
-        /**
-         * Should be tracked when the client connects to the gateway.
-         */
-        BotLogin = 0,
-        /**
-         * Should be tracked when a command is sent and will be executed.
-         */
-        CommandSent = 1,
-        /**
-         * Should be tracked when a command is executed successfully (see {@link CommandResult.Success}).
-         */
-        CommandSuccess = 2,
-        /**
-         * Should be tracked when a command fails (see {@link CommandResult.Failure}).
-         */
-        CommandFailure = 3
-    }
-    export interface EventData {
-        [AnalyticsEvent.BotLogin]: [];
-        [AnalyticsEvent.CommandSent]: [command: string, type: DatabaseCommandType, user: string];
-        [AnalyticsEvent.CommandSuccess]: [command: string, type: DatabaseCommandType];
-        [AnalyticsEvent.CommandFailure]: [command: string, type: DatabaseCommandType];
-    }
-    export interface AnalyticsEventReturn {
-        [AnalyticsEvent.CommandSent]: number;
-    }
-    export type EventReturnType<E extends AnalyticsEvent> = E extends keyof AnalyticsEventReturn ? AnalyticsEventReturn[E] : void;
-    export const events: {
-        [E in AnalyticsEvent]: (manager: AnalyticsManager, ...data: EventData[E]) => EventReturnType<E>;
-    };
-}
-declare module "src/commands/config/_configOption" {
+declare module "gamerbot/src/commands/config/_configOption" {
     import { Config, Prisma } from '@prisma/client';
     import { APIInteractionDataResolvedChannel, APIRole } from 'discord-api-types';
     import { ApplicationCommandOptionChoice, ApplicationCommandOptionType, CommandInteraction, Guild, GuildChannel, GuildMember, Role, ThreadChannel, User } from 'discord.js';
-    import { CommandResult } from "src/commands/command";
-    import { CommandContext } from "src/commands/context";
+    import { CommandResult } from "gamerbot/src/commands/command";
+    import { CommandContext } from "gamerbot/src/commands/context";
     export type ConfigValueType = Exclude<ApplicationCommandOptionType, 'SUB_COMMAND' | 'SUB_COMMAND_GROUP'>;
     export type CommandContextWithGuild = CommandContext & {
         interaction: CommandInteraction & {
@@ -403,152 +526,82 @@ declare module "src/commands/config/_configOption" {
     export const helpers: <T extends ConfigValueType>(context: CommandContextWithGuild) => ConfigOptionHelpers<T>;
     export function configOption<T extends ConfigValueType>(def: ConfigOptionDef<T>): ConfigOption<T>;
 }
-declare module "src/commands/config/_enableEgg" {
-    const CONFIG_OPTION_ENABLEEGG: import("src/commands/config/_configOption").ConfigOption<"BOOLEAN">;
+declare module "gamerbot/src/commands/config/_enableEgg" {
+    const CONFIG_OPTION_ENABLEEGG: import("gamerbot/src/commands/config/_configOption").ConfigOption<"BOOLEAN">;
     export default CONFIG_OPTION_ENABLEEGG;
 }
-declare module "src/commands/config/config" {
-    const COMMAND_CONFIG: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/config/config" {
+    const COMMAND_CONFIG: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_CONFIG;
 }
-declare module "src/commands/games/dice" {
-    const COMMAND_DICE: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/games/dice" {
+    const COMMAND_DICE: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_DICE;
 }
-declare module "src/commands/games/rps" {
-    const COMMAND_RPS: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/games/rps" {
+    const COMMAND_RPS: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_RPS;
 }
-declare module "src/types/trivia" {
-    export interface CategoriesResponse {
-        trivia_categories: Array<{
-            id: number;
-            name: string;
-        }>;
-    }
-    export interface TriviaOptions {
-        category?: number | string;
-        type?: 'boolean' | 'multiple';
-        difficulty?: 'easy' | 'medium' | 'hard';
-    }
-    export interface TriviaQuestion {
-        category: string;
-        type: 'boolean' | 'multiple';
-        difficulty: 'easy' | 'medium' | 'hard';
-        question: string;
-        correct_answer: string;
-        incorrect_answers: string[];
-    }
-    export const enum TriviaResponseType {
-        Success = 0,
-        NoResults = 1,
-        InvalidParameters = 2,
-        InvalidToken = 3,
-        QuestionsExhausted = 4
-    }
-    export interface TriviaResponse {
-        /**
-         * #### Response Codes
-         *
-         * The API appends a "Response Code" to each API Call to help tell developers what the API is
-         * doing.
-         *
-         * - Code 0: Success Returned results successfully.
-         * - Code 1: No Results Could not return results. The API doesn't have enough questions for your
-         *   query. (Ex. Asking for 50 Questions in a Category that only has 20.)
-         * - Code 2: Invalid Parameter Contains an invalid parameter. Arguements passed in aren't valid.
-         *   (Ex. Amount = Five)
-         * - Code 3: Token Not Found Session Token does not exist.
-         * - Code 4: Token Empty Session Token has returned all possible questions for the specified
-         *   query. Resetting the Token is necessary.
-         */
-        response_code: 0 | 1 | 2 | 3 | 4;
-        results: TriviaQuestion[];
-    }
-    export interface TokenRequestResponse {
-        response_code: number;
-        response_message: string;
-        token: string;
-    }
-    export interface TokenResetResponse {
-        response_code: number;
-        token: string;
-    }
-}
-declare module "src/TriviaManager" {
-    import { Logger } from 'log4js';
-    import { GamerbotClient } from "src/GamerbotClient";
-    import { CategoriesResponse, TriviaOptions, TriviaResponse } from "src/types/trivia";
-    export class TriviaManager {
-        #private;
-        readonly client: GamerbotClient;
-        logger: Logger;
-        constructor(client: GamerbotClient);
-        resetToken(): Promise<boolean>;
-        static getCategories(): Promise<CategoriesResponse['trivia_categories']>;
-        fetchQuestion(options?: TriviaOptions): Promise<TriviaResponse>;
-    }
-}
-declare module "src/commands/games/trivia" {
-    const COMMAND_TRIVIA: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/games/trivia" {
+    const COMMAND_TRIVIA: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_TRIVIA;
 }
-declare module "src/commands/general/about" {
-    const COMMAND_ABOUT: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/general/about" {
+    const COMMAND_ABOUT: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_ABOUT;
 }
-declare module "src/commands/general/analytics" {
-    const COMMAND_ANALYTICS: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/general/analytics" {
+    const COMMAND_ANALYTICS: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_ANALYTICS;
 }
-declare module "src/commands/general/avatar" {
-    const COMMAND_AVATAR: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/general/avatar" {
+    const COMMAND_AVATAR: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_AVATAR;
 }
-declare module "src/commands/general/getavatar" {
-    const COMMAND_GETAVATAR: import("src/commands/command").UserCommand;
+declare module "gamerbot/src/commands/general/getavatar" {
+    const COMMAND_GETAVATAR: import("gamerbot/src/commands/command").UserCommand;
     export default COMMAND_GETAVATAR;
 }
-declare module "src/commands/general/servericon" {
-    const COMMAND_SERVERICON: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/general/servericon" {
+    const COMMAND_SERVERICON: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_SERVERICON;
 }
-declare module "src/commands/general/serverinfo" {
-    const COMMAND_SERVERINFO: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/general/serverinfo" {
+    const COMMAND_SERVERINFO: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_SERVERINFO;
 }
-declare module "src/commands/general/uptime" {
-    const COMMAND_UPTIME: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/general/uptime" {
+    const COMMAND_UPTIME: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_UPTIME;
 }
-declare module "src/commands/messages/cowsay" {
-    const COMMAND_COWSAY: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/messages/cowsay" {
+    const COMMAND_COWSAY: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_COWSAY;
 }
-declare module "src/commands/messages/eggleaderboard" {
-    const COMMAND_EGGLEADERBOARD: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/messages/eggleaderboard" {
+    const COMMAND_EGGLEADERBOARD: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_EGGLEADERBOARD;
 }
-declare module "src/commands/messages/lmgtfy" {
-    const COMMAND_LMGTFY: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/messages/lmgtfy" {
+    const COMMAND_LMGTFY: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_LMGTFY;
 }
-declare module "src/commands/messages/xkcd" {
-    const COMMAND_XKCD: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/messages/xkcd" {
+    const COMMAND_XKCD: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_XKCD;
 }
-declare module "src/util/regex" {
+declare module "gamerbot/src/util/regex" {
     export const usernameRegex: RegExp;
     export const uuidRegex: RegExp;
 }
-declare module "src/util/minecraft" {
+declare module "gamerbot/src/util/minecraft" {
     export const resolveMinecraftUuid: (usernameOrUuid: string) => Promise<string | undefined>;
 }
-declare module "src/commands/minecraft/skin" {
-    const COMMAND_SKIN: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/minecraft/skin" {
+    const COMMAND_SKIN: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_SKIN;
 }
-declare module "src/style" {
+declare module "gamerbot/src/style" {
     import { SKRSContext2D } from '@napi-rs/canvas';
     export const headerHeight = 44;
     export const subheaderHeight = 28;
@@ -566,7 +619,7 @@ declare module "src/style" {
     export const round: (num: number) => number;
     export const getCharWidth: (measure: number | SKRSContext2D, char?: string) => number;
 }
-declare module "src/commands/minecraft/_statsProvider" {
+declare module "gamerbot/src/commands/minecraft/_statsProvider" {
     import { Image } from '@napi-rs/canvas';
     import { Player } from 'hypixel-types';
     export interface StatsProviderResponse {
@@ -589,12 +642,27 @@ declare module "src/commands/minecraft/_statsProvider" {
     }
     export function statsProvider(name: string, def: StatsProviderDef): StatsProvider;
 }
-declare module "src/commands/minecraft/_util/style" {
+declare module "gamerbot/src/commands/minecraft/_util/style" {
     import { SKRSContext2D } from '@napi-rs/canvas';
-    import { Color } from "src/util/color";
+    import { Color } from "gamerbot/src/util/color";
     export const transaction: <T>(c: SKRSContext2D, f: () => T) => T;
     export const colors: {
-        [key: string]: Color;
+        black: Color;
+        dark_blue: Color;
+        dark_green: Color;
+        dark_aqua: Color;
+        dark_red: Color;
+        dark_purple: Color;
+        gold: Color;
+        gray: Color;
+        dark_gray: Color;
+        blue: Color;
+        green: Color;
+        aqua: Color;
+        red: Color;
+        light_purple: Color;
+        yellow: Color;
+        white: Color;
     };
     export const colorCode: (num: number) => Color;
     interface Text {
@@ -605,10 +673,10 @@ declare module "src/commands/minecraft/_util/style" {
     export const stripFormatting: (text: string) => string;
     export const drawFormattedText: (c: SKRSContext2D, text: Text[] | string, x: number, y: number, textAlign?: 'left' | 'right') => number;
 }
-declare module "src/commands/minecraft/_util/bedwarsPrestige" {
+declare module "gamerbot/src/commands/minecraft/_util/bedwarsPrestige" {
     import { SKRSContext2D } from '@napi-rs/canvas';
     import { Player } from 'hypixel-types';
-    import { Color } from "src/util/color";
+    import { Color } from "gamerbot/src/util/color";
     export const EASY_LEVELS = 4;
     export const EASY_LEVELS_XP = 7000;
     export const XP_PER_PRESTIGE: number;
@@ -624,10 +692,10 @@ declare module "src/commands/minecraft/_util/bedwarsPrestige" {
     export const getPrestigePlaintext: (player: Player) => string;
     export const drawPrestige: (c: SKRSContext2D, player: Player) => number;
 }
-declare module "src/commands/minecraft/_util/rank" {
+declare module "gamerbot/src/commands/minecraft/_util/rank" {
     import { SKRSContext2D } from '@napi-rs/canvas';
     import { Player } from 'hypixel-types';
-    import { Color } from "src/util/color";
+    import { Color } from "gamerbot/src/util/color";
     export const rankWeights: {
         NON_DONOR: number;
         VIP: number;
@@ -648,223 +716,171 @@ declare module "src/commands/minecraft/_util/rank" {
     export const getRankPlaintext: (player: Player) => string;
     export const drawRank: (c: SKRSContext2D, player: Player, x?: number, y?: number) => [width: number, nameColor: Color];
 }
-declare module "src/commands/minecraft/_bedwars" {
-    const STATS_PROVIDER_BEDWARS: import("src/commands/minecraft/_statsProvider").StatsProvider;
+declare module "gamerbot/src/commands/minecraft/_bedwars" {
+    const STATS_PROVIDER_BEDWARS: import("gamerbot/src/commands/minecraft/_statsProvider").StatsProvider;
     export default STATS_PROVIDER_BEDWARS;
 }
-declare module "src/commands/minecraft/stats" {
-    const COMMAND_STATS: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/minecraft/stats" {
+    const COMMAND_STATS: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_STATS;
 }
-declare module "src/commands/minecraft/username" {
-    const COMMAND_USERNAME: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/minecraft/username" {
+    const COMMAND_USERNAME: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_USERNAME;
 }
-declare module "src/commands/moderation/ban" {
-    const COMMAND_BAN: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/moderation/ban" {
+    const COMMAND_BAN: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_BAN;
 }
-declare module "src/commands/moderation/kick" {
-    const COMMAND_KICK: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/moderation/kick" {
+    const COMMAND_KICK: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_KICK;
 }
-declare module "src/commands/moderation/purgetohere" {
+declare module "gamerbot/src/commands/moderation/purgetohere" {
     import { CommandInteraction, ContextMenuInteraction } from 'discord.js';
-    import { CommandResult } from "src/commands/command";
+    import { CommandResult } from "gamerbot/src/commands/command";
     export const purgeTo: (interaction: CommandInteraction | ContextMenuInteraction, to: string) => Promise<CommandResult>;
-    const COMMAND_PURGETOHERE: import("src/commands/command").MessageCommand;
+    const COMMAND_PURGETOHERE: import("gamerbot/src/commands/command").MessageCommand;
     export default COMMAND_PURGETOHERE;
 }
-declare module "src/commands/moderation/purge" {
-    const COMMAND_PURGE: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/moderation/purge" {
+    const COMMAND_PURGE: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_PURGE;
 }
-declare module "src/commands/moderation/role" {
-    const COMMAND_ROLE: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/moderation/role" {
+    const COMMAND_ROLE: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_ROLE;
 }
-declare module "src/commands/moderation/unban" {
-    const COMMAND_UNBAN: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/moderation/unban" {
+    const COMMAND_UNBAN: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_UNBAN;
 }
-declare module "src/util/message" {
+declare module "gamerbot/src/util/message" {
     import { MessageOptions } from 'discord.js';
     export const parseDiscordJson: (json: string) => MessageOptions;
 }
-declare module "src/commands/utility/apimessage" {
-    const COMMAND_APIMESSAGE: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/utility/apimessage" {
+    const COMMAND_APIMESSAGE: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_APIMESSAGE;
 }
-declare module "src/commands/utility/character" {
-    const COMMAND_CHARACTER: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/utility/character" {
+    const COMMAND_CHARACTER: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_CHARACTER;
 }
-declare module "src/commands/utility/color" {
-    const COMMAND_COLOR: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/utility/color" {
+    const COMMAND_COLOR: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_COLOR;
 }
-declare module "src/commands/utility/latex" {
-    const COMMAND_LATEX: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/utility/latex" {
+    const COMMAND_LATEX: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_LATEX;
 }
-declare module "src/commands/utility/math" {
-    const COMMAND_MATH: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/utility/math" {
+    const COMMAND_MATH: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_MATH;
 }
-declare module "src/commands/utility/ping" {
-    const COMMAND_PING: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/utility/ping" {
+    const COMMAND_PING: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_PING;
 }
-declare module "src/commands/utility/_run/askForCode" {
+declare module "gamerbot/src/commands/utility/_run/askForCode" {
     import { Runtime } from 'piston-client';
-    import { CommandResult } from "src/commands/command";
-    import { CommandContext } from "src/commands/context";
+    import { CommandResult } from "gamerbot/src/commands/command";
+    import { CommandContext } from "gamerbot/src/commands/context";
     const askForCode: (context: CommandContext, runtime: Runtime) => Promise<string | CommandResult>;
     export default askForCode;
 }
-declare module "src/commands/utility/_run/askForStdin" {
+declare module "gamerbot/src/commands/utility/_run/askForStdin" {
     import { Runtime } from 'piston-client';
-    import { CommandResult } from "src/commands/command";
-    import { CommandContext } from "src/commands/context";
+    import { CommandResult } from "gamerbot/src/commands/command";
+    import { CommandContext } from "gamerbot/src/commands/context";
     const askForStdin: (context: CommandContext, runtime: Runtime) => Promise<string | CommandResult>;
     export default askForStdin;
 }
-declare module "src/commands/utility/run" {
-    const COMMAND_RUN: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/utility/run" {
+    const COMMAND_RUN: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_RUN;
 }
-declare module "src/commands/utility/_time/epoch" {
-    import { TimeHandler } from "src/commands/utility/time";
+declare module "gamerbot/src/commands/utility/_time/epoch" {
+    import { TimeHandler } from "gamerbot/src/commands/utility/time";
     export const TIME_EPOCH: TimeHandler;
 }
-declare module "src/commands/utility/_time/in" {
-    import { TimeHandler } from "src/commands/utility/time";
+declare module "gamerbot/src/commands/utility/_time/in" {
+    import { TimeHandler } from "gamerbot/src/commands/utility/time";
     const TIME_IN: TimeHandler;
     export default TIME_IN;
 }
-declare module "src/commands/utility/_time/world" {
-    import type { TimeHandler } from "src/commands/utility/time";
+declare module "gamerbot/src/commands/utility/_time/world" {
+    import type { TimeHandler } from "gamerbot/src/commands/utility/time";
     const TIME_WORLD: TimeHandler;
     export default TIME_WORLD;
 }
-declare module "src/commands/utility/_time/zoneinfo" {
-    import { TimeHandler } from "src/commands/utility/time";
+declare module "gamerbot/src/commands/utility/_time/zoneinfo" {
+    import { TimeHandler } from "gamerbot/src/commands/utility/time";
     const TIME_ZONEINFO: TimeHandler;
     export default TIME_ZONEINFO;
 }
-declare module "src/commands/utility/time" {
-    import { CommandResult } from "src/commands/command";
-    import { CommandContext } from "src/commands/context";
+declare module "gamerbot/src/commands/utility/time" {
+    import { CommandResult } from "gamerbot/src/commands/command";
+    import { CommandContext } from "gamerbot/src/commands/context";
     export type TimeHandler = (context: CommandContext) => Promise<CommandResult>;
-    const COMMAND_TIME: import("src/commands/command").ChatCommand;
+    const COMMAND_TIME: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_TIME;
 }
-declare module "src/commands/utility/timestamp" {
-    const COMMAND_TIMESTAMP: import("src/commands/command").ChatCommand;
+declare module "gamerbot/src/commands/utility/timestamp" {
+    const COMMAND_TIMESTAMP: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_TIMESTAMP;
 }
-declare module "src/commands" {
-    export const DEFAULT_COMMANDS: (import("src/commands/command").ChatCommand | import("src/commands/command").UserCommand | import("src/commands/command").MessageCommand)[];
+declare module "gamerbot/src/commands" {
+    export const DEFAULT_COMMANDS: (import("gamerbot/src/commands/command").ChatCommand | import("gamerbot/src/commands/command").UserCommand | import("gamerbot/src/commands/command").MessageCommand)[];
 }
-declare module "src/egg" {
-    import { Message, PartialMessage } from 'discord.js';
-    import { GamerbotClient } from "src/GamerbotClient";
-    export const hasEggs: (msg: Message | PartialMessage) => boolean;
-    export const getTotal: () => Promise<BigInt>;
-    export const onMessage: (client: GamerbotClient, message: Message | PartialMessage) => Promise<void>;
+declare module "gamerbot/src/deploy" {
+    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    export const deployCommands: (client: GamerbotClient) => Promise<void>;
 }
-declare module "src/util/presence" {
-    import { Client, PresenceData } from 'discord.js';
-    export class PresenceManager {
-        #private;
-        static cooldown: number;
-        worker: NodeJS.Timeout;
-        constructor(client: Client);
-        destroy(): void;
-        get destroyed(): boolean;
-        get needsUpdate(): boolean;
-        get presence(): PresenceData;
-        set presence(data: PresenceData);
-    }
-}
-declare module "src/GamerbotClient" {
-    import { Client, ClientOptions, ClientUser, Guild, Interaction, Message } from 'discord.js';
-    import log4js from 'log4js';
-    import { AnalyticsManager } from "src/analytics/manager";
-    import { Command } from "src/commands/command";
-    import { CountManager } from "src/CountManager";
-    import { TriviaManager } from "src/TriviaManager";
-    import { PresenceManager } from "src/util/presence";
-    export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {
-    }
-    export class GamerbotClient extends Client {
-        #private;
-        readonly user: ClientUser;
-        readonly commands: Map<string, Command>;
-        readonly presenceManager: PresenceManager;
-        readonly analytics: AnalyticsManager;
-        readonly countManager: CountManager;
-        readonly triviaManager: TriviaManager;
-        constructor(options?: GamerbotClientOptions);
-        getLogger(category: string): log4js.Logger;
-        refreshPresence(): Promise<void>;
-        ensureConfig(guildId: string): Promise<void>;
-        countUsers: () => Promise<number>;
-        countGuilds: () => Promise<number>;
-        onDebug(content: string): void;
-        onMessageCreate(message: Message): Promise<void>;
-        onGuildCreate(guild: Guild): Promise<void>;
-        onGuildDelete(guild: Guild): Promise<void>;
-        onInteractionCreate(interaction: Interaction): Promise<void>;
-    }
-}
-declare module "src/Plugin" {
-    import { Command } from "src/commands/command";
+declare module "gamerbot/src/docgen" { }
+declare module "gamerbot/src/imagetest" { }
+declare module "gamerbot/src/index" { }
+declare module "gamerbot/src/client/Plugin" {
+    import { Command } from "gamerbot/src/commands/command";
     export abstract class Plugin {
         abstract id: string;
         commands: Command[];
     }
 }
-declare module "src/deploy" {
-    import { GamerbotClient } from "src/GamerbotClient";
-    export const deployCommands: (client: GamerbotClient) => Promise<void>;
-}
-declare module "src/docgen" { }
-declare module "src/imagetest" { }
-declare module "src/index" { }
-declare module "src/commands/config/_allowSpam" {
-    const CONFIG_OPTION_ALLOWSPAM: import("src/commands/config/_configOption").ConfigOption<"BOOLEAN">;
+declare module "gamerbot/src/commands/config/_allowSpam" {
+    const CONFIG_OPTION_ALLOWSPAM: import("gamerbot/src/commands/config/_configOption").ConfigOption<"BOOLEAN">;
     export default CONFIG_OPTION_ALLOWSPAM;
 }
-declare module "src/commands/config/_log/addLogChannel" {
+declare module "gamerbot/src/commands/config/_log/addLogChannel" {
     import { LogChannel } from '@prisma/client';
     import { ButtonInteraction } from 'discord.js';
-    import { CommandResult } from "src/commands/command";
-    import { CommandContextWithGuild } from "src/commands/config/_configOption";
+    import { CommandResult } from "gamerbot/src/commands/command";
+    import { CommandContextWithGuild } from "gamerbot/src/commands/config/_configOption";
     const addLogChannel: (context: CommandContextWithGuild, logChannels: LogChannel[], component: ButtonInteraction) => Promise<CommandResult>;
     export default addLogChannel;
 }
-declare module "src/commands/config/_log/editLogChannel" {
+declare module "gamerbot/src/commands/config/_log/editLogChannel" {
     import { LogChannel } from '@prisma/client';
     import { SelectMenuInteraction } from 'discord.js';
-    import { CommandResult } from "src/commands/command";
-    import { CommandContextWithGuild } from "src/commands/config/_configOption";
+    import { CommandResult } from "gamerbot/src/commands/command";
+    import { CommandContextWithGuild } from "gamerbot/src/commands/config/_configOption";
     const editLogChannel: (context: CommandContextWithGuild, logChannels: LogChannel[], component: SelectMenuInteraction) => Promise<CommandResult>;
     export default editLogChannel;
 }
-declare module "src/commands/config/_log/removeLogChannel" {
+declare module "gamerbot/src/commands/config/_log/removeLogChannel" {
     import { LogChannel } from '@prisma/client';
     import { SelectMenuInteraction } from 'discord.js';
-    import { CommandResult } from "src/commands/command";
-    import { CommandContextWithGuild } from "src/commands/config/_configOption";
+    import { CommandResult } from "gamerbot/src/commands/command";
+    import { CommandContextWithGuild } from "gamerbot/src/commands/config/_configOption";
     const removeLogChannel: (context: CommandContextWithGuild, logChannels: LogChannel[], component: SelectMenuInteraction) => Promise<CommandResult>;
     export default removeLogChannel;
 }
-declare module "src/commands/config/_logChannels" {
-    const CONFIG_OPTION_LOGCHANNELS: import("src/commands/config/_configOption").ConfigOption<"STRING">;
+declare module "gamerbot/src/commands/config/_logChannels" {
+    const CONFIG_OPTION_LOGCHANNELS: import("gamerbot/src/commands/config/_configOption").ConfigOption<"STRING">;
     export default CONFIG_OPTION_LOGCHANNELS;
 }
-declare module "src/commands/minecraft/_util/networkLevel" {
+declare module "gamerbot/src/commands/minecraft/_util/networkLevel" {
     export const BASE = 10000;
     export const GROWTH = 2500;
     export const HALF_GROWTH: number;
@@ -873,16 +889,16 @@ declare module "src/commands/minecraft/_util/networkLevel" {
     export const GROWTH_DIVIDES_2: number;
     export const getNetworkLevel: (xp: number) => number;
 }
-declare module "src/log/constants" {
+declare module "gamerbot/src/log/constants" {
     import { ClientEvents } from 'discord.js';
     export const allowedEvents: (keyof ClientEvents)[];
     export const eventsToBits: (events: ReadonlyArray<keyof ClientEvents>) => bigint;
     export const bitsToEvents: (bits: bigint) => ReadonlyArray<keyof ClientEvents>;
 }
-declare module "src/log/handler" {
+declare module "gamerbot/src/log/handler" {
     import { ClientEvents, Guild } from 'discord.js';
-    import { GamerbotClient } from "src/GamerbotClient";
-    import { Embed } from "src/util/embed";
+    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    import { Embed } from "gamerbot/src/util/embed";
     interface LogHandlerContext {
         readonly client: GamerbotClient;
         readonly guild: Guild;
