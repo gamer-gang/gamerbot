@@ -63,6 +63,6 @@ const latest = resolvePath('docs/latest.json')
 if (fs.existsSync(latest)) {
   fs.unlinkSync(latest)
 }
-fs.symlinkSync(file, latest)
+fs.symlinkSync(`${json.version}.json`, latest)
 
-console.log(`Linked v${json.version} to latest.json`)
+console.log(`Linked v${json.version}.json to latest.json`)
