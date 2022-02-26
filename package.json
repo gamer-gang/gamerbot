@@ -16,7 +16,8 @@
     "docker": "docker-compose up --no-log-prefix --attach app",
     "db": "docker-compose up db --no-log-prefix",
     "docgen": "node -r source-map-support/register ./dist/docgen.mjs",
-    "types": "tsc"
+    "types": "tsc && sed -i 's/\"src/\"gamerbot\\/src/g' ./types/gamerbot.d.ts",
+    "precommit": "yarn build && yarn docgen && yarn types"
   },
   "engines": {
     "node": ">=16.0.0"

@@ -58,3 +58,11 @@ const file = resolvePath(`docs/${json.version}.json`)
 fs.writeFileSync(file, JSON.stringify(json))
 
 console.log(`Wrote documentation for v${json.version} to ${file}`)
+
+const latest = resolvePath('docs/latest.json')
+if (fs.existsSync(latest)) {
+  fs.unlinkSync(latest)
+}
+fs.symlinkSync(file, latest)
+
+console.log(`Linked v${json.version} to latest.json`)
