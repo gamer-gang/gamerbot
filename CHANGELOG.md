@@ -1,3 +1,14 @@
+# v2.2.3
+
+## Changes
+
+- Update Yarn to v3.2.0
+
+## Bugfixes
+
+- Fix `/latex` errors not appearing because of missing fonts
+- Fix docs `latest.json` symlink
+
 # v2.2.2
 
 ## Changes
