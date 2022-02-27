@@ -19,6 +19,8 @@ ENV NODE_ENV=production DOCKER=true
 
 WORKDIR /app
 
+COPY assets/NotoSerif-Regular.ttf /usr/share/fonts/
+
 COPY assets assets
 COPY prisma prisma
 COPY package.json yarn.lock ./
