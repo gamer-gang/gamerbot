@@ -27,7 +27,7 @@ const COMMAND_CONNECT4 = command('CHAT_INPUT', {
     const opponent = response.user
 
     // indexes are [col][row], row 0 being the bottom
-    const state: cell[][] = Array(7)
+    const state: Cell[][] = Array(7)
       .fill(0)
       .map(() => Array(6))
 
@@ -146,7 +146,7 @@ const COMMAND_CONNECT4 = command('CHAT_INPUT', {
 })
 
 // warning: the code below sucks.
-function convertState(state: cell[][], lastMove?: number): string {
+function convertState(state: Cell[][], lastMove?: number): string {
   const arr: string[][] = []
   const len = state[0].length - 1
   for (let row = 0; row < state[0].length; row++) {
@@ -165,14 +165,14 @@ function convertState(state: cell[][], lastMove?: number): string {
   return arr.map((e) => e.join('')).join('\n')
 }
 
-function dropToken(state: cell[][], col: number, player: 0 | 1): boolean {
+function dropToken(state: Cell[][], col: number, player: 0 | 1): boolean {
   const i = state[col].findIndex((e) => e === undefined)
   if (i === -1) return false
   state[col][i] = player
   return true
 }
 
-function checkWin(state: cell[][]): boolean {
+function checkWin(state: Cell[][]): boolean {
   // horizontal check
   for (let i = 0; i < state.length - 3; i++) {
     for (let j = 0; j < state[i].length; j++) {
@@ -204,11 +204,11 @@ function checkWin(state: cell[][]): boolean {
   return false
 }
 
-function checkTie(state: cell[][]): boolean {
+function checkTie(state: Cell[][]): boolean {
   return state.every((e) => e.at(-1) !== undefined)
 }
 
-function allEqual(...args: cell[]): boolean {
+function allEqual(...args: Cell[]): boolean {
   return args[0] !== undefined && args.every((e) => e === args[0])
 }
 
@@ -224,6 +224,6 @@ const emojiMap: { [key: string]: number } = {
   '7️⃣': 7,
 }
 
-type cell = 0 | 1 | undefined
+type Cell = 0 | 1 | undefined
 
 export default COMMAND_CONNECT4
