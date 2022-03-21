@@ -1,11 +1,6 @@
-import {
-  Message,
-  MessageActionRow,
-  MessageButton,
-  MessageSelectMenu,
-  MessageSelectOptionData,
-} from 'discord.js'
+import { Message, MessageActionRow, MessageSelectMenu, MessageSelectOptionData } from 'discord.js'
 import { Embed } from '../../util/embed.js'
+import { duelPlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
 
 // represents every possible bid
@@ -26,54 +21,13 @@ const COMMAND_DICE = command('CHAT_INPUT', {
   async run(context) {
     const { interaction, options } = context
 
-    const opponent = options.getUser('user')
+    const response = await duelPlayer(interaction, options, 'dice', '🎲')
 
-    if (opponent == null) {
-      await interaction.reply('Unable to resolve user.')
+    if (!response) {
       return CommandResult.Success
     }
 
-    const embed = new Embed({
-      title: `${interaction.user.tag} has dueled ${opponent.tag} to a game of dice!`,
-      description: 'Click ⚔ to accept.',
-    })
-
-    await interaction.reply({
-      content: opponent.toString(),
-      embeds: [embed],
-      components: [
-        new MessageActionRow({
-          components: [
-            new MessageButton({
-              customId: 'start',
-              style: 'PRIMARY',
-              emoji: '🎲',
-            }),
-          ],
-        }),
-      ],
-    })
-
-    const reply = (await interaction.fetchReply()) as Message
-
-    const opponentResponse = await reply
-      .awaitMessageComponent({
-        componentType: 'BUTTON',
-        filter: (i) => i.user.id === opponent.id,
-        time: 120_000,
-      })
-      .catch()
-
-    if (opponentResponse == null) {
-      await interaction.followUp({
-        embeds: [Embed.error('The duel timed out.')],
-      })
-      return CommandResult.Success
-    }
-
-    await opponentResponse.update({
-      embeds: [new Embed(embed).setDescription('Duel accepted!')],
-    })
+    const opponent = response.user
 
     const hands = [
       [roll(), roll(), roll(), roll()].sort((a, b) => a - b),
@@ -85,7 +39,7 @@ const COMMAND_DICE = command('CHAT_INPUT', {
       ephemeral: true,
     })
 
-    await opponentResponse.followUp({
+    await response.followUp({
       embeds: [Embed.info('Here is your hand:', hands[1].join(', '))],
       ephemeral: true,
     })
@@ -97,7 +51,7 @@ const COMMAND_DICE = command('CHAT_INPUT', {
     // the index of the last bid in possibleBids
     let lastBid = -1
     while (true) {
-      const msg = await interaction.channel?.send({
+      const msg = (await interaction.channel?.send({
         content: `Place your bid, ${firstPlayerTurn ? interaction.user.tag : opponent.tag}!`,
         components: [
           new MessageActionRow({
@@ -105,24 +59,38 @@ const COMMAND_DICE = command('CHAT_INPUT', {
               new MessageSelectMenu({
                 custom_id: 'bidSelection',
                 placeholder: 'Select bid...',
-                options: [
-                  {
-                    label: 'Call',
-                    value: 'call',
-                  },
-                  ...generateBids(lastBid),
-                ],
+                options:
+                  lastBid === -1
+                    ? [...generateBids(lastBid)]
+                    : [
+                        {
+                          label: 'Call',
+                          value: 'call',
+                        },
+                        ...generateBids(lastBid),
+                      ],
               }),
             ],
           }),
         ],
-      })
+      })) as Message
 
-      const bid = await msg?.awaitMessageComponent({
-        componentType: 'SELECT_MENU',
-        filter: (i) => i.user.id === (firstPlayerTurn ? interaction.user.id : opponent.id),
-        time: 60000,
-      })
+      let bid
+
+      try {
+        bid = await msg.awaitMessageComponent({
+          componentType: 'SELECT_MENU',
+          filter: (i) => i.user.id === (firstPlayerTurn ? interaction.user.id : opponent.id),
+          time: 60000,
+        })
+      } catch (error) {
+        void interaction.followUp({
+          embeds: [
+            Embed.error(`${firstPlayerTurn ? interaction.user.tag : opponent.tag} failed to bid.`),
+          ],
+        })
+        break
+      }
 
       if (bid == null) {
         void interaction.followUp({

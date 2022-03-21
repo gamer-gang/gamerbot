@@ -1,6 +1,7 @@
 import { DMChannel, Message, MessageActionRow, MessageButton } from 'discord.js'
 import { interactionReplySafe } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
+import { duelPlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
 
 const RPS_CHOICES = {
@@ -30,56 +31,13 @@ const COMMAND_RPS = command('CHAT_INPUT', {
   async run(context) {
     const { interaction, options } = context
 
-    const opponent = options.getUser('user')
+    const response = await duelPlayer(interaction, options, 'dice', '🎲')
 
-    if (opponent == null) {
-      await interaction.reply('Unable to resolve user.')
+    if (!response) {
       return CommandResult.Success
     }
 
-    const embed = new Embed({
-      title: `${interaction.user.tag} has dueled ${opponent.tag} to a game of RPS!`,
-      description: 'Click ⚔ to accept.',
-    })
-
-    await interaction.reply({
-      content: opponent.toString(),
-      embeds: [embed],
-      components: [
-        new MessageActionRow({
-          components: [
-            new MessageButton({
-              customId: 'start',
-              style: 'PRIMARY',
-              emoji: '⚔',
-            }),
-          ],
-        }),
-      ],
-    })
-
-    const reply = (await interaction.fetchReply()) as Message
-
-    const opponentResponse = await reply
-      .awaitMessageComponent({
-        componentType: 'BUTTON',
-        filter: (i) => i.user.id === opponent.id,
-        time: 120_000,
-      })
-      .catch()
-
-    if (opponentResponse == null) {
-      await interaction.followUp({
-        embeds: [Embed.error('The duel timed out.')],
-        components: [],
-      })
-      return CommandResult.Success
-    }
-
-    void opponentResponse.update({
-      embeds: [embed.setDescription('Duel accepted! Wait for a message in your DMs.')],
-      components: [],
-    })
+    const opponent = response.user
 
     const choices = Object.entries(RPS_CHOICES).map(
       ([name, emoji]) => new MessageButton({ customId: name, emoji, style: 'PRIMARY' })
@@ -87,7 +45,13 @@ const COMMAND_RPS = command('CHAT_INPUT', {
     const row = new MessageActionRow({ components: choices })
 
     const link = new MessageActionRow({
-      components: [new MessageButton({ style: 'LINK', url: reply.url, label: 'Jump to Message' })],
+      components: [
+        new MessageButton({
+          style: 'LINK',
+          url: ((await response.fetchReply()) as Message).url,
+          label: 'Jump to Message',
+        }),
+      ],
     })
 
     const askForMove = async (dm: DMChannel): Promise<keyof typeof RPS_CHOICES> => {
@@ -95,13 +59,14 @@ const COMMAND_RPS = command('CHAT_INPUT', {
         embeds: [Embed.info(`**RPS Game against ${opponent.tag}**`, 'Select your move!')],
         components: [row, link],
       })
+      let dmResponse
 
-      const dmResponse = await msg.awaitMessageComponent({
-        componentType: 'BUTTON',
-        time: 60_000,
-      })
-
-      if (dmResponse == null) {
+      try {
+        dmResponse = await msg.awaitMessageComponent({
+          componentType: 'BUTTON',
+          time: 60_000,
+        })
+      } catch (err) {
         throw new Error(`${dm.recipient.tag} did not respond in time.`)
       }
 
@@ -127,7 +92,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
       const moveString = `${RPS_CHOICES[move1]} vs ${RPS_CHOICES[move2]}`
 
       if (move1 === move2) {
-        await opponentResponse.editReply({
+        await response.editReply({
           embeds: [
             new Embed({
               title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
@@ -157,7 +122,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
       }
 
       if (p1Win) {
-        await opponentResponse.editReply({
+        await response.editReply({
           embeds: [
             new Embed({
               title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
@@ -169,7 +134,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
         return CommandResult.Success
       }
 
-      await opponentResponse.editReply({
+      await response.editReply({
         embeds: [
           new Embed({
             title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
@@ -180,7 +145,15 @@ const COMMAND_RPS = command('CHAT_INPUT', {
       })
       return CommandResult.Success
     } catch (err) {
-      await interactionReplySafe(opponentResponse, {
+      if (err?.message?.includes('did not respond in time')) {
+        await response.followUp(err.message)
+        return CommandResult.Success
+      }
+      // if (err?.code === 'INTERACTION_COLLECTOR_ERROR') {
+      // }
+      // eslint-disable-next-line no-console
+      console.log(err)
+      await interactionReplySafe(response, {
         embeds: [Embed.error(err)],
       })
       return CommandResult.Failure
