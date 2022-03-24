@@ -1,5 +1,6 @@
-import { DMChannel, Message, MessageActionRow, MessageButton } from 'discord.js'
-import { interactionReplySafe } from '../../util/discord.js'
+import { MessageActionRow, MessageButton } from 'discord.js'
+import _ from 'lodash'
+import assert from 'node:assert'
 import { Embed } from '../../util/embed.js'
 import { duelPlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
@@ -31,7 +32,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
   async run(context) {
     const { interaction, options } = context
 
-    const response = await duelPlayer(interaction, options, 'dice', '🎲')
+    const response = await duelPlayer(interaction, options, 'Rock Paper Scissors', '🪨')
 
     if (!response) {
       return CommandResult.Success
@@ -40,124 +41,154 @@ const COMMAND_RPS = command('CHAT_INPUT', {
     const opponent = response.user
 
     const choices = Object.entries(RPS_CHOICES).map(
-      ([name, emoji]) => new MessageButton({ customId: name, emoji, style: 'PRIMARY' })
+      ([name, emoji]) =>
+        new MessageButton({ customId: name, emoji, label: _.capitalize(name), style: 'PRIMARY' })
     )
     const row = new MessageActionRow({ components: choices })
 
-    const link = new MessageActionRow({
-      components: [
-        new MessageButton({
-          style: 'LINK',
-          url: ((await response.fetchReply()) as Message).url,
-          label: 'Jump to Message',
-        }),
-      ],
+    const moveEmbed = new Embed({
+      title: 'Rock Paper Scissors',
+      description: 'Select your move!',
+      footer: { text: 'Time limit: 30 seconds' },
     })
 
-    const askForMove = async (dm: DMChannel): Promise<keyof typeof RPS_CHOICES> => {
-      const msg = await dm.send({
-        embeds: [Embed.info(`**RPS Game against ${opponent.tag}**`, 'Select your move!')],
-        components: [row, link],
-      })
-      let dmResponse
+    assert(interaction.channel, 'Interaction channel is undefined')
 
-      try {
-        dmResponse = await msg.awaitMessageComponent({
-          componentType: 'BUTTON',
-          time: 60_000,
+    const moveMessage = await interaction.channel.send({
+      embeds: [moveEmbed],
+      components: [row],
+    })
+
+    return await new Promise<CommandResult>((resolve) => {
+      let move1: keyof typeof RPS_CHOICES | undefined
+      let move2: keyof typeof RPS_CHOICES | undefined
+
+      const collector = moveMessage.createMessageComponentCollector({
+        componentType: 'BUTTON',
+        time: 30_000,
+        dispose: true,
+      })
+
+      collector.on('collect', (component) => {
+        let isPlayer1 = false
+        if (component.user.id === interaction.user.id) {
+          isPlayer1 = true
+          move1 = component.customId as keyof typeof RPS_CHOICES
+        } else if (component.user.id === opponent.id) {
+          move2 = component.customId as keyof typeof RPS_CHOICES
+        } else {
+          void component.reply({
+            embeds: [Embed.error("This isn't your game!")],
+            ephemeral: true,
+          })
+          return
+        }
+
+        if (move1 && move2) {
+          void component
+            .update({
+              embeds: [moveEmbed.setDescription('Select your move!\nThinking...')],
+              components: [],
+            })
+            .then(() => {
+              collector.stop('both')
+            })
+          return
+        }
+
+        void component.update({
+          embeds: [
+            moveEmbed.setDescription(
+              `Select your move!\n${isPlayer1 ? 'Player 1' : 'Player 2'} has selected their move!`
+            ),
+          ],
+          components: [row],
         })
-      } catch (err) {
-        throw new Error(`${dm.recipient.tag} did not respond in time.`)
-      }
-
-      void dmResponse.update({
-        embeds: [
-          Embed.info(
-            `**RPS Game against ${opponent.tag}**`,
-            `You selected ${RPS_CHOICES[dmResponse.customId as keyof typeof RPS_CHOICES]}!`
-          ),
-        ],
-        components: [link],
       })
 
-      return dmResponse.customId as keyof typeof RPS_CHOICES
-    }
+      collector.on('end', () => {
+        if (!move1 && !move2) {
+          void moveMessage.edit({
+            embeds: [Embed.error('Neither player selected a move.')],
+            components: [],
+          })
+          return
+        }
+        if (!move1) {
+          void moveMessage.edit({
+            embeds: [Embed.error(`${interaction.user} didn't select a move.`)],
+            components: [],
+          })
+        } else if (!move2) {
+          void moveMessage.edit({
+            embeds: [Embed.error(`${opponent} didn't select a move.`)],
+            components: [],
+          })
+          return
+        }
 
-    try {
-      const [move1, move2] = await Promise.all([
-        interaction.user.createDM().then(askForMove),
-        opponent.createDM().then(askForMove),
-      ])
+        assert(move1, 'move1 undefined after check')
+        assert(move2, 'move2 undefined after check')
 
-      const moveString = `${RPS_CHOICES[move1]} vs ${RPS_CHOICES[move2]}`
+        const moveString = `${RPS_CHOICES[move1]} vs ${RPS_CHOICES[move2]}`
 
-      if (move1 === move2) {
-        await response.editReply({
+        if (move1 === move2) {
+          void moveMessage.edit({
+            embeds: [
+              new Embed({
+                title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
+                description: `The duel was a draw (${moveString})!`,
+              }),
+            ],
+            components: [],
+          })
+          resolve(CommandResult.Success)
+          return
+        }
+
+        let p1Win = true
+
+        switch (move1) {
+          case 'rock':
+            if (move2 === 'scissors') p1Win = true
+            if (move2 === 'paper') p1Win = false
+            break
+          case 'paper':
+            if (move2 === 'rock') p1Win = true
+            if (move2 === 'scissors') p1Win = false
+            break
+          case 'scissors':
+            if (move2 === 'paper') p1Win = true
+            if (move2 === 'rock') p1Win = false
+            break
+        }
+
+        if (p1Win) {
+          void moveMessage.edit({
+            embeds: [
+              new Embed({
+                title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
+                description: `${interaction.user.tag} has won (${moveString})!`,
+              }),
+            ],
+            components: [],
+          })
+          resolve(CommandResult.Success)
+          return
+        }
+
+        void moveMessage.edit({
           embeds: [
             new Embed({
               title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
-              description: `The duel was a draw (${moveString})!`,
+              description: `${opponent.tag} has won (${moveString})!`,
             }),
           ],
           components: [],
         })
-        return CommandResult.Success
-      }
-
-      let p1Win = true
-
-      switch (move1) {
-        case 'rock':
-          if (move2 === 'scissors') p1Win = true
-          if (move2 === 'paper') p1Win = false
-          break
-        case 'paper':
-          if (move2 === 'rock') p1Win = true
-          if (move2 === 'scissors') p1Win = false
-          break
-        case 'scissors':
-          if (move2 === 'paper') p1Win = true
-          if (move2 === 'rock') p1Win = false
-          break
-      }
-
-      if (p1Win) {
-        await response.editReply({
-          embeds: [
-            new Embed({
-              title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
-              description: `${interaction.user.tag} has won (${moveString})!`,
-            }),
-          ],
-          components: [],
-        })
-        return CommandResult.Success
-      }
-
-      await response.editReply({
-        embeds: [
-          new Embed({
-            title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
-            description: `${opponent.tag} has won (${moveString})!`,
-          }),
-        ],
-        components: [],
+        resolve(CommandResult.Success)
       })
-      return CommandResult.Success
-    } catch (err) {
-      if (err?.message?.includes('did not respond in time')) {
-        await response.followUp(err.message)
-        return CommandResult.Success
-      }
-      // if (err?.code === 'INTERACTION_COLLECTOR_ERROR') {
-      // }
-      // eslint-disable-next-line no-console
-      console.log(err)
-      await interactionReplySafe(response, {
-        embeds: [Embed.error(err)],
-      })
-      return CommandResult.Failure
-    }
+    })
   },
 })
 
