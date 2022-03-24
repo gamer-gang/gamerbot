@@ -1,3 +1,13 @@
+# v2.3.0
+
+## Features
+
+- Add [`/connect4`](https://gamerbot.dev/commands#command-connect4)
+
+## Bug Fixes
+
+- Fix game interaction handling
+
 # v2.2.3
 
 ## Changes

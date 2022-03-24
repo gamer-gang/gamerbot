@@ -534,6 +534,15 @@ declare module "gamerbot/src/commands/config/config" {
     const COMMAND_CONFIG: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_CONFIG;
 }
+declare module "gamerbot/src/util/games" {
+    import { ButtonInteraction } from 'discord.js';
+    import { CommandContext } from "gamerbot/src/commands/context";
+    export const duelPlayer: (interaction: CommandContext['interaction'], options: CommandContext['options'], gameName: string, emoji: string) => Promise<ButtonInteraction | undefined>;
+}
+declare module "gamerbot/src/commands/games/connect4" {
+    const COMMAND_CONNECT4: import("gamerbot/src/commands/command").ChatCommand;
+    export default COMMAND_CONNECT4;
+}
 declare module "gamerbot/src/commands/games/dice" {
     const COMMAND_DICE: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_DICE;
