@@ -1,3 +1,15 @@
+# 2.4.0
+
+## Features
+
+- Support attaching files for code and stdin in `/run`
+
+## Changes
+
+- Update Yarn to v3.2.1
+- Update discord.js to v13.7.0
+- Update packages to latest versions
+
 # v2.3.0
 
 ## Features

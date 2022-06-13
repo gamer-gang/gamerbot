@@ -1,15 +1,17 @@
 /// <reference types="node" />
+/// <reference types="node" />
 /// <reference lib="dom" />
 declare module "gamerbot/src/util/color" {
     export type ColorFormat = 'number' | 'hex' | 'plain' | 'rgb' | 'hsl';
     export type RgbTriple = [r: number, g: number, b: number];
     export type HslTriple = [h: number, s: number, l: number];
+    export const hslToRgb: (h: number, s: number, l: number) => RgbTriple;
+    export const rgbToHsl: (r: number, g: number, b: number) => HslTriple;
     export class Color {
         #private;
-        private readonly num;
         static from(input: RgbTriple | HslTriple | number | string, type?: 'rgb' | 'hsl'): Color;
         constructor(num: number);
-        get asNumber(): number;
+        get number(): number;
         get plain(): string;
         get rgb(): RgbTriple;
         get hsl(): HslTriple;
@@ -17,7 +19,7 @@ declare module "gamerbot/src/util/color" {
     }
 }
 declare module "gamerbot/src/util/discord" {
-    import { Interaction, InteractionReplyOptions, MessagePayload, User } from 'discord.js';
+    import type { Interaction, InteractionReplyOptions, MessagePayload, User } from 'discord.js';
     import { DateTime } from 'luxon';
     export const getDateStringFromSnowflake: (id: string) => [timestamp: string, age: string];
     export const getDateFromSnowflake: (id: string) => DateTime;
@@ -89,18 +91,18 @@ declare module "gamerbot/src/prisma" {
 }
 declare module "gamerbot/src/util" {
     import { TimeZone } from '@vvo/tzdb';
-    import { ApplicationCommandOptionChoice, CommandInteraction, ContextMenuInteraction } from 'discord.js';
-    import { Command } from "gamerbot/src/commands/command";
-    import { ChatCommandDef, MessageCommandDef, UserCommandDef } from "gamerbot/src/types";
+    import type { ApplicationCommandOptionChoiceData, CommandInteraction, ContextMenuInteraction } from 'discord.js';
+    import type { Command } from "gamerbot/src/commands/command";
+    import type { ChatCommandDef, MessageCommandDef, UserCommandDef } from "gamerbot/src/types";
     export const isChatCommand: (def: ChatCommandDef | UserCommandDef | MessageCommandDef) => def is ChatCommandDef;
     export const insertUuidDashes: (uuid: string) => string;
     export const hasPermissions: (interaction: CommandInteraction | ContextMenuInteraction, command: Command) => boolean;
-    export const matchString: (input: string, possible: string[]) => ApplicationCommandOptionChoice[];
+    export const matchString: (input: string, possible: string[]) => ApplicationCommandOptionChoiceData[];
     export const findTimeZone: (input: string) => TimeZone | undefined;
     export const escapeMarkdown: (str: string) => string;
 }
 declare module "gamerbot/src/util/presence" {
-    import { Client, PresenceData } from 'discord.js';
+    import type { Client, PresenceData } from 'discord.js';
     export class PresenceManager {
         #private;
         static cooldown: number;
@@ -114,7 +116,7 @@ declare module "gamerbot/src/util/presence" {
     }
 }
 declare module "gamerbot/src/client/_analytics/types" {
-    import { CommandType as DatabaseCommandType } from '@prisma/client';
+    import type { CommandType as DatabaseCommandType } from '@prisma/client';
     export interface CommandReportStats {
         type: DatabaseCommandType;
         sent: number;
@@ -125,7 +127,7 @@ declare module "gamerbot/src/client/_analytics/types" {
     export const defaultCommandStats: (type: DatabaseCommandType) => CommandReportStats;
 }
 declare module "gamerbot/src/client/_analytics/event" {
-    import { CommandType as DatabaseCommandType } from '@prisma/client';
+    import type { CommandType as DatabaseCommandType } from '@prisma/client';
     import type { AnalyticsManager } from "gamerbot/src/client/AnalyticsManager";
     export enum AnalyticsEvent {
         /**
@@ -160,11 +162,11 @@ declare module "gamerbot/src/client/_analytics/event" {
     };
 }
 declare module "gamerbot/src/client/AnalyticsManager" {
-    import { AnalyticsReport, CommandReport, CommandType as DatabaseCommandType } from '@prisma/client';
+    import type { AnalyticsReport, CommandReport, CommandType as DatabaseCommandType } from '@prisma/client';
     import { Command, CommandResult } from "gamerbot/src/commands/command";
     import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
     import { AnalyticsEvent, EventData, EventReturnType } from "gamerbot/src/client/_analytics/event";
-    import { CommandReportStats } from "gamerbot/src/client/_analytics/types";
+    import type { CommandReportStats } from "gamerbot/src/client/_analytics/types";
     export class AnalyticsManager {
         #private;
         client: GamerbotClient;
@@ -187,7 +189,7 @@ declare module "gamerbot/src/client/AnalyticsManager" {
     }
 }
 declare module "gamerbot/src/client/CountManager" {
-    import { Client } from 'discord.js';
+    import type { Client } from 'discord.js';
     import { Logger } from 'log4js';
     export class CountManager {
         #private;
@@ -200,10 +202,10 @@ declare module "gamerbot/src/client/CountManager" {
     }
 }
 declare module "gamerbot/src/client/egg" {
-    import { Message, PartialMessage } from 'discord.js';
-    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    import type { Message, PartialMessage } from 'discord.js';
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
     export const hasEggs: (msg: Message | PartialMessage) => boolean;
-    export const getTotal: () => Promise<BigInt>;
+    export const getTotal: () => Promise<bigint>;
     export const onMessage: (client: GamerbotClient, message: Message | PartialMessage) => Promise<void>;
 }
 declare module "gamerbot/src/types/trivia" {
@@ -263,9 +265,9 @@ declare module "gamerbot/src/types/trivia" {
     }
 }
 declare module "gamerbot/src/client/TriviaManager" {
-    import { Logger } from 'log4js';
+    import type { Logger } from 'log4js';
     import { CategoriesResponse, TriviaOptions, TriviaResponse } from "gamerbot/src/types/trivia";
-    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
     export class TriviaManager {
         #private;
         readonly client: GamerbotClient;
@@ -308,9 +310,9 @@ declare module "gamerbot/src/client/GamerbotClient" {
     }
 }
 declare module "gamerbot/src/commands/context" {
-    import { PrismaClient } from '@prisma/client';
-    import { CommandInteraction, ContextMenuInteraction, Interaction, Message, User } from 'discord.js';
-    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    import type { PrismaClient } from '@prisma/client';
+    import type { CommandInteraction, ContextMenuInteraction, Interaction, Message, User } from 'discord.js';
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
     export class BaseContext {
         readonly interaction: Interaction;
         readonly prisma: PrismaClient;
@@ -340,9 +342,9 @@ declare module "gamerbot/src/commands/context" {
     }
 }
 declare module "gamerbot/src/types" {
-    import { ApplicationCommandOptionChoice, ApplicationCommandOptionData, ApplicationCommandType, AutocompleteInteraction, CommandInteraction, ContextMenuInteraction, Guild, GuildChannel, GuildMember, Interaction, PermissionString } from 'discord.js';
+    import type { ApplicationCommandOptionChoiceData, ApplicationCommandOptionData, ApplicationCommandType, AutocompleteInteraction, CommandInteraction, ContextMenuInteraction, Guild, GuildChannel, GuildMember, Interaction, PermissionString } from 'discord.js';
     import type { CommandResult } from "gamerbot/src/commands/command";
-    import { BaseContext, CommandContext, MessageCommandContext, UserCommandContext } from "gamerbot/src/commands/context";
+    import type { BaseContext, CommandContext, MessageCommandContext, UserCommandContext } from "gamerbot/src/commands/context";
     export interface GuildRequired<Context extends BaseContext, Int extends Interaction> {
         /**
          * Whether this command is allowed to be used outside a guild (e.g. in a DM).
@@ -444,7 +446,7 @@ declare module "gamerbot/src/types" {
          * Autocomplete handler for this command; required if any of the command's options are
          * autocompleteable.
          */
-        autocomplete?: (interaction: AutocompleteInteraction) => Promise<ApplicationCommandOptionChoice[]>;
+        autocomplete?: (interaction: AutocompleteInteraction) => Promise<ApplicationCommandOptionChoiceData[]>;
     }>;
     export type UserCommandDef = CommandType<UserCommandContext, ContextMenuInteraction>;
     export type MessageCommandDef = CommandType<MessageCommandContext, ContextMenuInteraction>;
@@ -466,7 +468,7 @@ declare module "gamerbot/src/types" {
     }
 }
 declare module "gamerbot/src/commands/command" {
-    import { ChatCommandDef, MessageCommandDef, UserCommandDef } from "gamerbot/src/types";
+    import type { ChatCommandDef, MessageCommandDef, UserCommandDef } from "gamerbot/src/types";
     export type ChatCommand = Required<ChatCommandDef> & {
         type: 'CHAT_INPUT';
     };
@@ -495,11 +497,11 @@ declare module "gamerbot/src/commands/command" {
     export default command;
 }
 declare module "gamerbot/src/commands/config/_configOption" {
-    import { Config, Prisma } from '@prisma/client';
-    import { APIInteractionDataResolvedChannel, APIRole } from 'discord-api-types';
-    import { ApplicationCommandOptionChoice, ApplicationCommandOptionType, CommandInteraction, Guild, GuildChannel, GuildMember, Role, ThreadChannel, User } from 'discord.js';
-    import { CommandResult } from "gamerbot/src/commands/command";
-    import { CommandContext } from "gamerbot/src/commands/context";
+    import type { Config, Prisma } from '@prisma/client';
+    import type { APIInteractionDataResolvedChannel, APIRole } from 'discord-api-types/v9.js';
+    import type { ApplicationCommandOptionChoiceData, ApplicationCommandOptionType, CommandInteraction, Guild, GuildChannel, GuildMember, Role, ThreadChannel, User } from 'discord.js';
+    import type { CommandResult } from "gamerbot/src/commands/command";
+    import type { CommandContext } from "gamerbot/src/commands/context";
     export type ConfigValueType = Exclude<ApplicationCommandOptionType, 'SUB_COMMAND' | 'SUB_COMMAND_GROUP'>;
     export type CommandContextWithGuild = CommandContext & {
         interaction: CommandInteraction & {
@@ -513,7 +515,7 @@ declare module "gamerbot/src/commands/config/_configOption" {
         internalName: string;
         description: string;
         type: T;
-        choices?: T extends 'STRING' | 'INTEGER' | 'NUMBER' ? ApplicationCommandOptionChoice[] : never;
+        choices?: T extends 'STRING' | 'INTEGER' | 'NUMBER' ? ApplicationCommandOptionChoiceData[] : never;
         handle: (context: CommandContextWithGuild, helpers: ConfigOptionHelpers<T>) => Promise<CommandResult>;
     }
     export type ConfigOption<T extends ConfigValueType> = ConfigOptionDef<T>;
@@ -535,9 +537,13 @@ declare module "gamerbot/src/commands/config/config" {
     export default COMMAND_CONFIG;
 }
 declare module "gamerbot/src/util/games" {
-    import { ButtonInteraction } from 'discord.js';
-    import { CommandContext } from "gamerbot/src/commands/context";
-    export const duelPlayer: (interaction: CommandContext['interaction'], options: CommandContext['options'], gameName: string, emoji: string) => Promise<ButtonInteraction | undefined>;
+    import { ButtonInteraction, Message } from 'discord.js';
+    import type { CommandContext } from "gamerbot/src/commands/context";
+    export interface ChallengeData {
+        button: ButtonInteraction;
+        message: Message;
+    }
+    export const challengePlayer: (interaction: CommandContext['interaction'], options: CommandContext['options'], gameName: string, emoji: string) => Promise<ChallengeData | undefined>;
 }
 declare module "gamerbot/src/commands/games/connect4" {
     const COMMAND_CONNECT4: import("gamerbot/src/commands/command").ChatCommand;
@@ -629,8 +635,8 @@ declare module "gamerbot/src/style" {
     export const getCharWidth: (measure: number | SKRSContext2D, char?: string) => number;
 }
 declare module "gamerbot/src/commands/minecraft/_statsProvider" {
-    import { Image } from '@napi-rs/canvas';
-    import { Player } from 'hypixel-types';
+    import type { Image } from '@napi-rs/canvas';
+    import type { Player } from 'hypixel-types';
     export interface StatsProviderResponse {
         uuid: string;
         image: Buffer;
@@ -652,7 +658,7 @@ declare module "gamerbot/src/commands/minecraft/_statsProvider" {
     export function statsProvider(name: string, def: StatsProviderDef): StatsProvider;
 }
 declare module "gamerbot/src/commands/minecraft/_util/style" {
-    import { SKRSContext2D } from '@napi-rs/canvas';
+    import type { SKRSContext2D } from '@napi-rs/canvas';
     import { Color } from "gamerbot/src/util/color";
     export const transaction: <T>(c: SKRSContext2D, f: () => T) => T;
     export const colors: {
@@ -683,9 +689,9 @@ declare module "gamerbot/src/commands/minecraft/_util/style" {
     export const drawFormattedText: (c: SKRSContext2D, text: Text[] | string, x: number, y: number, textAlign?: 'left' | 'right') => number;
 }
 declare module "gamerbot/src/commands/minecraft/_util/bedwarsPrestige" {
-    import { SKRSContext2D } from '@napi-rs/canvas';
-    import { Player } from 'hypixel-types';
-    import { Color } from "gamerbot/src/util/color";
+    import type { SKRSContext2D } from '@napi-rs/canvas';
+    import type { Player } from 'hypixel-types';
+    import type { Color } from "gamerbot/src/util/color";
     export const EASY_LEVELS = 4;
     export const EASY_LEVELS_XP = 7000;
     export const XP_PER_PRESTIGE: number;
@@ -702,9 +708,9 @@ declare module "gamerbot/src/commands/minecraft/_util/bedwarsPrestige" {
     export const drawPrestige: (c: SKRSContext2D, player: Player) => number;
 }
 declare module "gamerbot/src/commands/minecraft/_util/rank" {
-    import { SKRSContext2D } from '@napi-rs/canvas';
-    import { Player } from 'hypixel-types';
-    import { Color } from "gamerbot/src/util/color";
+    import type { SKRSContext2D } from '@napi-rs/canvas';
+    import type { Player } from 'hypixel-types';
+    import type { Color } from "gamerbot/src/util/color";
     export const rankWeights: {
         NON_DONOR: number;
         VIP: number;
@@ -746,7 +752,7 @@ declare module "gamerbot/src/commands/moderation/kick" {
     export default COMMAND_KICK;
 }
 declare module "gamerbot/src/commands/moderation/purgetohere" {
-    import { CommandInteraction, ContextMenuInteraction } from 'discord.js';
+    import type { CommandInteraction, ContextMenuInteraction } from 'discord.js';
     import { CommandResult } from "gamerbot/src/commands/command";
     export const purgeTo: (interaction: CommandInteraction | ContextMenuInteraction, to: string) => Promise<CommandResult>;
     const COMMAND_PURGETOHERE: import("gamerbot/src/commands/command").MessageCommand;
@@ -765,7 +771,7 @@ declare module "gamerbot/src/commands/moderation/unban" {
     export default COMMAND_UNBAN;
 }
 declare module "gamerbot/src/util/message" {
-    import { MessageOptions } from 'discord.js';
+    import type { MessageOptions } from 'discord.js';
     export const parseDiscordJson: (json: string) => MessageOptions;
 }
 declare module "gamerbot/src/commands/utility/apimessage" {
@@ -792,30 +798,48 @@ declare module "gamerbot/src/commands/utility/ping" {
     const COMMAND_PING: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_PING;
 }
-declare module "gamerbot/src/commands/utility/_run/askForCode" {
-    import { Runtime } from 'piston-client';
+declare module "gamerbot/src/commands/utility/_run/askForStdin" {
+    import type { Runtime } from 'piston-client';
     import { CommandResult } from "gamerbot/src/commands/command";
-    import { CommandContext } from "gamerbot/src/commands/context";
+    import type { CommandContext } from "gamerbot/src/commands/context";
+    const askForStdin: (context: CommandContext, runtime: Runtime) => Promise<string | CommandResult>;
+    export default askForStdin;
+}
+declare module "gamerbot/src/commands/utility/_run/util" {
+    import type { MessageAttachment } from 'discord.js';
+    export const isValidCodeAttachment: (attachment: MessageAttachment) => boolean;
+}
+declare module "gamerbot/src/commands/utility/_run/askForCode" {
+    import type { Runtime } from 'piston-client';
+    import { CommandResult } from "gamerbot/src/commands/command";
+    import type { CommandContext } from "gamerbot/src/commands/context";
     const askForCode: (context: CommandContext, runtime: Runtime) => Promise<string | CommandResult>;
     export default askForCode;
 }
-declare module "gamerbot/src/commands/utility/_run/askForStdin" {
-    import { Runtime } from 'piston-client';
+declare module "gamerbot/src/commands/utility/_run/getCode" {
+    import type { MessageAttachment } from 'discord.js';
+    import type { Runtime } from 'piston-client';
     import { CommandResult } from "gamerbot/src/commands/command";
-    import { CommandContext } from "gamerbot/src/commands/context";
-    const askForStdin: (context: CommandContext, runtime: Runtime) => Promise<string | CommandResult>;
-    export default askForStdin;
+    import type { CommandContext } from "gamerbot/src/commands/context";
+    interface GetCodeResult {
+        attachment?: MessageAttachment;
+        code?: string;
+        result?: CommandResult;
+        error?: string;
+    }
+    const getCode: (context: CommandContext, runtime: Runtime) => Promise<GetCodeResult>;
+    export default getCode;
 }
 declare module "gamerbot/src/commands/utility/run" {
     const COMMAND_RUN: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_RUN;
 }
 declare module "gamerbot/src/commands/utility/_time/epoch" {
-    import { TimeHandler } from "gamerbot/src/commands/utility/time";
+    import type { TimeHandler } from "gamerbot/src/commands/utility/time";
     export const TIME_EPOCH: TimeHandler;
 }
 declare module "gamerbot/src/commands/utility/_time/in" {
-    import { TimeHandler } from "gamerbot/src/commands/utility/time";
+    import type { TimeHandler } from "gamerbot/src/commands/utility/time";
     const TIME_IN: TimeHandler;
     export default TIME_IN;
 }
@@ -825,13 +849,13 @@ declare module "gamerbot/src/commands/utility/_time/world" {
     export default TIME_WORLD;
 }
 declare module "gamerbot/src/commands/utility/_time/zoneinfo" {
-    import { TimeHandler } from "gamerbot/src/commands/utility/time";
+    import type { TimeHandler } from "gamerbot/src/commands/utility/time";
     const TIME_ZONEINFO: TimeHandler;
     export default TIME_ZONEINFO;
 }
 declare module "gamerbot/src/commands/utility/time" {
     import { CommandResult } from "gamerbot/src/commands/command";
-    import { CommandContext } from "gamerbot/src/commands/context";
+    import type { CommandContext } from "gamerbot/src/commands/context";
     export type TimeHandler = (context: CommandContext) => Promise<CommandResult>;
     const COMMAND_TIME: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_TIME;
@@ -844,14 +868,14 @@ declare module "gamerbot/src/commands" {
     export const DEFAULT_COMMANDS: (import("gamerbot/src/commands/command").ChatCommand | import("gamerbot/src/commands/command").UserCommand | import("gamerbot/src/commands/command").MessageCommand)[];
 }
 declare module "gamerbot/src/deploy" {
-    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
     export const deployCommands: (client: GamerbotClient) => Promise<void>;
 }
 declare module "gamerbot/src/docgen" { }
 declare module "gamerbot/src/imagetest" { }
 declare module "gamerbot/src/index" { }
 declare module "gamerbot/src/client/Plugin" {
-    import { Command } from "gamerbot/src/commands/command";
+    import type { Command } from "gamerbot/src/commands/command";
     export abstract class Plugin {
         abstract id: string;
         commands: Command[];
@@ -862,26 +886,26 @@ declare module "gamerbot/src/commands/config/_allowSpam" {
     export default CONFIG_OPTION_ALLOWSPAM;
 }
 declare module "gamerbot/src/commands/config/_log/addLogChannel" {
-    import { LogChannel } from '@prisma/client';
+    import type { LogChannel } from '@prisma/client';
     import { ButtonInteraction } from 'discord.js';
     import { CommandResult } from "gamerbot/src/commands/command";
-    import { CommandContextWithGuild } from "gamerbot/src/commands/config/_configOption";
+    import type { CommandContextWithGuild } from "gamerbot/src/commands/config/_configOption";
     const addLogChannel: (context: CommandContextWithGuild, logChannels: LogChannel[], component: ButtonInteraction) => Promise<CommandResult>;
     export default addLogChannel;
 }
 declare module "gamerbot/src/commands/config/_log/editLogChannel" {
-    import { LogChannel } from '@prisma/client';
-    import { SelectMenuInteraction } from 'discord.js';
-    import { CommandResult } from "gamerbot/src/commands/command";
-    import { CommandContextWithGuild } from "gamerbot/src/commands/config/_configOption";
+    import type { LogChannel } from '@prisma/client';
+    import type { SelectMenuInteraction } from 'discord.js';
+    import type { CommandResult } from "gamerbot/src/commands/command";
+    import type { CommandContextWithGuild } from "gamerbot/src/commands/config/_configOption";
     const editLogChannel: (context: CommandContextWithGuild, logChannels: LogChannel[], component: SelectMenuInteraction) => Promise<CommandResult>;
     export default editLogChannel;
 }
 declare module "gamerbot/src/commands/config/_log/removeLogChannel" {
-    import { LogChannel } from '@prisma/client';
-    import { SelectMenuInteraction } from 'discord.js';
-    import { CommandResult } from "gamerbot/src/commands/command";
-    import { CommandContextWithGuild } from "gamerbot/src/commands/config/_configOption";
+    import type { LogChannel } from '@prisma/client';
+    import type { SelectMenuInteraction } from 'discord.js';
+    import type { CommandResult } from "gamerbot/src/commands/command";
+    import type { CommandContextWithGuild } from "gamerbot/src/commands/config/_configOption";
     const removeLogChannel: (context: CommandContextWithGuild, logChannels: LogChannel[], component: SelectMenuInteraction) => Promise<CommandResult>;
     export default removeLogChannel;
 }
@@ -899,14 +923,14 @@ declare module "gamerbot/src/commands/minecraft/_util/networkLevel" {
     export const getNetworkLevel: (xp: number) => number;
 }
 declare module "gamerbot/src/log/constants" {
-    import { ClientEvents } from 'discord.js';
+    import type { ClientEvents } from 'discord.js';
     export const allowedEvents: (keyof ClientEvents)[];
     export const eventsToBits: (events: ReadonlyArray<keyof ClientEvents>) => bigint;
     export const bitsToEvents: (bits: bigint) => ReadonlyArray<keyof ClientEvents>;
 }
 declare module "gamerbot/src/log/handler" {
-    import { ClientEvents, Guild } from 'discord.js';
-    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    import type { ClientEvents, Guild } from 'discord.js';
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
     import { Embed } from "gamerbot/src/util/embed";
     interface LogHandlerContext {
         readonly client: GamerbotClient;
