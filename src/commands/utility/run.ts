@@ -1,6 +1,7 @@
 /* eslint-disable import/no-named-as-default */
+import axios from 'axios'
 import { stripIndent } from 'common-tags'
-import { APIMessage } from 'discord-api-types'
+import type { APIMessage } from 'discord-api-types/v9.js'
 import { FileOptions, Formatters, Message, Util } from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'
@@ -8,8 +9,8 @@ import piston, { ExecuteErrorResult, ExecuteSuccessResult } from 'piston-client'
 import { matchString } from '../../util.js'
 import { COLORS, Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
-import askForCode from './_run/askForCode.js'
 import askForStdin from './_run/askForStdin.js'
+import getCode from './_run/getCode.js'
 
 const pistonClient = piston()
 const RUNTIMES = await pistonClient.runtimes()
@@ -42,6 +43,14 @@ const COMMAND_RUN = command('CHAT_INPUT', {
     },
     {
       options: {
+        language: '`go`',
+        'code-file': '[attached file main.go]',
+        'stdin-file': '[attached file stdin.txt]',
+      },
+      description: 'Run a Go program from an attached file with stdin from a file.',
+    },
+    {
+      options: {
         language: '`c++`',
         'ask-stdin': true,
         'output-format': '`json`',
@@ -70,6 +79,11 @@ const COMMAND_RUN = command('CHAT_INPUT', {
       type: 'STRING',
     },
     {
+      name: 'code-file',
+      description: 'A file with the code to run.',
+      type: 'ATTACHMENT',
+    },
+    {
       name: 'stdin',
       description:
         'stdin to provide to the program; specify ask-stdin instead to be prompted for it.',
@@ -79,6 +93,11 @@ const COMMAND_RUN = command('CHAT_INPUT', {
       name: 'ask-stdin',
       description: 'Whether to ask for stdin.',
       type: 'BOOLEAN',
+    },
+    {
+      name: 'stdin-file',
+      description: 'A file to use as stdin.',
+      type: 'ATTACHMENT',
     },
     {
       name: 'args',
@@ -163,11 +182,18 @@ const COMMAND_RUN = command('CHAT_INPUT', {
 
     await interaction.deferReply()
 
-    let code: string | number | undefined = options.getString('code') ?? undefined
-    code ??= await askForCode(context, runtime)
-    if (typeof code === 'number') return code // CommandResult
+    const {
+      code,
+      attachment: codeAttachment,
+      error: codeError,
+      result,
+    } = await getCode(context, runtime)
+    if (codeError) {
+      await interaction.reply({ embeds: [Embed.error(codeError)] })
+      return result ?? CommandResult.Success
+    }
 
-    if (!options.getString('code')) {
+    if (!options.getString('code') && !codeAttachment) {
       await interaction.editReply({
         embeds: [new Embed({ title: `Run code: ${runtime.language} v${runtime.version}` })],
         components: [],
@@ -175,6 +201,12 @@ const COMMAND_RUN = command('CHAT_INPUT', {
     }
 
     let stdin: string | number | undefined = options.getString('stdin') ?? undefined
+    if (stdin == null) {
+      const attachment = options.getAttachment('stdin-file')
+      if (attachment != null) {
+        stdin = await axios.get(attachment.url, { responseType: 'text' }).then((res) => res.data)
+      }
+    }
     if (options.getBoolean('ask-stdin')) stdin ??= (await askForStdin(context, runtime)) ?? ''
     if (typeof stdin === 'number') return stdin // CommandResult
 
@@ -195,7 +227,7 @@ const COMMAND_RUN = command('CHAT_INPUT', {
       outputMessage = await interaction.followUp({
         embeds: [
           Embed.info('Running code...')
-            .setColor(COLORS.orange.asNumber)
+            .setColor(COLORS.orange.number)
             .setTitle(`Run code: ${runtime.language} v${runtime.version}`),
         ],
       })
@@ -203,7 +235,7 @@ const COMMAND_RUN = command('CHAT_INPUT', {
       outputMessage = await interaction.editReply({
         embeds: [
           Embed.info('Running code...')
-            .setColor(COLORS.orange.asNumber)
+            .setColor(COLORS.orange.number)
             .setTitle(`Run code: ${runtime.language} v${runtime.version}`),
         ],
       })
@@ -275,6 +307,10 @@ const COMMAND_RUN = command('CHAT_INPUT', {
           embed.description
         }`
       )
+    }
+
+    if (codeAttachment) {
+      embed.setDescription(`[Source code](${codeAttachment.url})\n\n${embed.description}`)
     }
 
     if (outputMessage) {
