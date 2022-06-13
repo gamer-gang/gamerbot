@@ -7,7 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import packageJson from '../package.json'
 import { DEFAULT_COMMANDS } from './commands.js'
-import { DocsJson } from './types.js'
+import type { DocsJson } from './types.js'
 import { resolvePath } from './util/path.js'
 const json: DocsJson = { version: packageJson.version, commands: [] }
 

@@ -1,6 +1,6 @@
 import { Message, MessageActionRow, MessageSelectMenu, MessageSelectOptionData } from 'discord.js'
 import { Embed } from '../../util/embed.js'
-import { duelPlayer } from '../../util/games.js'
+import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
 
 // represents every possible bid
@@ -9,6 +9,12 @@ const possibleBids = [1, 2, 3, 4].map((i) => [1, 2, 3, 4].map((j) => [i, j])).fl
 const COMMAND_DICE = command('CHAT_INPUT', {
   name: 'dice',
   description: "Duel someone else in a game of liar's dice/swindlestones",
+  examples: [
+    {
+      options: { user: { mention: 'Frog' } },
+      description: "Challenge @Frog to a game of liar's dice.",
+    },
+  ],
   options: [
     {
       name: 'user',
@@ -21,12 +27,13 @@ const COMMAND_DICE = command('CHAT_INPUT', {
   async run(context) {
     const { interaction, options } = context
 
-    const response = await duelPlayer(interaction, options, 'dice', '🎲')
+    const challengeResponse = await challengePlayer(interaction, options, 'dice', '🎲')
 
-    if (!response) {
+    if (!challengeResponse) {
       return CommandResult.Success
     }
 
+    const { button: response } = challengeResponse
     const opponent = response.user
 
     const hands = [

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/indent */
-import {
-  ApplicationCommandOptionChoice,
+import type {
+  ApplicationCommandOptionChoiceData,
   ApplicationCommandOptionData,
   ApplicationCommandType,
   AutocompleteInteraction,
@@ -13,7 +13,7 @@ import {
   PermissionString,
 } from 'discord.js'
 import type { CommandResult } from './commands/command.js'
-import {
+import type {
   BaseContext,
   CommandContext,
   MessageCommandContext,
@@ -134,7 +134,7 @@ export type ChatCommandDef = CommandType<
      */
     autocomplete?: (
       interaction: AutocompleteInteraction
-    ) => Promise<ApplicationCommandOptionChoice[]>
+    ) => Promise<ApplicationCommandOptionChoiceData[]>
   }
 >
 

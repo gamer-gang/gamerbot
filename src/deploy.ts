@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
+import type {
   ApplicationCommandDataResolvable,
   ApplicationCommandManager,
   Guild,
@@ -7,7 +7,7 @@ import {
 } from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'
-import { GamerbotClient } from './client/GamerbotClient.js'
+import type { GamerbotClient } from './client/GamerbotClient.js'
 import { IS_DEVELOPMENT } from './constants.js'
 
 export const deployCommands = async (client: GamerbotClient): Promise<void> => {

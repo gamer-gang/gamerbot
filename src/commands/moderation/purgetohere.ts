@@ -1,4 +1,4 @@
-import { CommandInteraction, ContextMenuInteraction } from 'discord.js'
+import type { CommandInteraction, ContextMenuInteraction } from 'discord.js'
 import assert from 'node:assert'
 import { getDateFromSnowflake } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'

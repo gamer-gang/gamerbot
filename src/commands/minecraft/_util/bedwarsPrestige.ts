@@ -1,7 +1,7 @@
-import { SKRSContext2D } from '@napi-rs/canvas'
-import { Player } from 'hypixel-types'
+import type { SKRSContext2D } from '@napi-rs/canvas'
+import type { Player } from 'hypixel-types'
 import * as s from '../../../style.js'
-import { Color } from '../../../util/color.js'
+import type { Color } from '../../../util/color.js'
 import { colors, transaction } from './style.js'
 
 export const EASY_LEVELS = 4

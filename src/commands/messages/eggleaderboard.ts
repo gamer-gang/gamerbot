@@ -1,4 +1,4 @@
-import { EggLeaderboard } from '@prisma/client'
+import type { EggLeaderboard } from '@prisma/client'
 import { MessageActionRow, MessageButton } from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'

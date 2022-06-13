@@ -1,4 +1,4 @@
-import { Interaction, InteractionReplyOptions, MessagePayload, User } from 'discord.js'
+import type { Interaction, InteractionReplyOptions, MessagePayload, User } from 'discord.js'
 import { DateTime } from 'luxon'
 
 export const getDateStringFromSnowflake = (id: string): [timestamp: string, age: string] => {

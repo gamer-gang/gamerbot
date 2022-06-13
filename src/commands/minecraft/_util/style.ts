@@ -1,4 +1,4 @@
-import { SKRSContext2D } from '@napi-rs/canvas'
+import type { SKRSContext2D } from '@napi-rs/canvas'
 import _ from 'lodash'
 import * as s from '../../../style.js'
 import { Color } from '../../../util/color.js'

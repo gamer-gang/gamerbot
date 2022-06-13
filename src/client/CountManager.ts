@@ -1,4 +1,4 @@
-import { Client } from 'discord.js'
+import type { Client } from 'discord.js'
 import log4js, { Logger } from 'log4js'
 import assert from 'node:assert'
 

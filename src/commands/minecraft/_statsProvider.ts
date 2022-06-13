@@ -1,5 +1,5 @@
-import { Image } from '@napi-rs/canvas'
-import { Player } from 'hypixel-types'
+import type { Image } from '@napi-rs/canvas'
+import type { Player } from 'hypixel-types'
 
 export interface StatsProviderResponse {
   uuid: string

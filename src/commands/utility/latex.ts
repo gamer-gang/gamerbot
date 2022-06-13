@@ -1,6 +1,6 @@
 import { LiteDocument } from 'mathjax-full/js/adaptors/lite/Document.js'
-import { LiteNode } from 'mathjax-full/js/adaptors/lite/Element.js'
-import { LiteText } from 'mathjax-full/js/adaptors/lite/Text.js'
+import type { LiteNode } from 'mathjax-full/js/adaptors/lite/Element.js'
+import type { LiteText } from 'mathjax-full/js/adaptors/lite/Text.js'
 import { liteAdaptor } from 'mathjax-full/js/adaptors/liteAdaptor.js'
 import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html.js'
 import { TeX } from 'mathjax-full/js/input/tex.js'

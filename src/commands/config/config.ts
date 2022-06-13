@@ -1,4 +1,7 @@
-import { ApplicationCommandNonOptionsData, ApplicationCommandOptionChoice } from 'discord.js'
+import type {
+  ApplicationCommandNonOptionsData,
+  ApplicationCommandOptionChoiceData,
+} from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 import { ConfigOption, ConfigValueType, helpers } from './_configOption.js'
@@ -39,7 +42,8 @@ const COMMAND_CONFIG = command('CHAT_INPUT', {
         name: 'value',
         description: 'The value to set the option to. Leave blank to view the current value.',
         type: optionDef.type,
-        choices: (optionDef as unknown as { choices: ApplicationCommandOptionChoice[] }).choices,
+        choices: (optionDef as unknown as { choices: ApplicationCommandOptionChoiceData[] })
+          .choices,
       } as ApplicationCommandNonOptionsData,
     ],
   })),

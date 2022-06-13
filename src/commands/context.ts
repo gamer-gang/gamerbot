@@ -1,7 +1,13 @@
-import { PrismaClient } from '@prisma/client'
-import { CommandInteraction, ContextMenuInteraction, Interaction, Message, User } from 'discord.js'
+import type { PrismaClient } from '@prisma/client'
+import type {
+  CommandInteraction,
+  ContextMenuInteraction,
+  Interaction,
+  Message,
+  User,
+} from 'discord.js'
 import assert from 'node:assert'
-import { GamerbotClient } from '../client/GamerbotClient.js'
+import type { GamerbotClient } from '../client/GamerbotClient.js'
 
 export class BaseContext {
   readonly client: GamerbotClient

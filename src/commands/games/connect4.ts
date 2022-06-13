@@ -1,11 +1,17 @@
-import { Message } from 'discord.js'
+import type { Message } from 'discord.js'
 import { Embed } from '../../util/embed.js'
-import { duelPlayer } from '../../util/games.js'
+import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
 
 const COMMAND_CONNECT4 = command('CHAT_INPUT', {
   name: 'connect4',
-  description: 'Duel someone in connect 4.',
+  description: 'Play a game of connect four with someone.',
+  examples: [
+    {
+      options: { user: { mention: 'Frog' } },
+      description: 'Challenge @Frog to a game of connect four.',
+    },
+  ],
   options: [
     {
       name: 'user',
@@ -18,13 +24,13 @@ const COMMAND_CONNECT4 = command('CHAT_INPUT', {
   async run(context) {
     const { interaction, options } = context
 
-    const response = await duelPlayer(interaction, options, 'connect 4', '⚔️')
+    const response = await challengePlayer(interaction, options, 'connect four', '⚔️')
 
     if (!response) {
       return CommandResult.Success
     }
 
-    const opponent = response.user
+    const opponent = response.button.user
 
     // indexes are [col][row], row 0 being the bottom
     const state: Cell[][] = Array(7)
@@ -34,7 +40,7 @@ const COMMAND_CONNECT4 = command('CHAT_INPUT', {
     const msg = (await interaction.followUp({
       embeds: [
         new Embed({
-          title: `Connect 4: ${interaction.user.tag} 🔴 vs ${opponent.tag} 🟡!`,
+          title: `Connect Four: ${interaction.user.tag} 🔴 vs ${opponent.tag} 🟡!`,
           description: 'Loading...',
         }),
       ],
@@ -53,8 +59,8 @@ const COMMAND_CONNECT4 = command('CHAT_INPUT', {
     await msg.edit({
       embeds: [
         new Embed({
-          title: `Connect 4: ${interaction.user.tag} 🔴 vs ${opponent.tag} 🟡! It is ${interaction.user.tag}'s turn.`,
-          description: convertState(state),
+          title: `Connect Four: ${interaction.user.tag} 🔴 vs ${opponent.tag} 🟡! It is ${interaction.user.tag}'s turn.`,
+          description: boardStateToString(state),
         }),
       ],
     })
@@ -73,8 +79,6 @@ const COMMAND_CONNECT4 = command('CHAT_INPUT', {
         return
       }
 
-      // eslint-disable-next-line no-console
-      console.log(reaction, user, reaction.emoji.name, emojiMap[reaction.emoji.name])
       const move = emojiMap[reaction.emoji.name] - 1
 
       if (!dropToken(state, move, firstPlayerTurn ? 0 : 1)) {
@@ -94,22 +98,21 @@ const COMMAND_CONNECT4 = command('CHAT_INPUT', {
       await msg.edit({
         embeds: [
           new Embed({
-            title: `Connect 4: ${interaction.user.tag} 🔴 vs ${opponent.tag} 🟡! It is ${
+            title: `Connect Four: ${interaction.user.tag} 🔴 vs ${opponent.tag} 🟡! It is ${
               firstPlayerTurn ? interaction.user.tag : opponent.tag
             }'s turn.`,
-            description: convertState(state, move),
+            description: boardStateToString(state, move),
           }),
         ],
       })
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     collector.on('end', (collected, reason) => {
       void msg.edit({
         embeds: [
           new Embed({
-            title: `Connect 4: ${interaction.user.tag} 🔴 vs ${opponent.tag} 🟡!`,
-            description: convertState(state),
+            title: `Connect Four: ${interaction.user.tag} 🔴 vs ${opponent.tag} 🟡!`,
+            description: boardStateToString(state),
           }),
         ],
       })
@@ -118,20 +121,20 @@ const COMMAND_CONNECT4 = command('CHAT_INPUT', {
         void msg.reply({
           embeds: [
             Embed.success(
-              'Connect 4',
+              'Connect Four',
               `${firstPlayerTurn ? interaction.user.tag : opponent.tag} won!`
             ),
           ],
         })
       } else if (reason === 'tie') {
         void msg.reply({
-          embeds: [Embed.success('Connect 4', "It's a tie!")],
+          embeds: [Embed.success('Connect Four', "It's a tie!")],
         })
       } else {
         void msg.reply({
           embeds: [
             new Embed({
-              title: 'Connect 4',
+              title: 'Connect Four',
               description: `${
                 firstPlayerTurn ? interaction.user.tag : opponent.tag
               } failed to move.`,
@@ -146,12 +149,12 @@ const COMMAND_CONNECT4 = command('CHAT_INPUT', {
 })
 
 // warning: the code below sucks.
-function convertState(state: Cell[][], lastMove?: number): string {
+function boardStateToString(state: Cell[][], lastMove?: number): string {
   const arr: string[][] = []
   const len = state[0].length - 1
   for (let row = 0; row < state[0].length; row++) {
     for (let col = 0; col < state.length; col++) {
-      if (arr[row] === undefined) arr[row] = []
+      arr[row] ??= []
       if (state[col][len - row] === undefined) {
         arr[row][col] = '⚫'
       } else if (lastMove && state[col][len - row + 1] === undefined && col === lastMove) {
@@ -162,7 +165,7 @@ function convertState(state: Cell[][], lastMove?: number): string {
     }
   }
   arr.push(emojis)
-  return arr.map((e) => e.join('')).join('\n')
+  return arr.map((line) => line.join('')).join('\n')
 }
 
 function dropToken(state: Cell[][], col: number, player: 0 | 1): boolean {

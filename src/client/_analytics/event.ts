@@ -1,4 +1,4 @@
-import { CommandType as DatabaseCommandType } from '@prisma/client'
+import type { CommandType as DatabaseCommandType } from '@prisma/client'
 import type { CommandResult } from '../../commands/command.js'
 import type { AnalyticsManager } from '../AnalyticsManager.js'
 import { defaultCommandStats } from './types.js'

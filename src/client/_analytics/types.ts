@@ -1,4 +1,4 @@
-import { CommandType as DatabaseCommandType } from '@prisma/client'
+import type { CommandType as DatabaseCommandType } from '@prisma/client'
 
 export interface CommandReportStats {
   type: DatabaseCommandType

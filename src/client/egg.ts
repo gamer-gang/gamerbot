@@ -1,11 +1,11 @@
-import { Message, PartialMessage, User } from 'discord.js'
+import type { Message, PartialMessage, User } from 'discord.js'
 import yaml from 'js-yaml'
 import _ from 'lodash'
 import assert from 'node:assert'
 import fs from 'node:fs'
 import { prisma } from '../prisma.js'
 import { resolvePath } from '../util/path.js'
-import { GamerbotClient } from './GamerbotClient.js'
+import type { GamerbotClient } from './GamerbotClient.js'
 
 const eggfile = yaml.load(fs.readFileSync(resolvePath('assets/egg.yaml')).toString('utf-8'))
 if (typeof eggfile !== 'object') throw new Error('egg.yaml must be object')
@@ -49,7 +49,7 @@ const assertDatabaseEntry = async (user: User): Promise<void> => {
   await prisma.eggLeaderboard.create({ data: { userId, userTag: user.tag } })
 }
 
-export const getTotal = async (): Promise<BigInt> => {
+export const getTotal = async (): Promise<bigint> => {
   if (eggCount == null) {
     const count = await getEggTotalFromDatabase()
     eggCount ??= count

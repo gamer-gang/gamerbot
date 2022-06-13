@@ -1,10 +1,10 @@
 import axios from 'axios'
 import { ButtonInteraction, MessageActionRow, MessageButton } from 'discord.js'
 import assert from 'node:assert'
-import { Runtime } from 'piston-client'
+import type { Runtime } from 'piston-client'
 import { Embed } from '../../../util/embed.js'
 import { CommandResult } from '../../command.js'
-import { CommandContext } from '../../context.js'
+import type { CommandContext } from '../../context.js'
 
 const askForStdin = async (
   context: CommandContext,

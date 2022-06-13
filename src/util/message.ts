@@ -1,5 +1,5 @@
-import { APIMessage } from 'discord-api-types/v9.js'
-import { MessageOptions } from 'discord.js'
+import type { APIMessage } from 'discord-api-types/v9.js'
+import type { MessageOptions } from 'discord.js'
 import { Embed, EmbedOptions } from './embed.js'
 
 export const parseDiscordJson = (json: string): MessageOptions => {

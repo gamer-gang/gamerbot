@@ -2,47 +2,51 @@ export type ColorFormat = 'number' | 'hex' | 'plain' | 'rgb' | 'hsl'
 export type RgbTriple = [r: number, g: number, b: number]
 export type HslTriple = [h: number, s: number, l: number]
 
-const hslToRgb = (h: number, s: number, l: number): RgbTriple => {
-  if (h < 0 || h > 360) throw new Error('Invalid hue')
-  if (s < 0 || s > 100) throw new Error('Invalid saturation')
-  if (l < 0 || l > 100) throw new Error('Invalid lightness')
-  s /= 100
-  l /= 100
-
-  const c = (1 - Math.abs(2 * l - 1)) * s
-  const hp = h / 60.0
-  const x = c * (1 - Math.abs((hp % 2) - 1))
-  let rgb1: number[] = []
-  if (isNaN(h)) rgb1 = [0, 0, 0]
-  else if (hp <= 1) rgb1 = [c, x, 0]
-  else if (hp <= 2) rgb1 = [x, c, 0]
-  else if (hp <= 3) rgb1 = [0, c, x]
-  else if (hp <= 4) rgb1 = [0, x, c]
-  else if (hp <= 5) rgb1 = [x, 0, c]
-  else if (hp <= 6) rgb1 = [c, 0, x]
-  const m = l - c * 0.5
-  return [
-    Math.round(255 * (rgb1[0] + m)),
-    Math.round(255 * (rgb1[1] + m)),
-    Math.round(255 * (rgb1[2] + m)),
-  ]
+export const hslToRgb = (h: number, s: number, l: number): RgbTriple => {
+  const f = (n: number): number => {
+    const k = (n + h / 30) % 12
+    const a = s * Math.min(l, 1 - l)
+    const color = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))
+    return Math.round(color * 255)
+  }
+  return [f(0), f(8), f(4)]
 }
 
-const rgbToHsl = (r: number, g: number, b: number): HslTriple => {
+export const rgbToHsl = (r: number, g: number, b: number): HslTriple => {
   r /= 255
   g /= 255
   b /= 255
   const max = Math.max(r, g, b)
+  const value = max
   const min = Math.min(r, g, b)
-  const d = max - min
-  let h = 0
-  if (d === 0) h = 0
-  else if (max === r) h = ((g - b) / d) % 6
-  else if (max === g) h = (b - r) / d + 2
-  else if (max === b) h = (r - g) / d + 4
-  const l = (min + max) / 2
-  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1))
-  return [h * 60, s, l]
+  const chroma = max - min
+  const lightness = (max + min) / 2
+
+  let hue
+  if (chroma === 0) hue = 0
+
+  switch (value) {
+    case r:
+      hue = (0 + (g - b) / chroma) * 60
+      break
+    case g:
+      hue = (2 + (b - r) / chroma) * 60
+      break
+    case b:
+      hue = (4 + (r - g) / chroma) * 60
+      break
+    default:
+      throw new Error('Invalid RGB color')
+  }
+
+  let saturation
+  if (lightness === 0 || lightness === 1) {
+    saturation = 0
+  } else {
+    saturation = (value - lightness) / Math.min(lightness, 1 - lightness)
+  }
+
+  return [hue, saturation, lightness]
 }
 
 export class Color {
@@ -78,11 +82,13 @@ export class Color {
     return new Color(num)
   }
 
+  #num: number
   #rgb: RgbTriple
   #string: string
 
-  constructor(private readonly num: number) {
-    this.#string = this.num.toString(16).padStart(6, '0')
+  constructor(num: number) {
+    this.#num = num
+    this.#string = this.#num.toString(16).padStart(6, '0')
 
     const r = this.#string.slice(0, 2)
     const g = this.#string.slice(2, 4)
@@ -91,8 +97,8 @@ export class Color {
     this.#rgb = [r, g, b].map((s) => parseInt(s, 16)) as RgbTriple
   }
 
-  get asNumber(): number {
-    return this.num
+  get number(): number {
+    return this.#num
   }
 
   get plain(): string {

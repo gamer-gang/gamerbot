@@ -2,7 +2,7 @@ import { stripIndent } from 'common-tags'
 import { DateTime } from 'luxon'
 import { Embed } from '../../../util/embed.js'
 import { CommandResult } from '../../command.js'
-import { TimeHandler } from '../time.js'
+import type { TimeHandler } from '../time.js'
 
 export const TIME_EPOCH: TimeHandler = async (context) => {
   const { interaction } = context

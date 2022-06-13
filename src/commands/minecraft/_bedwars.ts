@@ -1,5 +1,5 @@
 import { createCanvas, Image } from '@napi-rs/canvas'
-import { Bedwars, Player } from 'hypixel-types'
+import type { Bedwars, Player } from 'hypixel-types'
 import _ from 'lodash'
 import hash from 'object-hash'
 import * as s from '../../style.js'

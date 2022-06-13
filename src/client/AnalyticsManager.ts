@@ -1,11 +1,15 @@
-import { AnalyticsReport, CommandReport, CommandType as DatabaseCommandType } from '@prisma/client'
+import type {
+  AnalyticsReport,
+  CommandReport,
+  CommandType as DatabaseCommandType,
+} from '@prisma/client'
 import { DateTime } from 'luxon'
 import { createHash } from 'node:crypto'
 import { Command, CommandResult } from '../commands/command.js'
 import { prisma } from '../prisma.js'
 import type { GamerbotClient } from './GamerbotClient.js'
 import { AnalyticsEvent, EventData, EventReturnType, events } from './_analytics/event.js'
-import { CommandReportStats } from './_analytics/types.js'
+import type { CommandReportStats } from './_analytics/types.js'
 
 export class AnalyticsManager {
   #initialized = false

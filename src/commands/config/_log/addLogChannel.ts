@@ -1,4 +1,4 @@
-import { LogChannel } from '@prisma/client'
+import type { LogChannel } from '@prisma/client'
 import didYouMean from 'didyoumean'
 import {
   ButtonInteraction,
@@ -8,7 +8,7 @@ import {
 } from 'discord.js'
 import { Embed } from '../../../util/embed.js'
 import { CommandResult } from '../../command.js'
-import { CommandContextWithGuild } from '../_configOption.js'
+import type { CommandContextWithGuild } from '../_configOption.js'
 
 const addLogChannel = async (
   context: CommandContextWithGuild,

@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference lib="DOM" />
-import { SKRSContext2D } from '@napi-rs/canvas'
-import { Player } from 'hypixel-types'
+import type { SKRSContext2D } from '@napi-rs/canvas'
+import type { Player } from 'hypixel-types'
 import assert from 'node:assert'
 import * as s from '../../../style.js'
-import { Color } from '../../../util/color.js'
+import type { Color } from '../../../util/color.js'
 import { colors, parseFormattedText, stripFormatting } from './style.js'
 
 export const rankWeights = {

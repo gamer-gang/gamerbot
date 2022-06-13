@@ -1,12 +1,12 @@
-import {
+import type {
   ApplicationCommandOptionData,
   ApplicationCommandSubCommandData,
   ApplicationCommandType,
 } from 'discord.js'
 import assert from 'node:assert'
-import { ChatCommandDef, MessageCommandDef, UserCommandDef } from '../types.js'
+import type { ChatCommandDef, MessageCommandDef, UserCommandDef } from '../types.js'
 import { isChatCommand } from '../util.js'
-import { CommandContext, MessageCommandContext, UserCommandContext } from './context.js'
+import type { CommandContext, MessageCommandContext, UserCommandContext } from './context.js'
 
 export type ChatCommand = Required<ChatCommandDef> & { type: 'CHAT_INPUT' }
 export type UserCommand = Required<UserCommandDef> & { type: 'USER' }

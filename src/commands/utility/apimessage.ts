@@ -1,3 +1,4 @@
+import type { InteractionReplyOptions } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import { parseDiscordJson } from '../../util/message.js'
 import command, { CommandResult } from '../command.js'
@@ -32,7 +33,7 @@ const COMMAND_APIMESSAGE = command('CHAT_INPUT', {
     const json = options.getString('json', true)
 
     try {
-      await interaction.reply(parseDiscordJson(json))
+      await interaction.reply(parseDiscordJson(json) as InteractionReplyOptions)
       return CommandResult.Success
     } catch (err) {
       client.getLogger('/apimessage').error(err)

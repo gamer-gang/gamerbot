@@ -1,4 +1,4 @@
-import { Client, PresenceData } from 'discord.js'
+import type { Client, PresenceData } from 'discord.js'
 
 export class PresenceManager {
   static cooldown = 5000

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Logger } from 'log4js'
+import type { Logger } from 'log4js'
 import { URLSearchParams } from 'node:url'
 import {
   CategoriesResponse,
@@ -9,7 +9,7 @@ import {
   TriviaResponse,
   TriviaResponseType,
 } from '../types/trivia.js'
-import { GamerbotClient } from './GamerbotClient.js'
+import type { GamerbotClient } from './GamerbotClient.js'
 
 export class TriviaManager {
   #token?: string

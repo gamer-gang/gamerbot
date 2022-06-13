@@ -77,17 +77,17 @@ export class Embed extends MessageEmbed {
   setIntent(intent: EmbedIntent): this {
     switch (intent) {
       case 'error':
-        this.setColor(COLORS.red.asNumber)
+        this.setColor(COLORS.red.number)
         break
       case 'warning':
-        this.setColor(COLORS.orange.asNumber)
+        this.setColor(COLORS.orange.number)
         break
       case 'success':
-        this.setColor(COLORS.green.asNumber)
+        this.setColor(COLORS.green.number)
         break
       case 'info':
       default:
-        this.setColor(COLORS.blue.asNumber)
+        this.setColor(COLORS.blue.number)
     }
 
     return this

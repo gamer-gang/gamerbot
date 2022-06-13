@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/indent */
-import { Config, Prisma } from '@prisma/client'
-import { APIInteractionDataResolvedChannel, APIRole } from 'discord-api-types'
-import {
-  ApplicationCommandOptionChoice,
+import type { Config, Prisma } from '@prisma/client'
+import type { APIInteractionDataResolvedChannel, APIRole } from 'discord-api-types/v9.js'
+import type {
+  ApplicationCommandOptionChoiceData,
   ApplicationCommandOptionType,
   CommandInteraction,
   Guild,
@@ -13,8 +13,8 @@ import {
   User,
 } from 'discord.js'
 import assert from 'node:assert'
-import { CommandResult } from '../command.js'
-import { CommandContext } from '../context.js'
+import type { CommandResult } from '../command.js'
+import type { CommandContext } from '../context.js'
 
 export type ConfigValueType = Exclude<
   ApplicationCommandOptionType,
@@ -34,7 +34,7 @@ interface ConfigOptionDef<T extends ConfigValueType> {
   internalName: string
   description: string
   type: T
-  choices?: T extends 'STRING' | 'INTEGER' | 'NUMBER' ? ApplicationCommandOptionChoice[] : never
+  choices?: T extends 'STRING' | 'INTEGER' | 'NUMBER' ? ApplicationCommandOptionChoiceData[] : never
 
   handle: (
     context: CommandContextWithGuild,

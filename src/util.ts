@@ -1,13 +1,13 @@
 import { getTimeZones, TimeZone } from '@vvo/tzdb'
 import didYouMean from 'didyoumean'
-import {
-  ApplicationCommandOptionChoice,
+import type {
+  ApplicationCommandOptionChoiceData,
   CommandInteraction,
   ContextMenuInteraction,
 } from 'discord.js'
 import assert from 'node:assert'
-import { Command } from './commands/command.js'
-import { ChatCommandDef, MessageCommandDef, UserCommandDef } from './types.js'
+import type { Command } from './commands/command.js'
+import type { ChatCommandDef, MessageCommandDef, UserCommandDef } from './types.js'
 import { Embed } from './util/embed.js'
 
 export const isChatCommand = (
@@ -88,7 +88,7 @@ export const hasPermissions = (
 export const matchString = (
   input: string,
   possible: string[]
-): ApplicationCommandOptionChoice[] => {
+): ApplicationCommandOptionChoiceData[] => {
   if (!input) {
     // return 25 random timezones
     const random = [...possible].sort(() => 0.5 - Math.random()).slice(0, 25)

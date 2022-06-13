@@ -1,7 +1,7 @@
-import { LogChannel } from '@prisma/client'
-import { SelectMenuInteraction } from 'discord.js'
-import { CommandResult } from '../../command.js'
-import { CommandContextWithGuild } from '../_configOption.js'
+import type { LogChannel } from '@prisma/client'
+import type { SelectMenuInteraction } from 'discord.js'
+import type { CommandResult } from '../../command.js'
+import type { CommandContextWithGuild } from '../_configOption.js'
 
 const removeLogChannel = async (
   context: CommandContextWithGuild,

@@ -2,7 +2,7 @@ import { MessageActionRow, MessageButton } from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'
 import { Embed } from '../../util/embed.js'
-import { duelPlayer } from '../../util/games.js'
+import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
 
 const RPS_CHOICES = {
@@ -32,13 +32,13 @@ const COMMAND_RPS = command('CHAT_INPUT', {
   async run(context) {
     const { interaction, options } = context
 
-    const response = await duelPlayer(interaction, options, 'Rock Paper Scissors', '🪨')
+    const response = await challengePlayer(interaction, options, 'Rock Paper Scissors', '🪨')
 
     if (!response) {
       return CommandResult.Success
     }
 
-    const opponent = response.user
+    const opponent = response.button.user
 
     const choices = Object.entries(RPS_CHOICES).map(
       ([name, emoji]) =>

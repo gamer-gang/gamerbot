@@ -1,4 +1,4 @@
-import { ClientEvents } from 'discord.js'
+import type { ClientEvents } from 'discord.js'
 
 // note: new events should be added to the end of this list, as the order is important
 export const allowedEvents = [

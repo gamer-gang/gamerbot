@@ -1,12 +1,11 @@
 import axios from 'axios'
 import { ButtonInteraction, MessageActionRow, MessageButton } from 'discord.js'
 import assert from 'node:assert'
-import { Runtime } from 'piston-client'
+import type { Runtime } from 'piston-client'
 import { Embed } from '../../../util/embed.js'
 import { CommandResult } from '../../command.js'
-import { CommandContext } from '../../context.js'
-
-const ALLOWED_MIME_TYPES = ['video/MP2T; charset=utf-8']
+import type { CommandContext } from '../../context.js'
+import { isValidCodeAttachment } from './util.js'
 
 const askForCode = async (
   context: CommandContext,
@@ -93,12 +92,7 @@ const askForCode = async (
 
   if (message.attachments.size > 0) {
     const attachment = message.attachments.first()!
-    if (
-      attachment.contentType &&
-      !attachment.contentType.startsWith('text/') &&
-      !attachment.contentType.startsWith('application/') &&
-      !ALLOWED_MIME_TYPES.includes(attachment.contentType)
-    ) {
+    if (!isValidCodeAttachment(attachment)) {
       await interaction.followUp({
         embeds: [
           Embed.error('Only text attachments are supported.').setFooter({
