@@ -3,6 +3,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import webpack from 'webpack'
 
+/// <reference types="webpack" />
+
 const devMode = process.env.NODE_ENV === 'development'
 
 // @ts-ignore module is set to es2020
