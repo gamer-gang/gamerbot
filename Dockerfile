@@ -1,4 +1,4 @@
-FROM node:lts-alpine as builder
+FROM node:18-alpine as builder
 
 RUN apk add --no-cache git
 
@@ -7,13 +7,14 @@ WORKDIR /app
 COPY .yarn .yarn
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY types types
+COPY patches patches
 COPY prisma/schema.prisma prisma/schema.prisma
 RUN yarn install --immutable --inline-builds
 
 COPY . .
 RUN yarn build
 
-FROM node:lts-alpine as runner
+FROM node:18-alpine as runner
 
 ENV NODE_ENV=production DOCKER=true
 

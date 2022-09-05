@@ -224,21 +224,21 @@ const COMMAND_RUN = command('CHAT_INPUT', {
       !options.getString('code') ||
       (!options.getString('stdin') && options.getBoolean('ask-stdin'))
     ) {
-      outputMessage = await interaction.followUp({
+      outputMessage = (await interaction.followUp({
         embeds: [
           Embed.info('Running code...')
             .setColor(COLORS.orange.number)
             .setTitle(`Run code: ${runtime.language} v${runtime.version}`),
         ],
-      })
+      })) as any // TODO: fix type
     } else {
-      outputMessage = await interaction.editReply({
+      outputMessage = (await interaction.editReply({
         embeds: [
           Embed.info('Running code...')
             .setColor(COLORS.orange.number)
             .setTitle(`Run code: ${runtime.language} v${runtime.version}`),
         ],
-      })
+      })) as any // TODO: fix type
     }
 
     const codeResult = await pistonClient.execute({
