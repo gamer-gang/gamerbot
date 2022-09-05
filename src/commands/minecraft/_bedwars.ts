@@ -105,7 +105,6 @@ function findCanvasWidth({
   statColumnWidths: number[]
   gamemodeColumnWidth: number
 } {
-  /* eslint-enable @typescript-eslint/indent */
   const tester = createCanvas(128, 128)
   const tc = tester.getContext('2d')
 
@@ -255,6 +254,9 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
     )
 
     const c = canvas.getContext('2d')
+
+    // c.canvas is undefined in @napi-rs/canvas, so we set it ourselves
+    ;(c as any).canvas = canvas
 
     // fill background
     transaction(c, () => {
