@@ -7,5 +7,5 @@ const __filename = fileURLToPath(
 const __dirname = path.dirname(__filename)
 
 export const resolvePath = (dir: string): string => {
-  return path.resolve(__dirname, '../../', dir)
+  return path.resolve(__dirname, '../', dir)
 }

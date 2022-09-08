@@ -1,10 +1,12 @@
 import type { LogChannel } from '@prisma/client'
 import didYouMean from 'didyoumean'
 import {
+  ActionRowBuilder,
+  ButtonBuilder,
   ButtonInteraction,
+  ButtonStyle,
+  ChannelType,
   GuildTextBasedChannel,
-  MessageActionRow,
-  MessageButton,
 } from 'discord.js'
 import { Embed } from '../../../util/embed.js'
 import { CommandResult } from '../../command.js'
@@ -50,14 +52,16 @@ const addLogChannel = async (
     if (channel == null) {
       // find by name
       const names = guild.channels.cache
-        .filter((c) => c.type === 'GUILD_NEWS' || c.type === 'GUILD_TEXT')
+        .filter((c) => c.type === ChannelType.GuildAnnouncement || c.type === ChannelType.GuildText)
         .map((c) => c.name)
 
       const match = names.find((name) => name === message.content)
 
       if (match != null) {
         channel = guild.channels.cache.find(
-          (c) => c.type === 'GUILD_NEWS' || (c.type === 'GUILD_TEXT' && c.name === match)
+          (c) =>
+            c.type === ChannelType.GuildAnnouncement ||
+            (c.type === ChannelType.GuildText && c.name === match)
         ) as GuildTextBasedChannel
       } else {
         const bestMatch = didYouMean(message.content, names)
@@ -74,22 +78,20 @@ const addLogChannel = async (
         await component.editReply({
           embeds: [Embed.error(`Did you mean ${bestMatch}?`)],
           components: [
-            new MessageActionRow({
-              components: [
-                new MessageButton({
-                  customId: `yes_${menuId}`,
-                  label: 'Yes',
-                  emoji: '✅',
-                  style: 'SUCCESS',
-                }),
-                new MessageButton({
-                  customId: `no_${menuId}`,
-                  label: 'No',
-                  emoji: '❌',
-                  style: 'DANGER',
-                }),
-              ],
-            }),
+            new ActionRowBuilder<ButtonBuilder>().addComponents(
+              new ButtonBuilder({
+                customId: `yes_${menuId}`,
+                label: 'Yes',
+                emoji: '✅',
+                style: ButtonStyle.Success,
+              }),
+              new ButtonBuilder({
+                customId: `no_${menuId}`,
+                label: 'No',
+                emoji: '❌',
+                style: ButtonStyle.Danger,
+              })
+            ),
           ],
         })
 
@@ -110,7 +112,9 @@ const addLogChannel = async (
 
         // eslint-disable-next-line require-atomic-updates
         channel = guild.channels.cache.find(
-          (c) => c.type === 'GUILD_NEWS' || (c.type === 'GUILD_TEXT' && c.name === bestMatch)
+          (c) =>
+            c.type === ChannelType.GuildAnnouncement ||
+            (c.type === ChannelType.GuildText && c.name === bestMatch)
         ) as GuildTextBasedChannel
       }
     }
@@ -130,7 +134,7 @@ const addLogChannel = async (
       return
     }
 
-    if (channel.type !== 'GUILD_NEWS' && channel.type !== 'GUILD_TEXT') {
+    if (channel.type !== ChannelType.GuildAnnouncement && channel.type !== ChannelType.GuildText) {
       await component.editReply({
         embeds: [
           Embed.error(

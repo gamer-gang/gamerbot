@@ -1,17 +1,22 @@
-import type { CommandInteraction, ContextMenuInteraction } from 'discord.js'
+import {
+  ApplicationCommandType,
+  ChannelType,
+  CommandInteraction,
+  ContextMenuCommandInteraction,
+} from 'discord.js'
 import assert from 'node:assert'
 import { getDateFromSnowflake } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
 export const purgeTo = async (
-  interaction: CommandInteraction | ContextMenuInteraction,
+  interaction: CommandInteraction | ContextMenuCommandInteraction,
   to: string
 ): Promise<CommandResult> => {
   const timestamp = getDateFromSnowflake(to)
 
   assert(interaction.channel)
-  assert(interaction.channel.type !== 'DM')
+  assert(interaction.channel.type !== ChannelType.DM)
 
   while (getDateFromSnowflake(interaction.channel.lastMessage?.id ?? '0') > timestamp) {
     const messages = await interaction.channel.messages.fetch({ limit: 200 })
@@ -33,13 +38,13 @@ export const purgeTo = async (
   return CommandResult.Success
 }
 
-const COMMAND_PURGETOHERE = command('MESSAGE', {
+const COMMAND_PURGETOHERE = command(ApplicationCommandType.Message, {
   name: 'Purge to here',
   description: 'Purge all messages newer than this message.',
   guildOnly: true,
   logUsage: true,
-  userPermissions: ['MANAGE_MESSAGES'],
-  botPermissions: ['MANAGE_MESSAGES'],
+  userPermissions: ['ManageMessages'],
+  botPermissions: ['ManageMessages'],
 
   async run(context) {
     const { interaction } = context

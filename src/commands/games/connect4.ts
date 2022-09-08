@@ -1,9 +1,9 @@
-import type { Message } from 'discord.js'
+import { ApplicationCommandOptionType, ApplicationCommandType, Message } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_CONNECT4 = command('CHAT_INPUT', {
+const COMMAND_CONNECT4 = command(ApplicationCommandType.ChatInput, {
   name: 'connect4',
   description: 'Play a game of connect four with someone.',
   examples: [
@@ -16,7 +16,7 @@ const COMMAND_CONNECT4 = command('CHAT_INPUT', {
     {
       name: 'user',
       description: 'The user to duel.',
-      type: 'USER',
+      type: ApplicationCommandOptionType.User,
       required: true,
     },
   ],

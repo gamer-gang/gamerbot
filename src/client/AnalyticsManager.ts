@@ -7,6 +7,7 @@ import { DateTime } from 'luxon'
 import { createHash } from 'node:crypto'
 import { Command, CommandResult } from '../commands/command.js'
 import { prisma } from '../prisma.js'
+import { applicationCommandTypeName } from '../util.js'
 import type { GamerbotClient } from './GamerbotClient.js'
 import { AnalyticsEvent, EventData, EventReturnType, events } from './_analytics/event.js'
 import type { CommandReportStats } from './_analytics/types.js'
@@ -229,11 +230,19 @@ export class AnalyticsManager {
   trackCommandResult(result: CommandResult, command: Command): void {
     switch (result) {
       case CommandResult.Success: {
-        this.trackEvent(AnalyticsEvent.CommandSuccess, command.name, command.type)
+        this.trackEvent(
+          AnalyticsEvent.CommandSuccess,
+          command.name,
+          applicationCommandTypeName[command.type]
+        )
         break
       }
       case CommandResult.Failure: {
-        this.trackEvent(AnalyticsEvent.CommandFailure, command.name, command.type)
+        this.trackEvent(
+          AnalyticsEvent.CommandFailure,
+          command.name,
+          applicationCommandTypeName[command.type]
+        )
         break
       }
       default: {

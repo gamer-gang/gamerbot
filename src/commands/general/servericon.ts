@@ -1,7 +1,8 @@
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_SERVERICON = command('CHAT_INPUT', {
+const COMMAND_SERVERICON = command(ApplicationCommandType.ChatInput, {
   name: 'servericon',
   description: 'Get icon for a server.',
   examples: [
@@ -18,7 +19,7 @@ const COMMAND_SERVERICON = command('CHAT_INPUT', {
     {
       name: 'server',
       description: 'Server to show icon for.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
   ],
 
@@ -39,9 +40,9 @@ const COMMAND_SERVERICON = command('CHAT_INPUT', {
       return CommandResult.Success
     }
 
-    let icon = guild.iconURL({ dynamic: true, size: 4096 })
-    if (icon?.includes('.webp') ?? false) {
-      icon = guild.iconURL({ format: 'png', size: 4096 })
+    let icon = guild.iconURL({ size: 4096 })
+    if (icon?.includes('.webp')) {
+      icon = guild.iconURL({ size: 4096, extension: 'png' })
     }
 
     if (icon == null) {

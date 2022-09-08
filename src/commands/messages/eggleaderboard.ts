@@ -1,5 +1,11 @@
 import type { EggLeaderboard } from '@prisma/client'
-import { MessageActionRow, MessageButton } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  ButtonBuilder,
+  ButtonStyle,
+} from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'
 import { prisma } from '../../prisma.js'
@@ -46,14 +52,14 @@ const makeEmbed = ({
   return embed
 }
 
-const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
+const COMMAND_EGGLEADERBOARD = command(ApplicationCommandType.ChatInput, {
   name: 'eggleaderboard',
   description: 'Show top egg holders.',
   options: [
     {
       name: 'type',
       description: 'Type of eggs.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       choices: [
         { name: 'collected', value: 'collected' },
         { name: 'balance', value: 'balance' },
@@ -62,7 +68,7 @@ const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
     {
       name: 'user',
       description: 'User to show.',
-      type: 'USER',
+      type: ApplicationCommandOptionType.User,
     },
   ],
   async run(context) {
@@ -142,20 +148,18 @@ const COMMAND_EGGLEADERBOARD = command('CHAT_INPUT', {
       })
       return CommandResult.Success
     }
-    const row = new MessageActionRow({
-      components: [
-        new MessageButton({
-          customId: 'prev',
-          style: 'SECONDARY',
-          emoji: '◀️',
-        }),
-        new MessageButton({
-          customId: 'next',
-          style: 'SECONDARY',
-          emoji: '▶️',
-        }),
-      ],
-    })
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder({
+        customId: 'prev',
+        style: ButtonStyle.Secondary,
+        emoji: '◀️',
+      }),
+      new ButtonBuilder({
+        customId: 'next',
+        style: ButtonStyle.Secondary,
+        emoji: '▶️',
+      })
+    )
 
     await interaction.reply({
       embeds: [makeEmbed({ pages, totalEggers, totalEggs, pageNumber, type })],

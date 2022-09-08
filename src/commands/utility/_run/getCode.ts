@@ -1,5 +1,4 @@
-import axios from 'axios'
-import type { MessageAttachment } from 'discord.js'
+import type { Attachment } from 'discord.js'
 import type { Runtime } from 'piston-client'
 import { CommandResult } from '../../command.js'
 import type { CommandContext } from '../../context.js'
@@ -7,7 +6,7 @@ import askForCode from './askForCode.js'
 import { isValidCodeAttachment } from './util.js'
 
 interface GetCodeResult {
-  attachment?: MessageAttachment
+  attachment?: Attachment
   code?: string
   result?: CommandResult
   error?: string
@@ -25,7 +24,7 @@ const getCode = async (context: CommandContext, runtime: Runtime): Promise<GetCo
       return { result: CommandResult.Success, error: 'Only text attachments are allowed.' }
     }
 
-    const code = await axios.get(attachment.url, { responseType: 'text' }).then((r) => r.data)
+    const code = await fetch(attachment.url).then((r) => r.text())
     return { code, attachment }
   }
 

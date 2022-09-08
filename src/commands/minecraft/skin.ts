@@ -1,5 +1,5 @@
 import { stripIndent } from 'common-tags'
-import { Formatters } from 'discord.js'
+import { ApplicationCommandOptionType, ApplicationCommandType, Formatters } from 'discord.js'
 import assert from 'node:assert'
 import { performance } from 'node:perf_hooks'
 import { IS_DEVELOPMENT } from '../../constants.js'
@@ -18,7 +18,7 @@ type SkinTypeMap = {
 
 const VISAGE_URL = 'https://visage.surgeplay.com'
 const CRAFATAR_URL = 'https://crafatar.com'
-const skinTypes: SkinTypeMap = {
+const avatarEndpoints: SkinTypeMap = {
   body: {
     visage: (uuid) => `${VISAGE_URL}/full/${uuid}`,
     crafatar: (uuid) => `${CRAFATAR_URL}/renders/body/${uuid}?overlay`,
@@ -37,7 +37,7 @@ const skinTypes: SkinTypeMap = {
   },
 }
 
-const COMMAND_SKIN = command('CHAT_INPUT', {
+const COMMAND_SKIN = command(ApplicationCommandType.ChatInput, {
   name: 'skin',
   description: 'Display a Minecraft skin.',
   longDescription: stripIndent`
@@ -60,17 +60,17 @@ const COMMAND_SKIN = command('CHAT_INPUT', {
     {
       name: 'identifier',
       description: 'Username/UUID to get the skin of.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
     {
       name: 'debug',
       description: 'Show debug information.',
-      type: 'BOOLEAN',
+      type: ApplicationCommandOptionType.Boolean,
     },
     {
       name: 'type',
       description: 'Type of skin to get.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       choices: [
         {
           name: 'Body render',
@@ -93,7 +93,7 @@ const COMMAND_SKIN = command('CHAT_INPUT', {
     {
       name: 'use-craftar',
       description: 'Use https://crafatar.com to fetch skins.',
-      type: 'BOOLEAN',
+      type: ApplicationCommandOptionType.Boolean,
     },
   ],
 
@@ -142,8 +142,8 @@ const COMMAND_SKIN = command('CHAT_INPUT', {
     const useCraftar = options.getBoolean('use-craftar') ?? false
     const debug = IS_DEVELOPMENT || options.getBoolean('debug') != null
     const type = (options.getString('type') ?? 'body') as SkinTypes
-    const resolvers = skinTypes[type]
-    if (resolvers == null) {
+    const endpoints = avatarEndpoints[type]
+    if (endpoints == null) {
       await interaction.editReply({
         embeds: [Embed.error('Invalid skin type.')],
       })
@@ -175,14 +175,14 @@ const COMMAND_SKIN = command('CHAT_INPUT', {
     // const isVisageOnline = visageResponse.status === 200 && visageResponse.data.byteLength > 0
     // const url = isVisageOnline ? resolvers.visage(uuid) : resolvers.crafatar(uuid)
 
-    const url = useCraftar ? resolvers.crafatar(uuid) : resolvers.visage(uuid)
+    const url = useCraftar ? endpoints.crafatar(uuid) : endpoints.visage(uuid)
 
     const embed = new Embed({
       title: `Skin (${type})`,
       image: { url },
     })
 
-    embed.setAuthorToProfile(interaction.user.username, interaction.user)
+    embed.author = Embed.profileAuthor(interaction.user.username, interaction.user)
 
     timers.total = Math.round(performance.now() - timers.total)
 

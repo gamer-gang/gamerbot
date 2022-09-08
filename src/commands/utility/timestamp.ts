@@ -1,9 +1,9 @@
-import { Formatters } from 'discord.js'
+import { ApplicationCommandOptionType, ApplicationCommandType, time } from 'discord.js'
 import { getDateFromSnowflake, getDateStringFromSnowflake } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_TIMESTAMP = command('CHAT_INPUT', {
+const COMMAND_TIMESTAMP = command(ApplicationCommandType.ChatInput, {
   name: 'timestamp',
   description: 'Show timestamp of any Discord ID.',
   examples: [
@@ -15,7 +15,7 @@ const COMMAND_TIMESTAMP = command('CHAT_INPUT', {
   ],
   options: [
     {
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       name: 'id',
       description: 'The ID to get the timestamp of.',
       autocomplete: true,
@@ -59,7 +59,7 @@ const COMMAND_TIMESTAMP = command('CHAT_INPUT', {
 
     const embed = new Embed({
       title: `Timestamp of ${id}`,
-      description: `${getDateStringFromSnowflake(id).join('; ')}\n${Formatters.time(seconds, 'F')}`,
+      description: `${getDateStringFromSnowflake(id).join('; ')}\n${time(seconds, 'F')}`,
     })
 
     embed.setFooter({ text: date.toISO({ includeOffset: true }) })

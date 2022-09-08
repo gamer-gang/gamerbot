@@ -1,4 +1,4 @@
-import type { Message, PartialMessage, User } from 'discord.js'
+import { ChannelType, Message, PartialMessage, User } from 'discord.js'
 import yaml from 'js-yaml'
 import _ from 'lodash'
 import assert from 'node:assert'
@@ -90,7 +90,7 @@ export const onMessage = async (
   client: GamerbotClient,
   message: Message | PartialMessage
 ): Promise<void> => {
-  if (message.channel.type === 'DM') return
+  if (message.channel.type === ChannelType.DM) return
   if (message.guild == null) return
 
   const config = await prisma.config.findFirst({ where: { guildId: message.guild.id } })

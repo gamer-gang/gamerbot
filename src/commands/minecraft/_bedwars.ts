@@ -139,14 +139,14 @@ function findCanvasWidth({
   const totalSubheaders = Math.max(leftSubheaders.length, rightSubheaders.length)
 
   // total characters in the subheader
-  const totalSubheaderChars = _.range(totalSubheaders)
-    .map(
+  const totalSubheaderChars = Math.max(
+    ..._.range(totalSubheaders).map(
       (i) =>
         stripFormatting(leftSubheaders[i] ?? '').length +
         stripFormatting(rightSubheaders[i] ?? '').length +
         8
     )
-    .reduce((a, b) => Math.max(a, b), 0)
+  )
 
   const totalColumnWidth =
     // gamemode column
@@ -182,29 +182,30 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
       return imageCache.get(dataHash)!
     }
 
-    imageCache.forEach((v, k) => {
-      if (v.uuid === player.uuid) imageCache.delete(k)
-    })
+    for (const [k, v] of imageCache.entries()) {
+      if (v.uuid === player.uuid) {
+        imageCache.delete(k)
+      }
+    }
 
     const level = getLevelForExp(apiData.Experience ?? 0)
     const levelExp = getExpForLevel(level)
 
     const stats: { [row: string]: { [column: string]: string } } = {}
 
-    Object.keys(rows).forEach((row) => {
+    for (const row in rows) {
       const rowData: { [column: string]: number } = {}
 
-      Object.keys(columns).forEach((col) => {
+      for (const col in columns) {
         const key = `${rows[row]}${columns[col]}_bedwars`
-
         rowData[col] = (apiData[key] as number) ?? 0
-      })
+      }
 
       rowData.KDR = s.round(rowData.K / Math.max(rowData.D, 1))
       rowData.FKDR = s.round(rowData.FK / Math.max(rowData.FD, 1))
       rowData['W/L'] = s.round(rowData.W / Math.max(rowData.L, 1))
 
-      Object.keys(rowData).forEach((col) => {
+      for (const col in rowData) {
         let stringVal = ''
 
         if (['KDR', 'FKDR', 'W/L'].includes(col) && rowData[col] === 0) {
@@ -213,8 +214,8 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
         stats[row] ??= {}
         stats[row][col] =
           stringVal || (isFinite(rowData[col]) ? rowData[col].toLocaleString() : '-')
-      })
-    })
+      }
+    }
 
     const winstreak = (apiData.winstreak ?? 0).toLocaleString()
     const coins = (apiData.coins ?? 0).toLocaleString()
@@ -296,11 +297,9 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
 
       c.textAlign = 'right'
 
-      c.fillText(
-        rightHeader,
-        drawPrestige(c, player) - s.getCharWidth(c) * 2,
-        s.padding + s.headerHeight
-      )
+      const rightHeaderOffset = drawPrestige(c, player)
+
+      c.fillText(rightHeader, rightHeaderOffset - s.getCharWidth(c) * 2, s.padding + s.headerHeight)
     })
 
     // draw subheaders
@@ -308,18 +307,18 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
       c.font = s.font(s.subheaderHeight)
       c.fillStyle = colorCode(0x7).hex
 
-      leftSubheaders.forEach((line, i) => {
+      for (const [i, line] of leftSubheaders.entries()) {
         drawFormattedText(
           c,
           line,
           (avatar?.width ?? 0) + (avatar != null ? 2 : 1) * s.padding,
           s.headerHeight + (i + 1) * s.subheaderHeight + (2 + i * 0.5) * s.padding
         )
-      })
+      }
 
       c.textAlign = 'right'
 
-      rightSubheaders.forEach((line, i) => {
+      for (const [i, line] of rightSubheaders.entries()) {
         c.fillStyle = colorCode(0x7).hex
         drawFormattedText(
           c,
@@ -328,16 +327,17 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
           s.headerHeight + (i + 1) * s.subheaderHeight + (2 + i * 0.5) * s.padding,
           'right'
         )
-      })
+      }
     })
 
     c.fillStyle = s.fgColor
     c.font = s.font(s.mainHeight)
 
+    // draw gamemode column and horizontal lines
     transaction(c, () => {
       c.translate(0, s.headerHeight + s.mainHeight + 6 * s.padding)
 
-      Object.keys(rows).forEach((mode, i) => {
+      for (const [i, mode] of Object.keys(rows).entries()) {
         const lineY = i * (s.mainHeight + s.padding * 2) + s.mainHeight + 2 * s.padding
 
         c.beginPath()
@@ -348,16 +348,18 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
         c.fillText(
           mode,
           s.padding,
-          i * (s.mainHeight + s.padding * 2) + 2.5 * s.padding + 2 * s.mainHeight
+          i * (s.mainHeight + s.padding * 2) + 2.5 * s.padding + 2 * s.mainHeight + 3
         )
-      })
+      }
 
-      c.translate(width, 0)
+      // draw stat columns and vertical lines, in reverse (right to left)
+      transaction(c, () => {
+        c.translate(width, 0)
 
-      Object.keys(columns)
-        .map((col, i) => [col, i] as const)
-        .reverse()
-        .reduce((prevX, [col, i]) => {
+        const statColumns = [...Object.keys(columns).entries()].reverse()
+        let prevX = 0
+
+        for (const [i, col] of statColumns) {
           const x = prevX - s.padding
 
           c.beginPath()
@@ -369,20 +371,22 @@ const STATS_PROVIDER_BEDWARS = statsProvider('bedwars', {
             c.textAlign = 'right'
 
             c.fillText(col, x, s.mainHeight + s.padding)
-            Object.keys(rows).forEach((mode, j) => {
+
+            for (const [j, mode] of Object.keys(rows).entries()) {
               const value = stats[mode][col]
 
               c.fillText(
                 value.toString(),
                 x,
-                j * (s.mainHeight + s.padding * 2) + 2.5 * s.padding + 2 * s.mainHeight
+                j * (s.mainHeight + s.padding * 2) + 2.5 * s.padding + 2 * s.mainHeight + 3
               )
-            })
+            }
           })
 
           // c.translate(-(s.padding * 2 + statColumnWidths[i]), 0)
-          return prevX - statColumnWidths[i] - s.padding * 2
-        }, 0)
+          prevX -= statColumnWidths[i] + s.padding * 2
+        }
+      })
     })
 
     const buf = await canvas.encode('png')

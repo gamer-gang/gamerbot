@@ -1,11 +1,12 @@
 import {
+  ActionRowBuilder,
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  ButtonBuilder,
   ButtonInteraction,
+  ButtonStyle,
   CommandInteraction,
-  Formatters,
   Message,
-  MessageActionRow,
-  MessageButton,
-  MessageOptions,
 } from 'discord.js'
 import he from 'he'
 import _ from 'lodash'
@@ -22,7 +23,7 @@ const categoryIds = categories.map((category) => category.id)
 
 const TIME_LIMIT = 15_000
 
-const COMMAND_TRIVIA = command('CHAT_INPUT', {
+const COMMAND_TRIVIA = command(ApplicationCommandType.ChatInput, {
   name: 'trivia',
   description: 'Answer a trivia question.',
   longDescription:
@@ -41,7 +42,7 @@ const COMMAND_TRIVIA = command('CHAT_INPUT', {
     {
       name: 'category',
       description: 'Category of the question.',
-      type: 'INTEGER',
+      type: ApplicationCommandOptionType.Integer,
       required: false,
       choices: categories.map(({ id, name }) => ({
         name: `${id}: ${name}`,
@@ -51,7 +52,7 @@ const COMMAND_TRIVIA = command('CHAT_INPUT', {
     {
       name: 'difficulty',
       description: 'Difficulty of the question.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       required: false,
       choices: [
         { name: 'Easy', value: 'easy' },
@@ -62,7 +63,7 @@ const COMMAND_TRIVIA = command('CHAT_INPUT', {
     {
       name: 'type',
       description: 'Type of question',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       required: false,
       choices: [
         {
@@ -124,33 +125,31 @@ const COMMAND_TRIVIA = command('CHAT_INPUT', {
       })
       .then((res) => res.results[0])
 
-    const { message, correctEncoded, correct } = parseQuestion(question)
+    const { embed, components, correctEncoded, correct } = parseQuestion(question)
 
-    const reply = await interaction.editReply(message)
+    const reply = await interaction.editReply({ embeds: [embed], components })
     const questionMessage = interaction.channel.messages.resolve(reply.id)
     assert(questionMessage, 'Reply is missing')
 
     const response = await collectResponse(questionMessage, interaction)
 
-    const componentsHighlighted = (message.components ?? []).slice(0, 1).map((row) => {
-      assert(row.type === 'ACTION_ROW')
-
+    const componentsHighlighted = (components ?? []).slice(0, 1).map((row) => {
       const components = row.components.map((button) => {
-        assert(button instanceof MessageButton)
         button.setDisabled(true)
-        if (button.customId === `ans_${correctEncoded}`) {
-          button.setStyle('SUCCESS')
-        } else if (response?.customId === button.customId) {
-          button.setStyle('DANGER')
+        const buttonId = (button.toJSON() as any).custom_id
+        if (buttonId === `ans_${correctEncoded}`) {
+          button.setStyle(ButtonStyle.Success)
+        } else if (response?.customId === buttonId) {
+          button.setStyle(ButtonStyle.Danger)
         }
         return button
       })
 
-      return { ...row, components }
+      return row.setComponents(components)
     })
 
     void interaction.editReply({
-      ...message,
+      embeds: [embed],
       components: componentsHighlighted,
     })
 
@@ -189,7 +188,8 @@ export default COMMAND_TRIVIA
 const parseQuestion = (
   question: TriviaQuestion
 ): {
-  message: MessageOptions
+  embed: Embed
+  components: ActionRowBuilder<ButtonBuilder>[]
   encoded: string[]
   answers: string[]
   correct: string
@@ -213,7 +213,7 @@ const parseQuestion = (
   if (question.type === 'boolean' && !title.includes('?')) {
     title = `True or false: ${title}`
   }
-  title = Formatters.bold(title)
+  title = `**${title}**`
 
   const embed = new Embed({
     author: {
@@ -231,29 +231,28 @@ const parseQuestion = (
   }
 
   const components = [
-    new MessageActionRow({
-      components: sanitized.map(
+    new ActionRowBuilder<ButtonBuilder>().addComponents(
+      sanitized.map(
         (ans, i) =>
-          new MessageButton({
+          new ButtonBuilder({
             customId: `ans_${encoded[i]}`,
             label: ans,
-            style: 'PRIMARY',
+            style: ButtonStyle.Primary,
           })
-      ),
-    }),
-    new MessageActionRow({
-      components: [
-        new MessageButton({
-          customId: 'giveup',
-          label: 'Give up',
-          style: 'DANGER',
-        }),
-      ],
-    }),
+      )
+    ),
+    new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder({
+        customId: 'giveup',
+        label: 'Give up',
+        style: ButtonStyle.Danger,
+      })
+    ),
   ]
 
   return {
-    message: { embeds: [embed], components },
+    embed,
+    components,
     encoded,
     answers,
     correct,

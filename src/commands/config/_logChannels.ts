@@ -1,5 +1,10 @@
-import type { APIActionRowComponent, APIMessageActionRowComponent } from 'discord-api-types/v9.js'
-import { MessageActionRow, MessageActionRowComponent, MessageActionRowComponentResolvable, MessageButton, MessageSelectMenu } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ApplicationCommandOptionType,
+  ButtonBuilder,
+  ButtonStyle,
+  SelectMenuBuilder,
+} from 'discord.js'
 import assert from 'node:assert'
 import { IS_DEVELOPMENT } from '../../constants.js'
 import { prisma } from '../../prisma.js'
@@ -10,13 +15,11 @@ import addLogChannel from './_log/addLogChannel.js'
 import editLogChannel from './_log/editLogChannel.js'
 import removeLogChannel from './_log/removeLogChannel.js'
 
-const TypedMessageActionRow = MessageActionRow<MessageActionRowComponent, MessageActionRowComponentResolvable, APIActionRowComponent<APIMessageActionRowComponent>>
-
 const CONFIG_OPTION_LOGCHANNELS = configOption({
   internalName: 'log-channels',
   displayName: 'log channels',
   description: 'Log channels to use for the bot.',
-  type: 'STRING',
+  type: ApplicationCommandOptionType.String,
   choices: [{ name: 'edit', value: 'edit' }],
 
   async handle(context, { getValue, getConfig, updateConfig }) {
@@ -53,49 +56,43 @@ const CONFIG_OPTION_LOGCHANNELS = configOption({
       return CommandResult.Success
     }
 
-    const components: MessageActionRow[] = []
+    const components: (ActionRowBuilder<ButtonBuilder> | ActionRowBuilder<SelectMenuBuilder>)[] = []
 
     components.push(
-      new TypedMessageActionRow({
-        components: [
-          new MessageButton({
-            customId: `add_${menuId}`,
-            label: 'Add',
-            emoji: '➕',
-            style: 'SUCCESS',
-          }),
-        ],
-      }),
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder({
+          customId: `add_${menuId}`,
+          label: 'Add',
+          emoji: '➕',
+          style: ButtonStyle.Success,
+        })
+      ),
       ...(logChannels.length > 0
         ? [
-            new TypedMessageActionRow({
-              components: [
-                new MessageSelectMenu({
-                  maxValues: 1,
-                  minValues: 1,
-                  customId: `remove_${menuId}`,
-                  placeholder: '➖ Remove...',
-                  options: logChannels.map((logChannel) => ({
-                    label: `<#${logChannel.channelId}>`,
-                    value: logChannel.channelId,
-                  })),
-                }),
-              ],
-            }),
-            new TypedMessageActionRow({
-              components: [
-                new MessageSelectMenu({
-                  maxValues: 1,
-                  minValues: 1,
-                  customId: `edit_${menuId}`,
-                  placeholder: '🖋 Edit...',
-                  options: logChannels.map((logChannel) => ({
-                    label: `<#${logChannel.channelId}>`,
-                    value: logChannel.channelId,
-                  })),
-                }),
-              ],
-            }),
+            new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+              new SelectMenuBuilder({
+                maxValues: 1,
+                minValues: 1,
+                customId: `remove_${menuId}`,
+                placeholder: '➖ Remove...',
+                options: logChannels.map((logChannel) => ({
+                  label: `<#${logChannel.channelId}>`,
+                  value: logChannel.channelId,
+                })),
+              })
+            ),
+            new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+              new SelectMenuBuilder({
+                maxValues: 1,
+                minValues: 1,
+                customId: `edit_${menuId}`,
+                placeholder: '🖋 Edit...',
+                options: logChannels.map((logChannel) => ({
+                  label: `<#${logChannel.channelId}>`,
+                  value: logChannel.channelId,
+                })),
+              })
+            ),
           ]
         : [])
     )

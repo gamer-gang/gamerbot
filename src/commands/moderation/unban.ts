@@ -1,13 +1,14 @@
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_UNBAN = command('CHAT_INPUT', {
+const COMMAND_UNBAN = command(ApplicationCommandType.ChatInput, {
   name: 'unban',
   description: 'Unban a user.',
   guildOnly: true,
   logUsage: true,
-  userPermissions: ['BAN_MEMBERS'],
-  botPermissions: ['BAN_MEMBERS'],
+  userPermissions: ['BanMembers'],
+  botPermissions: ['BanMembers'],
   examples: [
     {
       options: { user: { mention: 'Frog' }, reason: 'foo bar baz' },
@@ -22,13 +23,13 @@ const COMMAND_UNBAN = command('CHAT_INPUT', {
     {
       name: 'user',
       description: 'User to ban.',
-      type: 'USER',
+      type: ApplicationCommandOptionType.User,
       required: true,
     },
     {
       name: 'reason',
       description: 'Unban reason.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
   ],
 

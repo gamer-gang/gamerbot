@@ -1,8 +1,9 @@
+import { ApplicationCommandType } from 'discord.js'
 import { getProfileImageUrl } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_GETAVATAR = command('USER', {
+const COMMAND_GETAVATAR = command(ApplicationCommandType.User, {
   name: 'Get avatar',
   description: 'Get the avatar of a user.',
 

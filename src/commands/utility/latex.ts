@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import { LiteDocument } from 'mathjax-full/js/adaptors/lite/Document.js'
 import type { LiteNode } from 'mathjax-full/js/adaptors/lite/Element.js'
 import type { LiteText } from 'mathjax-full/js/adaptors/lite/Text.js'
@@ -48,7 +49,7 @@ const TEX_CSS = styled`
 const adaptor = liteAdaptor()
 RegisterHTMLHandler(adaptor)
 
-const COMMAND_LATEX = command('CHAT_INPUT', {
+const COMMAND_LATEX = command(ApplicationCommandType.ChatInput, {
   name: 'latex',
   description: 'Render a TeX expression.',
   examples: [
@@ -74,28 +75,28 @@ const COMMAND_LATEX = command('CHAT_INPUT', {
     {
       name: 'expression',
       description: 'The TeX expression to render.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       required: true,
     },
     {
       name: 'width',
       description: 'Width of image in pixels; defaults to none (image width set by height).',
-      type: 'INTEGER',
+      type: ApplicationCommandOptionType.Integer,
     },
     {
       name: 'height',
       description: 'Height of image in pixels; defaults to 100.',
-      type: 'INTEGER',
+      type: ApplicationCommandOptionType.Integer,
     },
     {
       name: 'color',
       description: 'Color of text in the rendered image; defaults to #dcddde.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
     {
       name: 'background',
       description: 'Color of the rendered image background; defaults to transparent.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
   ],
 

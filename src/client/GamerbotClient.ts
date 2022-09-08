@@ -1,11 +1,16 @@
 import {
+  ActivityType,
+  ApplicationCommandType,
   Client,
   ClientOptions,
   ClientUser,
   Formatters,
+  GatewayIntentBits,
   Guild,
   Interaction,
+  InteractionType,
   Message,
+  UserContextMenuCommandInteraction,
 } from 'discord.js'
 import log4js from 'log4js'
 import assert from 'node:assert'
@@ -15,7 +20,7 @@ import { CommandContext, MessageCommandContext, UserCommandContext } from '../co
 import { IS_DEVELOPMENT } from '../constants.js'
 import { initLogger } from '../logger.js'
 import { prisma } from '../prisma.js'
-import { hasPermissions } from '../util.js'
+import { applicationCommandTypeName, hasPermissions } from '../util.js'
 import { interactionReplySafe } from '../util/discord.js'
 import { Embed } from '../util/embed.js'
 import { formatErrorMessage, formatOptions } from '../util/format.js'
@@ -29,7 +34,7 @@ import { AnalyticsEvent } from './_analytics/event.js'
 export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {}
 
 export class GamerbotClient extends Client {
-  readonly user!: ClientUser
+  declare readonly user: ClientUser
   readonly #logger = log4js.getLogger('client')
   readonly #discordLogger = log4js.getLogger('discord')
   readonly #commandLogger = log4js.getLogger('command')
@@ -54,22 +59,22 @@ export class GamerbotClient extends Client {
     super({
       ...options,
       intents: [
-        'DIRECT_MESSAGES',
-        'GUILDS',
-        'GUILD_MEMBERS',
-        'GUILD_BANS',
-        'GUILD_EMOJIS_AND_STICKERS',
-        'GUILD_INVITES',
-        'GUILD_MESSAGES',
-        'GUILD_MESSAGE_REACTIONS',
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildBans,
+        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildInvites,
       ],
     })
 
     initLogger()
 
-    DEFAULT_COMMANDS.forEach((command) => {
+    for (const command of DEFAULT_COMMANDS) {
       this.commands.set(command.name, command)
-    })
+    }
 
     this.on('error', (err) => this.#discordLogger.error(err))
     this.on('warn', (warn) => this.#discordLogger.warn(warn))
@@ -100,7 +105,7 @@ export class GamerbotClient extends Client {
     this.presenceManager.presence = {
       activities: [
         {
-          type: 'PLAYING',
+          type: ActivityType.Playing,
           name: `with ${num.toLocaleString()} egg${num === 1n ? '' : 's'} | /help`,
         },
       ],
@@ -161,7 +166,7 @@ export class GamerbotClient extends Client {
     let command: Command | undefined
 
     try {
-      if (interaction.isAutocomplete()) {
+      if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
         command = this.commands.get(interaction.commandName)
 
         if (command == null) {
@@ -169,7 +174,7 @@ export class GamerbotClient extends Client {
           return
         }
 
-        assert(command.type === 'CHAT_INPUT', 'Command type must be CHAT_INPUT')
+        assert(command.type === ApplicationCommandType.ChatInput, 'Command type must be ChatInput')
 
         const results = await command.autocomplete(interaction)
 
@@ -182,7 +187,7 @@ export class GamerbotClient extends Client {
         return
       }
 
-      if (interaction.isContextMenu()) {
+      if (interaction.type === InteractionType.ApplicationCommand) {
         command = this.commands.get(interaction.commandName)
 
         if (command == null) {
@@ -190,27 +195,59 @@ export class GamerbotClient extends Client {
           return
         }
 
-        assert(
-          command.type === 'USER' || command.type === 'MESSAGE',
-          'Command type must be USER or MESSAGE'
-        )
+        if (command.type !== ApplicationCommandType.ChatInput) {
+          const context =
+            interaction.commandType === ApplicationCommandType.Message
+              ? new MessageCommandContext(this, interaction, prisma)
+              : new UserCommandContext(
+                  this,
+                  interaction as UserContextMenuCommandInteraction,
+                  prisma
+                )
 
-        const context =
-          interaction.targetType === 'MESSAGE'
-            ? new MessageCommandContext(this, interaction, prisma)
-            : new UserCommandContext(this, interaction, prisma)
+          assert(command.type === interaction.commandType)
 
-        let result: CommandResult
-        if (hasPermissions(interaction, command)) {
-          result = await command.run(
-            // @ts-expect-error guild types are not correct
-            context
-          )
+          let result: CommandResult
+          if (hasPermissions(interaction, command)) {
+            result = await command.run(
+              // @ts-expect-error
+              context
+            )
+          } else {
+            result = CommandResult.Success
+          }
+
+          this.analytics.trackCommandResult(result, command)
         } else {
-          result = CommandResult.Success
-        }
+          assert(command.type === interaction.commandType)
 
-        this.analytics.trackCommandResult(result, command)
+          const context = new CommandContext(this, interaction, prisma)
+
+          if (IS_DEVELOPMENT) {
+            this.#commandLogger.debug(
+              `/${interaction.commandName} ${formatOptions(interaction.options.data)}`
+            )
+          }
+
+          this.analytics.trackEvent(
+            AnalyticsEvent.CommandSent,
+            command.name,
+            applicationCommandTypeName[command.type],
+            interaction.user.id
+          )
+
+          let result: CommandResult
+          if (hasPermissions(interaction, command)) {
+            result = await command.run(
+              // @ts-expect-error
+              context
+            )
+          } else {
+            result = CommandResult.Success
+          }
+
+          this.analytics.trackCommandResult(result, command)
+        }
       }
 
       if (interaction.isButton()) {
@@ -244,43 +281,6 @@ export class GamerbotClient extends Client {
 
         return
       }
-
-      if (!interaction.isCommand()) return
-      command = this.commands.get(interaction.commandName)
-
-      if (command == null) {
-        await interaction.reply({ embeds: [Embed.error('Command not found.')] })
-        return
-      }
-
-      assert(command.type === 'CHAT_INPUT', 'Command type must be CHAT_INPUT')
-
-      const context = new CommandContext(this, interaction, prisma)
-
-      if (IS_DEVELOPMENT) {
-        this.#commandLogger.debug(
-          `/${interaction.commandName} ${formatOptions(interaction.options.data)}`
-        )
-      }
-
-      this.analytics.trackEvent(
-        AnalyticsEvent.CommandSent,
-        command.name,
-        command.type,
-        interaction.user.id
-      )
-
-      let result: CommandResult
-      if (hasPermissions(interaction, command)) {
-        result = await command.run(
-          // @ts-expect-error guild types are not correct
-          context
-        )
-      } else {
-        result = CommandResult.Success
-      }
-
-      this.analytics.trackCommandResult(result, command)
     } catch (err) {
       this.#logger.error(err)
 

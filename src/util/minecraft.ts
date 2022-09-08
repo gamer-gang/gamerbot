@@ -1,4 +1,3 @@
-import axios from 'axios'
 import assert from 'node:assert'
 import { uuidRegex } from './regex.js'
 
@@ -36,11 +35,8 @@ export const resolveMinecraftUuid = async (usernameOrUuid: string): Promise<stri
     return cached.uuid
   }
 
-  const response = await axios.get(
-    `https://api.mojang.com/users/profiles/minecraft/${usernameOrUuid}`,
-    { validateStatus: () => true }
-  )
-  const data = response.data as MojangProfileResponse
+  const response = await fetch(`https://api.mojang.com/users/profiles/minecraft/${usernameOrUuid}`)
+  const data = (await response.json()) as MojangProfileResponse
 
   if (response.status === 204 || data.demo) {
     return undefined

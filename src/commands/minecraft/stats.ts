@@ -1,7 +1,6 @@
 import { Image } from '@napi-rs/canvas'
-import axios from 'axios'
 import { stripIndent } from 'common-tags'
-import { Formatters } from 'discord.js'
+import { ApplicationCommandOptionType, ApplicationCommandType, Formatters } from 'discord.js'
 import type { HypixelCacheResponse } from 'hypixel-cache'
 import assert from 'node:assert'
 import { performance } from 'node:perf_hooks'
@@ -17,7 +16,7 @@ const AVATAR_SIZE = 165
 
 const STATS_PROVIDERS = [STATS_PROVIDER_BEDWARS]
 
-const COMMAND_STATS = command('CHAT_INPUT', {
+const COMMAND_STATS = command(ApplicationCommandType.ChatInput, {
   name: 'stats',
   description: 'Show stats for Hypixel games.',
   examples: [
@@ -39,7 +38,7 @@ const COMMAND_STATS = command('CHAT_INPUT', {
     {
       name: 'gamemode',
       description: 'Gamemode to get stats for.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       choices: STATS_PROVIDERS.map((provider) => ({
         name: provider.displayName,
         value: provider.name,
@@ -48,12 +47,12 @@ const COMMAND_STATS = command('CHAT_INPUT', {
     {
       name: 'username',
       description: 'Username/UUID to get stats for.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
     {
       name: 'debug',
       description: 'Show debug information.',
-      type: 'BOOLEAN',
+      type: ApplicationCommandOptionType.Boolean,
     },
   ],
 
@@ -137,13 +136,9 @@ const COMMAND_STATS = command('CHAT_INPUT', {
 
       timers.data = performance.now()
 
-      const response = await axios.get<HypixelCacheResponse>(
-        `${process.env.HYPIXEL_CACHE_URL}/${inputType}/${identifier}`,
-        {
-          headers: { 'X-Secret': process.env.HYPIXEL_CACHE_SECRET },
-          validateStatus: () => true,
-        }
-      )
+      const response = await fetch(`${process.env.HYPIXEL_CACHE_URL}/${inputType}/${identifier}`, {
+        headers: { 'X-Secret': process.env.HYPIXEL_CACHE_SECRET },
+      })
 
       if (response.status === 429) {
         await interaction.editReply({
@@ -164,17 +159,21 @@ const COMMAND_STATS = command('CHAT_INPUT', {
         return CommandResult.Failure
       }
 
-      if (!response.data.success) {
+      const responseData = (await response.json()) as HypixelCacheResponse
+
+      if (!responseData.success) {
         await interaction.editReply({
-          embeds: [Embed.error(response.data.error ?? JSON.stringify(response.data))],
+          embeds: [Embed.error(responseData.error ?? JSON.stringify(responseData))],
         })
         return CommandResult.Failure
       }
-      timers.cache = Math.round(parseFloat(response.headers['x-response-time'].replace(/ms/g, '')))
+      timers.cache = Math.round(
+        parseFloat(response.headers.get('x-response-time')!.replace(/ms/g, ''))
+      )
 
       timers.data = Math.round(performance.now() - timers.data)
 
-      const player = response.data.player
+      const player = responseData.player
 
       if (player == null) {
         await interaction.editReply({
@@ -189,12 +188,11 @@ const COMMAND_STATS = command('CHAT_INPUT', {
 
       timers.avatar = performance.now()
       // TODO improve avatar fetching
-      const avatarResponse = await axios.get(
-        `https://crafatar.com/avatars/${player.uuid}?size=${AVATAR_SIZE}&overlay`,
-        { responseType: 'arraybuffer', validateStatus: () => true }
+      const avatarResponse = await fetch(
+        `https://crafatar.com/avatars/${player.uuid}?size=${AVATAR_SIZE}&overlay`
       )
       const avatar = new Image(AVATAR_SIZE, AVATAR_SIZE)
-      avatar.src = avatarResponse.data
+      avatar.src = Buffer.from(await avatarResponse.arrayBuffer())
       timers.avatar = Math.round(performance.now() - timers.avatar)
 
       timers.image = performance.now()

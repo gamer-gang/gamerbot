@@ -1,4 +1,4 @@
-import { Formatters } from 'discord.js'
+import { ApplicationCommandOptionType, ApplicationCommandType, Formatters } from 'discord.js'
 import { evaluate } from 'mathjs'
 import assert from 'node:assert'
 import { Embed } from '../../util/embed.js'
@@ -16,7 +16,7 @@ const cleanExpression = (expr: string): string | false => {
   return cleaned
 }
 
-const COMMAND_MATH = command('CHAT_INPUT', {
+const COMMAND_MATH = command(ApplicationCommandType.ChatInput, {
   name: 'math',
   description: 'Evaluate a mathematical expression.',
   examples: [
@@ -31,7 +31,7 @@ const COMMAND_MATH = command('CHAT_INPUT', {
   ],
   options: [
     {
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       name: 'expression',
       description: 'The expression to evaluate.',
       required: true,

@@ -1,4 +1,18 @@
-# 2.4.0
+# v2.5.0
+
+## Changes
+
+- Update to discord.js v14
+- Update to Node.js v18
+- Switch to esbuild for building
+- Switch to native fetch API for HTTP requests
+- Add `discordjsVersion` to docs.json
+
+## Fixes
+
+- Fix `/stats` `ctx.canvas` error
+
+# v2.4.0
 
 ## Features
 

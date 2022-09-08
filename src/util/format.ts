@@ -1,4 +1,4 @@
-import { CommandInteractionOption, Formatters } from 'discord.js'
+import { codeBlock, CommandInteractionOption } from 'discord.js'
 import { IS_DEVELOPMENT } from '../constants.js'
 
 export const formatOptions = (options: readonly CommandInteractionOption[]): string =>
@@ -44,11 +44,9 @@ export const formatUtcOffset = (offset: number): string => {
 export const formatErrorMessage = (err: unknown): string => {
   if (IS_DEVELOPMENT) {
     if (err instanceof Error) {
-      return `**${err.name}**: **${err.message}**\n\n${Formatters.codeBlock(
-        err.stack ?? '(no stack)'
-      )}`
+      return `**${err.name}**: **${err.message}**\n\n${codeBlock(err.stack ?? '(no stack)')}`
     }
-    return Formatters.codeBlock(`${err}`)
+    return codeBlock(`${err}`)
   }
 
   if (err instanceof Error) {

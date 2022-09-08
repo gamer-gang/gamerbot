@@ -1,8 +1,9 @@
+import { ApplicationCommandType } from 'discord.js'
 import { DateTime } from 'luxon'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_ANALYTICS = command('CHAT_INPUT', {
+const COMMAND_ANALYTICS = command(ApplicationCommandType.ChatInput, {
   name: 'analytics',
   description: 'View analytics for the current month.',
 
@@ -16,7 +17,7 @@ const COMMAND_ANALYTICS = command('CHAT_INPUT', {
       title: `Analytics: ${dateTime.monthLong} ${dateTime.year}`,
     })
 
-    embed.setThumbnailToProfileImage(client.user)
+    embed.thumbnail = Embed.profileThumbnail(client.user)
 
     const [guilds, users] = await Promise.all([client.countGuilds(), client.countUsers()])
 

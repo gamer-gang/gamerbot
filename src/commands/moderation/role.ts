@@ -1,17 +1,25 @@
-import { Formatters, MessageActionRow, MessageButton, Role } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  ButtonBuilder,
+  ButtonStyle,
+  Role,
+  roleMention,
+} from 'discord.js'
 import _ from 'lodash'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_ROLE = command('CHAT_INPUT', {
+const COMMAND_ROLE = command(ApplicationCommandType.ChatInput, {
   name: 'role',
   description: 'Create a role distributor.',
   longDescription:
     'Create a role distributor that can be used to assign roles to users. A maximum of 20 roles can be used.',
   guildOnly: true,
   logUsage: true,
-  userPermissions: ['MANAGE_ROLES'],
-  botPermissions: ['MANAGE_ROLES'],
+  userPermissions: ['ManageRoles'],
+  botPermissions: ['ManageRoles'],
   examples: [
     {
       options: { role1: { mention: 'Role 1' }, role2: { mention: 'Role 2' } },
@@ -22,7 +30,7 @@ const COMMAND_ROLE = command('CHAT_INPUT', {
     {
       name: 'role1',
       description: 'Role to use.',
-      type: 'ROLE',
+      type: ApplicationCommandOptionType.Role,
       required: true,
     },
     ...Array(19)
@@ -32,7 +40,7 @@ const COMMAND_ROLE = command('CHAT_INPUT', {
           ({
             name: `role${i + 2}`,
             description: `Role to use, #${i + 2}.`,
-            type: 'ROLE',
+            type: ApplicationCommandOptionType.Role,
           } as const)
       ),
   ],
@@ -46,7 +54,7 @@ const COMMAND_ROLE = command('CHAT_INPUT', {
     ]
 
     const userHighest = interaction.member.roles.highest
-    const isAdmin = interaction.member.permissions.has('ADMINISTRATOR')
+    const isAdmin = interaction.member.permissions.has('Administrator')
 
     const roles: Role[] = []
 
@@ -76,27 +84,26 @@ const COMMAND_ROLE = command('CHAT_INPUT', {
       roles.push(role)
     }
 
-    const components = _.chunk(roles, 5).map(
-      (roles) =>
-        new MessageActionRow({
-          components: roles.map(
-            (role) =>
-              new MessageButton({
-                customId: `role-toggle_${role.id}`,
-                label: `Get/Remove @${role.name}`,
-                style: 'PRIMARY',
-              })
-          ),
-        })
+    const components = _.chunk(roles, 5).map((roles) =>
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        roles.map(
+          (role) =>
+            new ButtonBuilder({
+              customId: `role-toggle_${role.id}`,
+              label: `@${role.name}`,
+              style: ButtonStyle.Primary,
+            })
+        )
+      )
     )
 
     await interaction.reply({
       embeds: [
         Embed.info(
           roles.length === 1
-            ? `Click the button for ${Formatters.roleMention(roles[0].id)}.`
+            ? `Click the button for ${roleMention(roles[0].id)}.`
             : `Click the buttons for the following roles:\n${roles
-                .map((role) => Formatters.roleMention(role.id))
+                .map((role) => roleMention(role.id))
                 .join('\n')}`
         ),
       ],

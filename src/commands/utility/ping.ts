@@ -1,6 +1,7 @@
+import { ApplicationCommandType } from 'discord.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_PING = command('CHAT_INPUT', {
+const COMMAND_PING = command(ApplicationCommandType.ChatInput, {
   name: 'ping',
   description: 'Pong!',
 

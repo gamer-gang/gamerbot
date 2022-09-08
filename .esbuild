@@ -1,0 +1,6 @@
+--target=esnext
+--format=esm
+--platform=node
+--bundle
+--external:discord.js
+--external:./node_modules/*

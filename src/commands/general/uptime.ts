@@ -1,8 +1,9 @@
+import { ApplicationCommandType } from 'discord.js'
 import { Duration } from 'luxon'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_UPTIME = command('CHAT_INPUT', {
+const COMMAND_UPTIME = command(ApplicationCommandType.ChatInput, {
   name: 'uptime',
   description: 'Show uptime of current server process/shard.',
 

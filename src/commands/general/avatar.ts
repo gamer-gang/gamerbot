@@ -1,15 +1,16 @@
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import { getProfileImageUrl } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_AVATAR = command('CHAT_INPUT', {
+const COMMAND_AVATAR = command(ApplicationCommandType.ChatInput, {
   name: 'avatar',
   description: 'Show avatar for a user.',
   options: [
     {
       name: 'user',
       description: 'User to show avatar for.',
-      type: 'USER',
+      type: ApplicationCommandOptionType.User,
     },
   ],
 

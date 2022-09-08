@@ -1,5 +1,10 @@
-import axios from 'axios'
-import { ButtonInteraction, MessageActionRow, MessageButton } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ComponentType,
+} from 'discord.js'
 import assert from 'node:assert'
 import type { Runtime } from 'piston-client'
 import { Embed } from '../../../util/embed.js'
@@ -18,15 +23,13 @@ const askForStdin = async (
     footer: { text: 'Time limit: 5 minutes' },
   })
 
-  const row = new MessageActionRow({
-    components: [
-      new MessageButton({
-        label: 'Cancel',
-        customId: 'cancel',
-        style: 'DANGER',
-      }),
-    ],
-  })
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder({
+      label: 'Cancel',
+      customId: 'cancel',
+      style: ButtonStyle.Danger,
+    })
+  )
 
   const followUp = await interaction.followUp({
     embeds: [embed],
@@ -45,7 +48,7 @@ const askForStdin = async (
     }),
     interaction.channel
       .awaitMessageComponent({
-        componentType: 'BUTTON',
+        componentType: ComponentType.Button,
         idle: 5 * 60_000,
         filter: (component) =>
           component.customId === 'cancel' &&
@@ -95,9 +98,7 @@ const askForStdin = async (
       return CommandResult.Success
     }
 
-    return await axios
-      .get(attachment.url, { responseType: 'text' })
-      .then((response) => response.data)
+    return fetch(attachment.url).then((r) => r.text())
   }
 
   // check if the message is a code block

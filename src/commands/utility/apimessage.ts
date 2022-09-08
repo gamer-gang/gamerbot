@@ -1,9 +1,13 @@
-import type { InteractionReplyOptions } from 'discord.js'
+import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  InteractionReplyOptions,
+} from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import { parseDiscordJson } from '../../util/message.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_APIMESSAGE = command('CHAT_INPUT', {
+const COMMAND_APIMESSAGE = command(ApplicationCommandType.ChatInput, {
   name: 'apimessage',
   description: 'Create a message from a JSON message payload.',
   examples: [
@@ -23,7 +27,7 @@ const COMMAND_APIMESSAGE = command('CHAT_INPUT', {
     {
       name: 'json',
       description: 'JSON message data to create.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       required: true,
     },
   ],

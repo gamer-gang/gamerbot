@@ -1,8 +1,9 @@
+import { ApplicationCommandType } from 'discord.js'
 import packageJson from '../../../package.json'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_ABOUT = command('CHAT_INPUT', {
+const COMMAND_ABOUT = command(ApplicationCommandType.ChatInput, {
   name: 'about',
   description: 'Show info about the bot.',
 
@@ -13,8 +14,9 @@ const COMMAND_ABOUT = command('CHAT_INPUT', {
 
     const [guilds, users] = await Promise.all([client.countGuilds(), client.countUsers()])
 
+    embed.author = Embed.profileAuthor(client.user.username, client.user)
+
     embed
-      .setAuthorToProfile(client.user.username, client.user)
       .addField('Repository', '[GitHub](https://github.com/gamer-gang/gamerbot)')
       .addField('Issues', '[Issues](https://github.com/gamer-gang/gamerbot/issues)')
       .addField('Servers', guilds.toLocaleString(), true)

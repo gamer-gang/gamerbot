@@ -1,5 +1,5 @@
 import { stripIndent, stripIndents } from 'common-tags'
-import { Formatters } from 'discord.js'
+import { ApplicationCommandOptionType, ApplicationCommandType, Formatters } from 'discord.js'
 import emojiRegex from 'emoji-regex'
 import stringLength from 'string-length'
 import unicode, { type Character } from 'unicode/category/index.js'
@@ -18,7 +18,7 @@ const formatCodePoints = (str: string): string => {
   return codePoints.join(' ')
 }
 
-const COMMAND_CHARACTER = command('CHAT_INPUT', {
+const COMMAND_CHARACTER = command(ApplicationCommandType.ChatInput, {
   name: 'character',
   description: 'Show information about a Unicode character.',
   longDescription: stripIndent`
@@ -41,7 +41,7 @@ const COMMAND_CHARACTER = command('CHAT_INPUT', {
     {
       name: 'character',
       description: 'The character to show information about.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       required: true,
     },
   ],

@@ -1,9 +1,10 @@
 import { CowFunction, say } from '@wiisportsresorts/cowsay'
 import * as cows from '@wiisportsresorts/cowsay/lib/cows.js'
 import { stripIndent } from 'common-tags'
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_COWSAY = command('CHAT_INPUT', {
+const COMMAND_COWSAY = command(ApplicationCommandType.ChatInput, {
   name: 'cowsay',
   description: 'Make the cow say the funny.',
   examples: [
@@ -53,13 +54,13 @@ const COMMAND_COWSAY = command('CHAT_INPUT', {
     {
       name: 'text',
       description: 'The text to make the cow say.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       required: true,
     },
     {
       name: 'cow',
       description: 'The cow to use.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       autocomplete: true,
     },
   ],

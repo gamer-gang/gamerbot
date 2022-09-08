@@ -1,6 +1,8 @@
-import type {
+import {
   ApplicationCommandNonOptionsData,
   ApplicationCommandOptionChoiceData,
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
 } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
@@ -13,12 +15,12 @@ const CONFIG_OPTIONS: Array<ConfigOption<ConfigValueType>> = [
   // CONFIG_OPTION_LOGCHANNELS,
 ]
 
-const COMMAND_CONFIG = command('CHAT_INPUT', {
+const COMMAND_CONFIG = command(ApplicationCommandType.ChatInput, {
   name: 'config',
   description: 'Manage gamerbot server configuration.',
   guildOnly: true,
   logUsage: true,
-  userPermissions: ['MANAGE_GUILD'],
+  userPermissions: ['ManageGuild'],
   longDescription:
     'Manage gamerbot server configuration. This command is only available to members with the `MANAGE_GUILD` permission.',
   examples: [
@@ -35,7 +37,7 @@ const COMMAND_CONFIG = command('CHAT_INPUT', {
   options: CONFIG_OPTIONS.map((optionDef) => ({
     name: optionDef.internalName,
     description: optionDef.description,
-    type: 'SUB_COMMAND',
+    type: ApplicationCommandOptionType.Subcommand,
     options: [
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       {

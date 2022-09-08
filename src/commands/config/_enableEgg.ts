@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import { CommandResult } from '../command.js'
 import { configOption } from './_configOption.js'
@@ -6,7 +7,7 @@ const CONFIG_OPTION_ENABLEEGG = configOption({
   internalName: 'enable-egg',
   displayName: 'enable egg reactions',
   description: 'Enable gamerbot egg reactions.',
-  type: 'BOOLEAN',
+  type: ApplicationCommandOptionType.Boolean,
 
   async handle(context, { getValue, getConfig, updateConfig }) {
     const { interaction } = context

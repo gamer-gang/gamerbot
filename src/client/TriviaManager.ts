@@ -1,4 +1,3 @@
-import axios from 'axios'
 import type { Logger } from 'log4js'
 import { URLSearchParams } from 'node:url'
 import {
@@ -21,8 +20,9 @@ export class TriviaManager {
   }
 
   async #requestToken(): Promise<boolean> {
-    const data = (await axios.get('https://opentdb.com/api_token.php?command=request'))
-      .data as TokenRequestResponse
+    const data = (await fetch('https://opentdb.com/api_token.php?command=request').then((r) =>
+      r.json()
+    )) as TokenRequestResponse
     if (data.response_code !== 0) {
       this.logger.error(`Failed retrieving trivia session token: ${data.response_message}`)
       throw new Error(`Requesting token: ${data.response_message}`)
@@ -33,9 +33,9 @@ export class TriviaManager {
   }
 
   async resetToken(): Promise<boolean> {
-    const data = (
-      await axios.get(`https://opentdb.com/api_token.php?command=reset&token=${this.#token}`)
-    ).data as TokenResetResponse
+    const data = (await fetch(
+      `https://opentdb.com/api_token.php?command=reset&token=${this.#token}`
+    ).then((r) => r.json())) as TokenResetResponse
 
     if (data.response_code !== 0) {
       this.logger.warn('Failed resetting trivia session token, getting new one instead')
@@ -47,8 +47,8 @@ export class TriviaManager {
   }
 
   static async getCategories(): Promise<CategoriesResponse['trivia_categories']> {
-    const res = await axios.get('https://opentdb.com/api_category.php')
-    const { trivia_categories: categories } = res.data as CategoriesResponse
+    const res = await fetch('https://opentdb.com/api_category.php')
+    const { trivia_categories: categories } = (await res.json()) as CategoriesResponse
 
     return categories
   }
@@ -62,7 +62,7 @@ export class TriviaManager {
 
     const url = `https://opentdb.com/api.php?${params.toString()}`
 
-    const data = (await axios.get(url)).data as TriviaResponse
+    const data = (await fetch(url).then((r) => r.json())) as TriviaResponse
 
     switch (data.response_code) {
       case TriviaResponseType.QuestionsExhausted:

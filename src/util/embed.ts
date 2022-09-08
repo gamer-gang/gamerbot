@@ -1,4 +1,12 @@
-import { MessageEmbed, MessageEmbedOptions, User } from 'discord.js'
+import {
+  APIEmbed,
+  APIEmbedAuthor,
+  APIEmbedFooter,
+  APIEmbedProvider,
+  EmbedBuilder,
+  EmbedData,
+  User,
+} from 'discord.js'
 import { Color } from './color.js'
 import { getProfileImageUrl } from './discord.js'
 import { formatErrorMessage } from './format.js'
@@ -27,7 +35,7 @@ export const COLORS = {
   orange: Color.from('d97706'),
 }
 
-export class Embed extends MessageEmbed {
+export class Embed extends EmbedBuilder {
   static error(error: unknown): Embed
   static error(message: string, description?: string): Embed
   static error(err: unknown, description?: string): Embed {
@@ -66,15 +74,103 @@ export class Embed extends MessageEmbed {
     })
   }
 
-  constructor(options?: (MessageEmbed | MessageEmbedOptions) & EmbedOptions) {
-    super(options)
+  constructor(options?: (EmbedBuilder | EmbedData | APIEmbed) & EmbedOptions) {
+    if (options instanceof EmbedBuilder) {
+      super(options.data)
+    } else {
+      super(options)
+    }
 
-    if (this.color == null && options?.noColor !== true && options?.intent) {
-      this.setIntent(options?.intent)
+    if (this.data.color == null && options?.noColor !== true && options?.intent) {
+      this.intent = options?.intent
     }
   }
 
-  setIntent(intent: EmbedIntent): this {
+  get title(): string | undefined {
+    return this.data.title
+  }
+
+  set title(title: string | undefined) {
+    this.setTitle(title ?? null)
+  }
+
+  get description(): string | undefined {
+    return this.data.description
+  }
+
+  set description(description: string | undefined) {
+    this.setDescription(description ?? null)
+  }
+
+  get url(): string | undefined {
+    return this.data.url
+  }
+
+  set url(url: string | undefined) {
+    this.setURL(url ?? null)
+  }
+
+  get timestamp(): Date | undefined {
+    return this.data.timestamp ? new Date(this.data.timestamp) : undefined
+  }
+
+  set timestamp(timestamp: Date | undefined) {
+    this.setTimestamp(timestamp ?? null)
+  }
+
+  get color(): number | undefined {
+    return this.data.color
+  }
+
+  set color(color: number | undefined) {
+    this.setColor(color ?? null)
+  }
+
+  get footer(): APIEmbedFooter | undefined {
+    return this.data.footer
+  }
+
+  set footer(footer: APIEmbedFooter | undefined) {
+    this.setFooter(footer ?? null)
+  }
+
+  get image(): string | undefined {
+    return this.data.image?.url
+  }
+
+  set image(image: string | undefined) {
+    this.setImage(image ?? null)
+  }
+
+  get video(): string | undefined {
+    return this.data.video?.url
+  }
+
+  get provider(): APIEmbedProvider | undefined {
+    return this.data.provider
+  }
+
+  get author(): APIEmbedAuthor | undefined {
+    return this.data.author
+  }
+
+  set author(author: APIEmbedAuthor | undefined) {
+    this.setAuthor(author ?? null)
+  }
+
+  get thumbnail(): string | undefined {
+    return this.data.thumbnail?.url
+  }
+
+  set thumbnail(thumbnail: string | undefined) {
+    this.setThumbnail(thumbnail ?? null)
+  }
+
+  addField(name: string, value: string, inline?: boolean): this {
+    return super.addFields({ name, value, inline })
+  }
+
+  set intent(intent: EmbedIntent) {
     switch (intent) {
       case 'error':
         this.setColor(COLORS.red.number)
@@ -89,21 +185,17 @@ export class Embed extends MessageEmbed {
       default:
         this.setColor(COLORS.blue.number)
     }
-
-    return this
   }
 
-  setAuthorToProfile(name: string, user: User, url?: string): this {
-    this.setAuthor({
+  static profileAuthor(name: string, user: User, url?: string): APIEmbedAuthor {
+    return {
       name,
-      iconURL: getProfileImageUrl(user),
+      icon_url: getProfileImageUrl(user),
       url,
-    })
-    return this
+    }
   }
 
-  setThumbnailToProfileImage(user: User): this {
-    this.setThumbnail(getProfileImageUrl(user))
-    return this
+  static profileThumbnail(user: User): string {
+    return getProfileImageUrl(user)
   }
 }

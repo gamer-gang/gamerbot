@@ -1,9 +1,10 @@
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import { interactionReplySafe } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
 import { usernameRegex, uuidRegex } from '../../util/regex.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_USERNAME = command('CHAT_INPUT', {
+const COMMAND_USERNAME = command(ApplicationCommandType.ChatInput, {
   name: 'username',
   description: 'Retrieve/modify your Minecraft username/UUID.',
   examples: [
@@ -32,12 +33,12 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
     {
       name: 'set',
       description: 'Set your Minecraft username/UUID.',
-      type: 'SUB_COMMAND',
+      type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
           name: 'identifier',
           description: 'The username/UUID to set.',
-          type: 'STRING',
+          type: ApplicationCommandOptionType.String,
           required: true,
         },
       ],
@@ -45,19 +46,19 @@ const COMMAND_USERNAME = command('CHAT_INPUT', {
     {
       name: 'get',
       description: "Get a user's Minecraft username/UUID",
-      type: 'SUB_COMMAND',
+      type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
           name: 'user',
           description: 'The user to get the username/UUID of.',
-          type: 'USER',
+          type: ApplicationCommandOptionType.User,
         },
       ],
     },
     {
       name: 'clear',
       description: 'Clear your Minecraft username/UUID.',
-      type: 'SUB_COMMAND',
+      type: ApplicationCommandOptionType.Subcommand,
     },
   ],
   async run(context): Promise<CommandResult> {

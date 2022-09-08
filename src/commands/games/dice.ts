@@ -1,4 +1,12 @@
-import { Message, MessageActionRow, MessageSelectMenu, MessageSelectOptionData } from 'discord.js'
+import {
+  ActionRowBuilder,
+  APISelectMenuOption,
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  ComponentType,
+  Message,
+  SelectMenuBuilder,
+} from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
@@ -6,7 +14,7 @@ import command, { CommandResult } from '../command.js'
 // represents every possible bid
 const possibleBids = [1, 2, 3, 4].map((i) => [1, 2, 3, 4].map((j) => [i, j])).flat()
 
-const COMMAND_DICE = command('CHAT_INPUT', {
+const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
   name: 'dice',
   description: "Duel someone else in a game of liar's dice/swindlestones",
   examples: [
@@ -19,7 +27,7 @@ const COMMAND_DICE = command('CHAT_INPUT', {
     {
       name: 'user',
       description: 'The user to duel.',
-      type: 'USER',
+      type: ApplicationCommandOptionType.User,
       required: true,
     },
   ],
@@ -61,24 +69,22 @@ const COMMAND_DICE = command('CHAT_INPUT', {
       const msg = (await interaction.channel?.send({
         content: `Place your bid, ${firstPlayerTurn ? interaction.user.tag : opponent.tag}!`,
         components: [
-          new MessageActionRow({
-            components: [
-              new MessageSelectMenu({
-                custom_id: 'bidSelection',
-                placeholder: 'Select bid...',
-                options:
-                  lastBid === -1
-                    ? [...generateBids(lastBid)]
-                    : [
-                        {
-                          label: 'Call',
-                          value: 'call',
-                        },
-                        ...generateBids(lastBid),
-                      ],
-              }),
-            ],
-          }),
+          new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+            new SelectMenuBuilder({
+              customId: 'bidSelection',
+              placeholder: 'Select bid...',
+              options:
+                lastBid === -1
+                  ? [...generateBids(lastBid)]
+                  : [
+                      {
+                        label: 'Call',
+                        value: 'call',
+                      },
+                      ...generateBids(lastBid),
+                    ],
+            })
+          ),
         ],
       })) as Message
 
@@ -86,7 +92,7 @@ const COMMAND_DICE = command('CHAT_INPUT', {
 
       try {
         bid = await msg.awaitMessageComponent({
-          componentType: 'SELECT_MENU',
+          componentType: ComponentType.SelectMenu,
           filter: (i) => i.user.id === (firstPlayerTurn ? interaction.user.id : opponent.id),
           time: 60000,
         })
@@ -161,7 +167,7 @@ function roll(): number {
   return Math.floor(Math.random() * 4) + 1
 }
 
-function generateBids(last: number): MessageSelectOptionData[] {
+function generateBids(last: number): APISelectMenuOption[] {
   return possibleBids.slice(last + 1).map((e, i) => {
     return { label: `${e[0]} dice of value ${e[1]}`, value: (last + i + 1).toString() }
   })

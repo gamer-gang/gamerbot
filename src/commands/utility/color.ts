@@ -1,4 +1,5 @@
 import { createCanvas } from '@napi-rs/canvas'
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import { Color, HslTriple, RgbTriple } from '../../util/color.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
@@ -9,7 +10,7 @@ const rgbRegex =
 const hslRegex =
   /^hsl(?:\s*\(|\s+)\s*(\d+(?:\.\d+)?)(?:[°º]| ?deg(?:rees)?)?(?:,\s*|\s+)(\d+(?:\.\d+)?)%?(?:,\s*|\s+)(\d+(?:\.\d+)?)%?\s*\)?$/i
 
-const COMMAND_COLOR = command('CHAT_INPUT', {
+const COMMAND_COLOR = command(ApplicationCommandType.ChatInput, {
   name: 'color',
   description: 'Get information about a color.',
   longDescription:
@@ -32,7 +33,7 @@ const COMMAND_COLOR = command('CHAT_INPUT', {
     {
       name: 'color',
       description: 'The color to get information about.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       required: true,
     },
   ],

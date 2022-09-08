@@ -1,20 +1,21 @@
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_LMGTFY = command('CHAT_INPUT', {
+const COMMAND_LMGTFY = command(ApplicationCommandType.ChatInput, {
   name: 'lmgtfy',
   description: 'Let me get that for you.',
   options: [
     {
       name: 'query',
       description: 'The query to search for.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       required: true,
     },
     {
       name: 'engine',
       description: 'The search engine to use.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       choices: [
         { name: 'Google (LMGTFY)', value: 'lmgtfy' },
         { name: 'DuckDuckGo', value: 'duckduckgo' },

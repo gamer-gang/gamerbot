@@ -1,15 +1,16 @@
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import assert from 'node:assert'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 import { purgeTo } from './purgetohere.js'
 
-const COMMAND_PURGE = command('CHAT_INPUT', {
+const COMMAND_PURGE = command(ApplicationCommandType.ChatInput, {
   name: 'purge',
   description: 'Delete the last <n> messages, or delete all messages up to a message.',
   guildOnly: true,
   logUsage: true,
-  botPermissions: ['MANAGE_MESSAGES'],
-  userPermissions: ['MANAGE_MESSAGES'],
+  botPermissions: ['ManageMessages'],
+  userPermissions: ['ManageMessages'],
   examples: [
     {
       options: { n: 150 },
@@ -25,12 +26,12 @@ const COMMAND_PURGE = command('CHAT_INPUT', {
     {
       name: 'n',
       description: 'Number of messages to delete.',
-      type: 'NUMBER',
+      type: ApplicationCommandOptionType.Integer,
     },
     {
       name: 'to',
       description: 'Delete messages up to this message.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
   ],
 

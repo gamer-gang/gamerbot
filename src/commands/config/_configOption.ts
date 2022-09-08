@@ -3,7 +3,6 @@ import type { Config, Prisma } from '@prisma/client'
 import type { APIInteractionDataResolvedChannel, APIRole } from 'discord-api-types/v9.js'
 import type {
   ApplicationCommandOptionChoiceData,
-  ApplicationCommandOptionType,
   CommandInteraction,
   Guild,
   GuildChannel,
@@ -12,13 +11,14 @@ import type {
   ThreadChannel,
   User,
 } from 'discord.js'
+import { ApplicationCommandOptionType } from 'discord.js'
 import assert from 'node:assert'
 import type { CommandResult } from '../command.js'
 import type { CommandContext } from '../context.js'
 
 export type ConfigValueType = Exclude<
   ApplicationCommandOptionType,
-  'SUB_COMMAND' | 'SUB_COMMAND_GROUP'
+  ApplicationCommandOptionType.Subcommand | ApplicationCommandOptionType.SubcommandGroup
 >
 
 export type CommandContextWithGuild = CommandContext & {
@@ -34,7 +34,12 @@ interface ConfigOptionDef<T extends ConfigValueType> {
   internalName: string
   description: string
   type: T
-  choices?: T extends 'STRING' | 'INTEGER' | 'NUMBER' ? ApplicationCommandOptionChoiceData[] : never
+  choices?: T extends
+    | ApplicationCommandOptionType.String
+    | ApplicationCommandOptionType.Number
+    | ApplicationCommandOptionType.Integer
+    ? ApplicationCommandOptionChoiceData[]
+    : never
 
   handle: (
     context: CommandContextWithGuild,
@@ -44,22 +49,20 @@ interface ConfigOptionDef<T extends ConfigValueType> {
 
 export type ConfigOption<T extends ConfigValueType> = ConfigOptionDef<T>
 
-type CommandOptionTypeof<V extends ConfigValueType> = V extends 'STRING'
+type CommandOptionTypeof<V extends ConfigValueType> = V extends ApplicationCommandOptionType.String
   ? string
-  : V extends 'INTEGER'
+  : V extends ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number
   ? number
-  : V extends 'BOOLEAN'
+  : V extends ApplicationCommandOptionType.Boolean
   ? boolean
-  : V extends 'USER'
+  : V extends ApplicationCommandOptionType.User
   ? User
-  : V extends 'CHANNEL'
+  : V extends ApplicationCommandOptionType.Channel
   ? GuildChannel | ThreadChannel | APIInteractionDataResolvedChannel
-  : V extends 'ROLE'
+  : V extends ApplicationCommandOptionType.Role
   ? Role | APIRole
-  : V extends 'MENTIONABLE'
+  : V extends ApplicationCommandOptionType.Mentionable
   ? User | Role | GuildChannel
-  : V extends 'NUMBER'
-  ? number
   : never
 
 export interface ConfigOptionHelpers<V extends ConfigValueType> {
@@ -77,7 +80,14 @@ export const helpers = <T extends ConfigValueType>(
 
       if (option == null) return null
 
-      if (['BOOLEAN', 'INTEGER', 'NUMBER', 'STRING'].includes(option.type)) {
+      if (
+        [
+          ApplicationCommandOptionType.Boolean,
+          ApplicationCommandOptionType.Integer,
+          ApplicationCommandOptionType.Number,
+          ApplicationCommandOptionType.String,
+        ].includes(option.type)
+      ) {
         return (option.value as CommandOptionTypeof<T>) ?? null
       }
 

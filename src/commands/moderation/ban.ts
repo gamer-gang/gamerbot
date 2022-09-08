@@ -1,14 +1,15 @@
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_BAN = command('CHAT_INPUT', {
+const COMMAND_BAN = command(ApplicationCommandType.ChatInput, {
   name: 'ban',
   description: 'Ban a user.',
   longDescription: 'Permanently ban a user from the server.',
   guildOnly: true,
   logUsage: true,
-  userPermissions: ['BAN_MEMBERS'],
-  botPermissions: ['BAN_MEMBERS'],
+  userPermissions: ['BanMembers'],
+  botPermissions: ['BanMembers'],
   examples: [
     {
       options: { user: { mention: 'Frog' }, reason: 'Spamming' },
@@ -23,13 +24,13 @@ const COMMAND_BAN = command('CHAT_INPUT', {
     {
       name: 'user',
       description: 'User to ban.',
-      type: 'USER',
+      type: ApplicationCommandOptionType.User,
       required: true,
     },
     {
       name: 'reason',
       description: 'Ban reason.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
   ],
 
@@ -76,7 +77,7 @@ const COMMAND_BAN = command('CHAT_INPUT', {
         return CommandResult.Success
       }
 
-      if (context.guild.me!.roles.highest.comparePositionTo(bannee.roles.highest) <= 0) {
+      if (context.guild.members.me!.roles.highest.comparePositionTo(bannee.roles.highest) <= 0) {
         await interaction.reply({
           embeds: [Embed.error('gamerbot cannot ban that member')],
           ephemeral: true,

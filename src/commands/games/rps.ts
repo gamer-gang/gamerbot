@@ -1,4 +1,11 @@
-import { MessageActionRow, MessageButton } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  ButtonBuilder,
+  ButtonStyle,
+  ComponentType,
+} from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'
 import { Embed } from '../../util/embed.js'
@@ -11,7 +18,7 @@ const RPS_CHOICES = {
   scissors: '✌',
 }
 
-const COMMAND_RPS = command('CHAT_INPUT', {
+const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
   name: 'rps',
   description: 'Duel a user in rock paper scissors.',
   examples: [
@@ -24,7 +31,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
     {
       name: 'user',
       description: 'The user to duel.',
-      type: 'USER',
+      type: ApplicationCommandOptionType.User,
       required: true,
     },
   ],
@@ -42,9 +49,14 @@ const COMMAND_RPS = command('CHAT_INPUT', {
 
     const choices = Object.entries(RPS_CHOICES).map(
       ([name, emoji]) =>
-        new MessageButton({ customId: name, emoji, label: _.capitalize(name), style: 'PRIMARY' })
+        new ButtonBuilder({
+          customId: name,
+          emoji,
+          label: _.capitalize(name),
+          style: ButtonStyle.Primary,
+        })
     )
-    const row = new MessageActionRow({ components: choices })
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(choices)
 
     const moveEmbed = new Embed({
       title: 'Rock Paper Scissors',
@@ -64,7 +76,7 @@ const COMMAND_RPS = command('CHAT_INPUT', {
       let move2: keyof typeof RPS_CHOICES | undefined
 
       const collector = moveMessage.createMessageComponentCollector({
-        componentType: 'BUTTON',
+        componentType: ComponentType.Button,
         time: 30_000,
         dispose: true,
       })

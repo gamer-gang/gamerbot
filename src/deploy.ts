@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type {
+import {
   ApplicationCommandDataResolvable,
   ApplicationCommandManager,
+  ApplicationCommandType,
   Guild,
   GuildApplicationCommandManager,
 } from 'discord.js'
@@ -45,7 +46,8 @@ export const deployCommands = async (client: GamerbotClient): Promise<void> => {
     (command) => ({
       type: command.type as never,
       name: command.name,
-      description: command.type === 'CHAT_INPUT' ? (command as any).description ?? '' : '',
+      description:
+        command.type === ApplicationCommandType.ChatInput ? command.description ?? '' : '',
       options: (command as any).options ?? [],
     })
   )

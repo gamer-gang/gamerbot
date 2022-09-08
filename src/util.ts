@@ -1,9 +1,11 @@
 import { getTimeZones, TimeZone } from '@vvo/tzdb'
 import didYouMean from 'didyoumean'
-import type {
+import {
   ApplicationCommandOptionChoiceData,
+  ApplicationCommandType,
+  ChannelType,
   CommandInteraction,
-  ContextMenuInteraction,
+  ContextMenuCommandInteraction,
 } from 'discord.js'
 import assert from 'node:assert'
 import type { Command } from './commands/command.js'
@@ -29,7 +31,7 @@ export const insertUuidDashes = (uuid: string): string => {
 }
 
 export const hasPermissions = (
-  interaction: CommandInteraction | ContextMenuInteraction,
+  interaction: CommandInteraction | ContextMenuCommandInteraction,
   command: Command
 ): boolean => {
   if (interaction.guild != null) {
@@ -38,7 +40,7 @@ export const hasPermissions = (
     assert(typeof currentUserPermissions !== 'string')
 
     assert(interaction.channel)
-    assert(interaction.channel.type !== 'DM')
+    assert(interaction.channel.type !== ChannelType.DM)
 
     const requiredUserPermissions = command.userPermissions
 
@@ -58,7 +60,7 @@ export const hasPermissions = (
       return false
     }
 
-    const currentBotPermissions = interaction.channel.permissionsFor(interaction.guild.me!)
+    const currentBotPermissions = interaction.channel.permissionsFor(interaction.guild.members.me!)
 
     const requiredBotPermissions = command.botPermissions
     assert(typeof requiredBotPermissions !== 'string')
@@ -137,3 +139,9 @@ export const escapeMarkdown = (str: string): string => {
   // escape markdown using 0-width spaces
   return str.replace(/[-~*_`[\]()#+]/g, '\u200b$&')
 }
+
+export const applicationCommandTypeName = {
+  [ApplicationCommandType.ChatInput]: 'CHAT_INPUT',
+  [ApplicationCommandType.User]: 'USER',
+  [ApplicationCommandType.Message]: 'MESSAGE',
+} as const

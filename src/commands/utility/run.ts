@@ -1,8 +1,13 @@
 /* eslint-disable import/no-named-as-default */
-import axios from 'axios'
 import { stripIndent } from 'common-tags'
 import type { APIMessage } from 'discord-api-types/v9.js'
-import { FileOptions, Formatters, Message, Util } from 'discord.js'
+import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  codeBlock,
+  escapeCodeBlock,
+  Message,
+} from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'
 import piston, { ExecuteErrorResult, ExecuteSuccessResult } from 'piston-client'
@@ -18,7 +23,7 @@ const LANGUAGES = RUNTIMES.map((runtime) => runtime.language)
 const ALIASES = RUNTIMES.flatMap((runtime) => runtime.aliases)
 const LANGUAGES_WITH_ALIASES = _.uniq([...LANGUAGES, ...ALIASES])
 
-const COMMAND_RUN = command('CHAT_INPUT', {
+const COMMAND_RUN = command(ApplicationCommandType.ChatInput, {
   name: 'run',
   description: 'Run a snippet of code.',
   longDescription: stripIndent`
@@ -63,51 +68,51 @@ const COMMAND_RUN = command('CHAT_INPUT', {
     {
       name: 'language',
       description: 'The language to run the code in.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       required: true,
       autocomplete: true,
     },
     {
       name: 'version',
       description: 'The version of the language to run the code in.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       autocomplete: true,
     },
     {
       name: 'code',
       description: 'The code to run; if not provided, you will be asked to provide it.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
     {
       name: 'code-file',
       description: 'A file with the code to run.',
-      type: 'ATTACHMENT',
+      type: ApplicationCommandOptionType.Attachment,
     },
     {
       name: 'stdin',
       description:
         'stdin to provide to the program; specify ask-stdin instead to be prompted for it.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
     {
       name: 'ask-stdin',
       description: 'Whether to ask for stdin.',
-      type: 'BOOLEAN',
+      type: ApplicationCommandOptionType.Boolean,
     },
     {
       name: 'stdin-file',
       description: 'A file to use as stdin.',
-      type: 'ATTACHMENT',
+      type: ApplicationCommandOptionType.Attachment,
     },
     {
       name: 'args',
       description: 'Arguments to pass to the program, separated by spaces.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
     {
       name: 'output-syntax',
       description: "Syntax highlighting language for your code's output.",
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
   ],
 
@@ -204,7 +209,7 @@ const COMMAND_RUN = command('CHAT_INPUT', {
     if (stdin == null) {
       const attachment = options.getAttachment('stdin-file')
       if (attachment != null) {
-        stdin = await axios.get(attachment.url, { responseType: 'text' }).then((res) => res.data)
+        stdin = await fetch(attachment.url).then((r) => r.text())
       }
     }
     if (options.getBoolean('ask-stdin')) stdin ??= (await askForStdin(context, runtime)) ?? ''
@@ -261,8 +266,8 @@ const COMMAND_RUN = command('CHAT_INPUT', {
 
     const output = `${compile?.stderr ?? ''}${run.output}`.replace('`', '`\u200b').trim()
     const outputLanguage = options.getString('output-syntax') ?? 'txt'
-    const formattedOutput = Formatters.codeBlock(outputLanguage, output)
-    const files: FileOptions[] = []
+    const formattedOutput = codeBlock(outputLanguage, output)
+    const files = []
 
     let embed: Embed
     if (run.signal) {
@@ -289,8 +294,8 @@ const COMMAND_RUN = command('CHAT_INPUT', {
       embed.setDescription(`${embed.description}\n\n${formattedOutput}`)
     }
 
-    embed.setAuthorToProfile(interaction.user.username, interaction.user)
-    embed.setTitle(`Run code: ${runtime.language} v${runtime.version}`)
+    embed.author = Embed.profileAuthor(interaction.user.username, interaction.user)
+    embed.title = `Run code: ${runtime.language} v${runtime.version}`
 
     if (run.signal && !(embed.description ?? 'OOM').includes('OOM')) {
       embed.addField('Process killed by', run.signal, true)
@@ -303,9 +308,7 @@ const COMMAND_RUN = command('CHAT_INPUT', {
     if (options.getString('code') && options.getString('code')!.length < 300) {
       // add code to the embed
       embed.setDescription(
-        `${Formatters.codeBlock(runtime.language, Util.escapeCodeBlock(code))}\n${
-          embed.description
-        }`
+        `${codeBlock(runtime.language, escapeCodeBlock(code))}\n${embed.description}`
       )
     }
 

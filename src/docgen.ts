@@ -8,24 +8,41 @@ import { fileURLToPath } from 'node:url'
 import packageJson from '../package.json'
 import { DEFAULT_COMMANDS } from './commands.js'
 import type { DocsJson } from './types.js'
-import { resolvePath } from './util/path.js'
-const json: DocsJson = { version: packageJson.version, commands: [] }
 
+const processVersion = (version: string) => {
+  if (version.startsWith('^') || version.startsWith('~')) {
+    version = version.slice(1)
+  }
+
+  return version
+}
+
+const json: DocsJson = {
+  version: packageJson.version,
+  discordjsVersion: processVersion(packageJson.dependencies['discord.js']),
+  commands: [],
+}
+
+// ./dist/docgen.js
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const commandsTs = fs.readFileSync(path.resolve(__dirname, 'commands.ts'), 'utf8').split('\n')
+const resolvePath = (p: string) => path.resolve(__dirname, '..', p)
 
-const commandImports = commandsTs
-  .filter((line) => /^import COMMAND_/.test(line))
-  .map(
-    (line) => /^import COMMAND_([^ ]+) from '\.\/([^']+)'$/.exec(line.replace(/\.js'$/, ".ts'"))!
-  )
-  .reduce<Record<string, string>>((obj, match) => ((obj[match[1]] = `src/${match[2]}`), obj), {})
+const commandsTs = fs.readFileSync(resolvePath('src/commands.ts'), 'utf8').split('\n')
+
+const commandImports = Object.fromEntries(
+  commandsTs
+    .filter((line) => /^import COMMAND_/.test(line))
+    .map(
+      (line) => /^import COMMAND_([^ ]+) from '\.\/([^']+)'$/.exec(line.replace(/\.js'$/, ".ts'"))!
+    )
+    .map((match) => [match[1], `src/${match[2]}`])
+)
 
 const commandNames = commandsTs.flatMap((line) => /^\s+COMMAND_([^,\n]+),$/.exec(line)?.at(1) ?? [])
 
-DEFAULT_COMMANDS.forEach((command, i) => {
+for (const [i, command] of DEFAULT_COMMANDS.entries()) {
   const {
     name,
     description,
@@ -51,7 +68,7 @@ DEFAULT_COMMANDS.forEach((command, i) => {
     options: (command as any).options ?? [],
     sourceLocation: commandImports[commandNames[i]],
   })
-})
+}
 
 fs.mkdirSync(resolvePath('docs'), { recursive: true })
 const file = resolvePath(`docs/${json.version}.json`)

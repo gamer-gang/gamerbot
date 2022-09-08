@@ -1,4 +1,11 @@
-import { ButtonInteraction, Message, MessageActionRow, MessageButton } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ComponentType,
+  Message,
+} from 'discord.js'
 import type { CommandContext } from '../commands/context.js'
 import { Embed } from './embed.js'
 
@@ -45,15 +52,13 @@ export const challengePlayer = async (
     content: opponent.toString(),
     embeds: [embed],
     components: [
-      new MessageActionRow({
-        components: [
-          new MessageButton({
-            customId: 'start',
-            style: 'PRIMARY',
-            emoji: emoji,
-          }),
-        ],
-      }),
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder({
+          customId: 'start',
+          style: ButtonStyle.Primary,
+          emoji,
+        })
+      ),
     ],
   })
 
@@ -62,7 +67,7 @@ export const challengePlayer = async (
   try {
     const response = await reply
       .awaitMessageComponent({
-        componentType: 'BUTTON',
+        componentType: ComponentType.Button,
         filter: (i) => i.user.id === opponent.id,
         time: 120_000,
       })

@@ -1,8 +1,9 @@
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import { getDateStringFromSnowflake } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_SERVERINFO = command('CHAT_INPUT', {
+const COMMAND_SERVERINFO = command(ApplicationCommandType.ChatInput, {
   name: 'serverinfo',
   description: 'Get information about a server.',
   examples: [
@@ -19,7 +20,7 @@ const COMMAND_SERVERINFO = command('CHAT_INPUT', {
     {
       name: 'server',
       description: 'Server to show info for.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
   ],
 
@@ -43,9 +44,9 @@ const COMMAND_SERVERINFO = command('CHAT_INPUT', {
     const bots = [...(await guild.members.fetch()).values()].filter(
       (member) => member.user.bot
     ).length
-    let icon = guild.iconURL({ dynamic: true, size: 4096 })
+    let icon = guild.iconURL({ size: 4096 })
     if (icon?.includes('.webp') ?? false) {
-      icon = guild.iconURL({ format: 'png', size: 4096 })
+      icon = guild.iconURL({ extension: 'png', size: 4096 })
     }
 
     const owner = await guild.fetchOwner()

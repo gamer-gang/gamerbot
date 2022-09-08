@@ -1,16 +1,18 @@
-import type {
+import {
   ApplicationCommandOptionData,
+  ApplicationCommandOptionType,
   ApplicationCommandSubCommandData,
   ApplicationCommandType,
+  InteractionType,
 } from 'discord.js'
 import assert from 'node:assert'
 import type { ChatCommandDef, MessageCommandDef, UserCommandDef } from '../types.js'
 import { isChatCommand } from '../util.js'
 import type { CommandContext, MessageCommandContext, UserCommandContext } from './context.js'
 
-export type ChatCommand = Required<ChatCommandDef> & { type: 'CHAT_INPUT' }
-export type UserCommand = Required<UserCommandDef> & { type: 'USER' }
-export type MessageCommand = Required<MessageCommandDef> & { type: 'MESSAGE' }
+export type ChatCommand = Required<ChatCommandDef> & { type: ApplicationCommandType.ChatInput }
+export type UserCommand = Required<UserCommandDef> & { type: ApplicationCommandType.User }
+export type MessageCommand = Required<MessageCommandDef> & { type: ApplicationCommandType.Message }
 
 export type Command = ChatCommand | UserCommand | MessageCommand
 
@@ -48,7 +50,7 @@ const normalizeOptions = (
   }
 
   return options.map((option) => {
-    if (option.type === 'SUB_COMMAND_GROUP') {
+    if (option.type === ApplicationCommandOptionType.SubcommandGroup) {
       return {
         ...(base as object),
         ...option,
@@ -57,7 +59,7 @@ const normalizeOptions = (
       }
     }
 
-    if (option.type === 'SUB_COMMAND') {
+    if (option.type === ApplicationCommandOptionType.Subcommand) {
       return {
         ...(base as object),
         ...option,
@@ -75,9 +77,9 @@ const normalizeOptions = (
   })
 }
 
-function command(type: 'CHAT_INPUT', def: ChatCommandDef): ChatCommand
-function command(type: 'USER', def: UserCommandDef): UserCommand
-function command(type: 'MESSAGE', def: MessageCommandDef): MessageCommand
+function command(type: ApplicationCommandType.ChatInput, def: ChatCommandDef): ChatCommand
+function command(type: ApplicationCommandType.User, def: UserCommandDef): UserCommand
+function command(type: ApplicationCommandType.Message, def: MessageCommandDef): MessageCommand
 function command(
   type: ApplicationCommandType,
   def: ChatCommandDef | UserCommandDef | MessageCommandDef
@@ -86,26 +88,26 @@ function command(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...(def as any),
     options: isChatCommand(def) ? normalizeOptions(def.options) : undefined,
-    type: type as never,
-    guildOnly: (def.guildOnly ?? false) as never,
+    type,
+    guildOnly: def.guildOnly ?? false,
     logUsage: def.logUsage ?? false,
     userPermissions: def.userPermissions ?? [],
     botPermissions: def.botPermissions ?? [],
-    autocomplete: (isChatCommand(def) ? def.autocomplete : null) as never,
+    autocomplete: isChatCommand(def) ? def.autocomplete : null,
   }
 
   if (commandObj.logUsage) {
     commandObj.run = (async (
-      context: CommandContext & UserCommandContext & MessageCommandContext
+      context: CommandContext | UserCommandContext | MessageCommandContext
     ) => {
       const { interaction } = context
 
-      assert(interaction.isCommand())
+      assert(interaction.type === InteractionType.ApplicationCommand)
 
-      // TODO log usage
+      // TODO: log usage
 
       return await def.run(
-        // @ts-expect-error guild types are not correct
+        // @ts-expect-error
         context
       )
     }) as Command['run']

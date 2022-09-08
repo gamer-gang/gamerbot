@@ -3,12 +3,12 @@ import log4js, { Logger } from 'log4js'
 import assert from 'node:assert'
 
 const countSingleClientUsers = async (client: Client): Promise<string[]> => {
-  const guilds = await Promise.all(client.guilds.cache.map((guild) => guild.members.fetch()))
-  const users = guilds.reduce<string[]>((acc, guildMembers) => {
-    return [...acc, ...guildMembers.mapValues((member) => member.user.id).values()]
-  }, [])
+  const guildMembers = await Promise.all(client.guilds.cache.map((guild) => guild.members.fetch()))
+  const users = guildMembers.map((members) => [
+    ...members.mapValues((member) => member.user.id).values(),
+  ])
 
-  return users.flat(1)
+  return users.flat(2)
 }
 
 export class CountManager {

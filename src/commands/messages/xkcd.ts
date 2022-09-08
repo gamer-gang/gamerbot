@@ -1,10 +1,10 @@
-import axios from 'axios'
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
 const BASE_URL = 'https://xkcd.com'
 
-const COMMAND_XKCD = command('CHAT_INPUT', {
+const COMMAND_XKCD = command(ApplicationCommandType.ChatInput, {
   name: 'xkcd',
   description: 'Display a link to a random xkcd comic, or a specific comic if specified.',
   examples: [
@@ -21,7 +21,7 @@ const COMMAND_XKCD = command('CHAT_INPUT', {
     {
       name: 'comic',
       description: 'The comic to get. If omitted, a random comic will be chosen.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       autocomplete: true,
     },
   ],
@@ -32,10 +32,8 @@ const COMMAND_XKCD = command('CHAT_INPUT', {
       return []
     }
 
-    const response = await axios.get(`${BASE_URL}/${+value}/info.0.json`, {
-      validateStatus: () => true,
-    })
-    const data: XKCDResponse = response.data
+    const response = await fetch(`${BASE_URL}/${+value}/info.0.json`)
+    const data: XKCDResponse = await response.json()
 
     if (response.status > 500) {
       return [{ name: `Server error: ${response.statusText}`, value: 'error' }]
@@ -70,8 +68,8 @@ const COMMAND_XKCD = command('CHAT_INPUT', {
       return CommandResult.Success
     }
 
-    const res = await axios.get(`${BASE_URL}/info.0.json`)
-    const data: XKCDResponse = res.data
+    const res = await fetch(`${BASE_URL}/info.0.json`)
+    const data: XKCDResponse = await res.json()
 
     await interaction.reply(`${BASE_URL}/${Math.ceil(Math.random() * data.num)}`)
     return CommandResult.Success

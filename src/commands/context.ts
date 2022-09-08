@@ -1,77 +1,76 @@
 import type { PrismaClient } from '@prisma/client'
-import type {
-  CommandInteraction,
-  ContextMenuInteraction,
-  Interaction,
+import {
+  ApplicationCommandType,
+  BaseInteraction,
+  ChatInputCommandInteraction,
+  ContextMenuCommandInteraction,
   Message,
+  MessageContextMenuCommandInteraction,
   User,
+  UserContextMenuCommandInteraction,
 } from 'discord.js'
 import assert from 'node:assert'
 import type { GamerbotClient } from '../client/GamerbotClient.js'
 
-export class BaseContext {
+export class BaseContext<T extends BaseInteraction = BaseInteraction> {
   readonly client: GamerbotClient
 
   constructor(
     client: GamerbotClient,
-    public readonly interaction: Interaction,
+    public readonly interaction: T,
     public readonly prisma: PrismaClient
   ) {
     this.client = client
   }
 
-  get user(): Interaction['user'] {
+  get user(): T['user'] {
     return this.interaction.user
   }
 
-  get member(): Interaction['member'] {
+  get member(): T['member'] {
     return this.interaction.member
   }
 
-  get channel(): Interaction['channel'] {
+  get channel(): T['channel'] {
     return this.interaction.channel
   }
 
-  get guild(): Interaction['guild'] {
+  get guild(): T['guild'] {
     return this.interaction.guild
   }
 
-  get createdTimestamp(): Interaction['createdTimestamp'] {
+  get createdTimestamp(): T['createdTimestamp'] {
     return this.interaction.createdTimestamp
   }
 }
 
-export class CommandContext extends BaseContext {
+export class CommandContext extends BaseContext<ChatInputCommandInteraction> {
   constructor(
     client: GamerbotClient,
-    public readonly interaction: CommandInteraction,
+    public readonly interaction: ChatInputCommandInteraction,
     prisma: PrismaClient
   ) {
     super(client, interaction, prisma)
   }
 
-  get options(): CommandInteraction['options'] {
+  get options(): ChatInputCommandInteraction['options'] {
     return this.interaction.options
   }
 }
 
-class ContextMenuCommandContext extends BaseContext {
-  constructor(
-    client: GamerbotClient,
-    public readonly interaction: ContextMenuInteraction,
-    prisma: PrismaClient
-  ) {
+class ContextMenuCommandContext<T extends ContextMenuCommandInteraction> extends BaseContext<T> {
+  constructor(client: GamerbotClient, public readonly interaction: T, prisma: PrismaClient) {
     super(client, interaction, prisma)
   }
 
-  get options(): ContextMenuInteraction['options'] {
+  get options(): T['options'] {
     return this.interaction.options
   }
 }
 
-export class UserCommandContext extends ContextMenuCommandContext {
+export class UserCommandContext extends ContextMenuCommandContext<UserContextMenuCommandInteraction> {
   get targetUser(): User {
-    assert.equal(this.interaction.targetType, 'user')
+    assert.equal(this.interaction.commandType, ApplicationCommandType.User)
     const user = this.client.users.cache.get(this.interaction.targetId)
 
     if (user == null) {
@@ -82,9 +81,9 @@ export class UserCommandContext extends ContextMenuCommandContext {
   }
 }
 
-export class MessageCommandContext extends ContextMenuCommandContext {
+export class MessageCommandContext extends ContextMenuCommandContext<MessageContextMenuCommandInteraction> {
   get targetMessage(): Message {
-    assert.equal(this.interaction.targetType, 'message')
+    assert.equal(this.interaction.commandType, ApplicationCommandType.Message)
 
     if (this.channel == null) {
       throw new Error(`Could not resolve channel for message interaction ${this.interaction.id}.`)

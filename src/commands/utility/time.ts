@@ -1,4 +1,5 @@
 import { getTimeZones, timeZonesNames } from '@vvo/tzdb'
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'
 import { matchString } from '../../util.js'
@@ -25,7 +26,7 @@ const timeZoneInputs = _.uniq([
   ...timezones.flatMap((tz) => [tz.abbreviation, tz.alternativeName, ...tz.mainCities]),
 ])
 
-const COMMAND_TIME = command('CHAT_INPUT', {
+const COMMAND_TIME = command(ApplicationCommandType.ChatInput, {
   name: 'time',
   description: 'Show info about times and time zones around the world.',
   examples: [
@@ -50,22 +51,22 @@ const COMMAND_TIME = command('CHAT_INPUT', {
     {
       name: 'epoch',
       description: 'Show epoch time.',
-      type: 'SUB_COMMAND',
+      type: ApplicationCommandOptionType.Subcommand,
     },
     {
       name: 'world',
       description: 'Show times in common time zones around the world.',
-      type: 'SUB_COMMAND',
+      type: ApplicationCommandOptionType.Subcommand,
     },
     {
       name: 'zoneinfo',
       description: 'Show info about a specific time zone.',
-      type: 'SUB_COMMAND',
+      type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
           name: 'zone',
           description: 'The time zone to show info about.',
-          type: 'STRING',
+          type: ApplicationCommandOptionType.String,
           autocomplete: true,
         },
       ],
@@ -73,12 +74,12 @@ const COMMAND_TIME = command('CHAT_INPUT', {
     {
       name: 'in',
       description: 'Show the time in a specific time zone.',
-      type: 'SUB_COMMAND',
+      type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
           name: 'zone',
           description: 'The time zone to show the time in.',
-          type: 'STRING',
+          type: ApplicationCommandOptionType.String,
           autocomplete: true,
           required: true,
         },

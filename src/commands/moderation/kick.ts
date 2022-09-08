@@ -1,14 +1,15 @@
+import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import assert from 'node:assert'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const COMMAND_KICK = command('CHAT_INPUT', {
+const COMMAND_KICK = command(ApplicationCommandType.ChatInput, {
   name: 'kick',
   description: 'Kick a user from the server.',
   guildOnly: true,
   logUsage: true,
-  userPermissions: ['KICK_MEMBERS'],
-  botPermissions: ['KICK_MEMBERS'],
+  userPermissions: ['KickMembers'],
+  botPermissions: ['KickMembers'],
   examples: [
     {
       options: { user: { mention: 'Frog' }, reason: 'Spamming' },
@@ -23,13 +24,13 @@ const COMMAND_KICK = command('CHAT_INPUT', {
     {
       name: 'user',
       description: 'User to kick.',
-      type: 'USER',
+      type: ApplicationCommandOptionType.User,
       required: true,
     },
     {
       name: 'reason',
       description: 'Kick reason.',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
     },
   ],
   async run(context) {
@@ -73,7 +74,9 @@ const COMMAND_KICK = command('CHAT_INPUT', {
         return CommandResult.Success
       }
 
-      if (interaction.guild.me!.roles.highest.comparePositionTo(kickee.roles.highest) <= 0) {
+      if (
+        interaction.guild.members.me!.roles.highest.comparePositionTo(kickee.roles.highest) <= 0
+      ) {
         await interaction.reply({
           embeds: [Embed.error('gamerbot cannot kick that member')],
           ephemeral: true,

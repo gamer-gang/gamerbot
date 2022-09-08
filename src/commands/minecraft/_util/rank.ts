@@ -46,16 +46,16 @@ export const getRank = (player: Player): Rank => {
   let out: Rank | undefined
 
   if (isStaff(player)) out = player.rank as Rank
-  ;['monthlyPackageRank', 'newPackageRank', 'packageRank'].forEach((key) => {
+  for (const key of ['monthlyPackageRank', 'newPackageRank', 'packageRank']) {
     const rank = player[key]
-    if (rank === 'NONE') return
+    if (rank === 'NONE') continue
     if (
       rank != null &&
       (out == null || (rankWeights[rank as Rank] ?? 0) > (out != null ? rankWeights[out] : 0))
     ) {
       out = rank as Rank
     }
-  })
+  }
 
   out ??= 'NON_DONOR'
 

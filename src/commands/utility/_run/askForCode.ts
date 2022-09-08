@@ -1,5 +1,10 @@
-import axios from 'axios'
-import { ButtonInteraction, MessageActionRow, MessageButton } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ComponentType,
+} from 'discord.js'
 import assert from 'node:assert'
 import type { Runtime } from 'piston-client'
 import { Embed } from '../../../util/embed.js'
@@ -20,15 +25,13 @@ const askForCode = async (
     footer: { text: 'Time limit: 5 minutes' },
   })
 
-  const row = new MessageActionRow({
-    components: [
-      new MessageButton({
-        label: 'Cancel',
-        customId: 'cancel',
-        style: 'DANGER',
-      }),
-    ],
-  })
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder({
+      label: 'Cancel',
+      customId: 'cancel',
+      style: ButtonStyle.Danger,
+    })
+  )
 
   await interaction.editReply({
     embeds: [embed],
@@ -49,7 +52,7 @@ const askForCode = async (
     }),
     interaction.channel
       .awaitMessageComponent({
-        componentType: 'BUTTON',
+        componentType: ComponentType.Button,
         idle: 5 * 60_000,
         filter: (component) =>
           component.customId === 'cancel' &&
@@ -103,9 +106,7 @@ const askForCode = async (
       return CommandResult.Success
     }
 
-    return await axios
-      .get(attachment.url, { responseType: 'text' })
-      .then((response) => response.data)
+    return await fetch(attachment.url).then((r) => r.text())
   }
 
   // check if the message is a code block
@@ -116,9 +117,7 @@ const askForCode = async (
   if (codeBlock) {
     return codeBlock[1].trim()
   } else if (isGist) {
-    return await axios
-      .get(message.content, { responseType: 'text' })
-      .then((response) => response.data)
+    return await fetch(message.content).then((r) => r.text())
   } else if (urlLike) {
     await interaction.followUp({
       embeds: [Embed.error('Invalid URL. Only raw gist URLs are supported.')],
