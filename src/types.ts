@@ -13,7 +13,7 @@ import type {
   PermissionsString,
   UserContextMenuCommandInteraction,
 } from 'discord.js'
-import type { CommandResult } from './commands/command.js'
+import type { ChatCommand, CommandResult, MessageCommand, UserCommand } from './commands/command.js'
 import type {
   BaseContext,
   CommandContext,
@@ -145,6 +145,24 @@ export type MessageCommandDef = CommandType<
   MessageCommandContext,
   MessageContextMenuCommandInteraction
 >
+
+export interface CommandDefinitionType {
+  [ApplicationCommandType.ChatInput]: ChatCommandDef
+  [ApplicationCommandType.User]: UserCommandDef
+  [ApplicationCommandType.Message]: MessageCommandDef
+}
+
+export interface CommandObjectType {
+  [ApplicationCommandType.ChatInput]: ChatCommand
+  [ApplicationCommandType.User]: UserCommand
+  [ApplicationCommandType.Message]: MessageCommand
+}
+
+export interface ContextType {
+  [ApplicationCommandType.ChatInput]: CommandContext
+  [ApplicationCommandType.User]: UserCommandContext
+  [ApplicationCommandType.Message]: MessageCommandContext
+}
 
 export interface DocsJson {
   version: string

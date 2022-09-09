@@ -6,9 +6,15 @@ import {
   InteractionType,
 } from 'discord.js'
 import assert from 'node:assert'
-import type { ChatCommandDef, MessageCommandDef, UserCommandDef } from '../types.js'
+import type {
+  ChatCommandDef,
+  CommandDefinitionType,
+  CommandObjectType,
+  ContextType,
+  MessageCommandDef,
+  UserCommandDef,
+} from '../types.js'
 import { isChatCommand } from '../util.js'
-import type { CommandContext, MessageCommandContext, UserCommandContext } from './context.js'
 
 export type ChatCommand = Required<ChatCommandDef> & { type: ApplicationCommandType.ChatInput }
 export type UserCommand = Required<UserCommandDef> & { type: ApplicationCommandType.User }
@@ -77,14 +83,11 @@ const normalizeOptions = (
   })
 }
 
-function command(type: ApplicationCommandType.ChatInput, def: ChatCommandDef): ChatCommand
-function command(type: ApplicationCommandType.User, def: UserCommandDef): UserCommand
-function command(type: ApplicationCommandType.Message, def: MessageCommandDef): MessageCommand
-function command(
-  type: ApplicationCommandType,
-  def: ChatCommandDef | UserCommandDef | MessageCommandDef
-): Command {
-  const commandObj: Command = {
+function command<T extends ApplicationCommandType>(
+  type: T,
+  def: CommandDefinitionType[T]
+): CommandObjectType[T] {
+  const commandObj: CommandObjectType[T] = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...(def as any),
     options: isChatCommand(def) ? normalizeOptions(def.options) : undefined,
@@ -97,9 +100,7 @@ function command(
   }
 
   if (commandObj.logUsage) {
-    commandObj.run = (async (
-      context: CommandContext | UserCommandContext | MessageCommandContext
-    ) => {
+    commandObj.run = (async (context: ContextType[T]) => {
       const { interaction } = context
 
       assert(interaction.type === InteractionType.ApplicationCommand)
@@ -107,7 +108,7 @@ function command(
       // TODO: log usage
 
       return await def.run(
-        // @ts-expect-error
+        // @ts-expect-error we know the type
         context
       )
     }) as Command['run']
