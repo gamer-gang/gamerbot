@@ -99,7 +99,7 @@ export class MarkovManager {
       if (!this.graph.words[word][nextWord]) this.graph.words[word][nextWord] = 0
       this.graph.words[word][nextWord]++
 
-      this.#logger.debug(`ADD edge ${word} -> ${nextWord}`)
+      this.#logger.trace(`ADD edge ${word} -> ${nextWord}`)
     }
   }
 
@@ -141,7 +141,7 @@ export class MarkovManager {
   async sync(): Promise<void> {
     const graphTimestamp = this.graph.timestamp
 
-    this.#logger.debug(`SYNC start ${graphTimestamp}`)
+    this.#logger.info(`SYNC start ${graphTimestamp}`)
 
     let messageCount = 0
     let latestTimestamp = 0
@@ -149,7 +149,7 @@ export class MarkovManager {
     for (const guild of this.client.guilds.cache.values()) {
       let guildMessageCount = 0
 
-      this.#logger.debug(`SYNC guild ${guild.id} ${guild.name}`)
+      this.#logger.info(`SYNC guild ${guild.id} ${guild.name}`)
       for (const channel of guild.channels.cache.values()) {
         if (
           channel.type !== ChannelType.GuildText &&
@@ -208,13 +208,13 @@ export class MarkovManager {
         guildMessageCount += channelMessageCount
       }
 
-      this.#logger.debug(`SYNC guild done ${guildMessageCount}`)
+      this.#logger.info(`SYNC guild done ${guildMessageCount}`)
       messageCount += guildMessageCount
     }
 
     this.graph.timestamp = Math.max(this.graph.timestamp, latestTimestamp)
 
-    this.#logger.debug(`SYNC done ${messageCount}`)
+    this.#logger.info(`SYNC done ${messageCount}`)
     await this.save()
   }
 }
