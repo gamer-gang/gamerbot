@@ -13,6 +13,7 @@ import COMMAND_UPTIME from './commands/general/uptime.js'
 import COMMAND_COWSAY from './commands/messages/cowsay.js'
 import COMMAND_EGGLEADERBOARD from './commands/messages/eggleaderboard.js'
 import COMMAND_LMGTFY from './commands/messages/lmgtfy.js'
+import COMMAND_MARKOV from './commands/messages/markov.js'
 import COMMAND_XKCD from './commands/messages/xkcd.js'
 import COMMAND_SKIN from './commands/minecraft/skin.js'
 import COMMAND_STATS from './commands/minecraft/stats.js'
@@ -53,6 +54,7 @@ export const DEFAULT_COMMANDS = [
   COMMAND_COWSAY,
   COMMAND_EGGLEADERBOARD,
   COMMAND_LMGTFY,
+  COMMAND_MARKOV,
   COMMAND_XKCD,
   // minecraft
   COMMAND_SKIN,

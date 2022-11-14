@@ -23,14 +23,17 @@ const exit = (): void => {
   const logger = client.getLogger('exit')
   logger.info('Flushing analytics')
   client.analytics.flushAll().then(() => {
-    logger.info('Closing database connection')
-    prisma.$disconnect().then(() => {
-      logger.info('Destroying client')
-      client.destroy()
-      logger.info('Shutting down log4js')
-      log4js.shutdown()
-      logger.info('Exiting')
-      process.exit(0)
+    logger.info('Flushing markov')
+    client.markov.save().then(() => {
+      logger.info('Closing database connection')
+      prisma.$disconnect().then(() => {
+        logger.info('Destroying client')
+        client.destroy()
+        logger.info('Shutting down log4js')
+        log4js.shutdown()
+        logger.info('Exiting')
+        process.exit(0)
+      })
     })
   })
 }
