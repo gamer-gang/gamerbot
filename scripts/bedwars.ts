@@ -4,13 +4,13 @@ import { HypixelCacheResponse } from 'hypixel-cache'
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import util from 'node:util'
-import bedwars from '../src/commands/minecraft/_bedwars'
+import bedwars from '../src/commands/minecraft/_bedwars.js'
 
 const AVATAR_SIZE = 165
 
 GlobalFonts.registerFromPath('assets/RobotoMono-Regular-NF.ttf')
 
-let username = 'wiisportsresorts'
+const username = 'wiisportsresorts'
 
 let player
 
@@ -42,7 +42,7 @@ if (existsSync(statsFile)) {
   player = response.player!
 }
 
-let avatar = new Image(AVATAR_SIZE, AVATAR_SIZE)
+const avatar = new Image(AVATAR_SIZE, AVATAR_SIZE)
 
 if (existsSync(avatarFile)) {
   avatar.src = await fs.readFile(avatarFile)
