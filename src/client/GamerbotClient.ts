@@ -24,8 +24,8 @@ import { applicationCommandTypeName, hasPermissions } from '../util.js'
 import { interactionReplySafe } from '../util/discord.js'
 import { Embed } from '../util/embed.js'
 import { formatErrorMessage, formatOptions } from '../util/format.js'
-import { PresenceManager } from '../util/presence.js'
 import { AnalyticsManager } from './AnalyticsManager.js'
+import { ClientStorage } from './ClientStorage.js'
 import { CountManager } from './CountManager.js'
 import * as eggs from './egg.js'
 import { TriviaManager } from './TriviaManager.js'
@@ -44,6 +44,8 @@ export class GamerbotClient extends Client {
   readonly analytics = new AnalyticsManager(this)
   readonly countManager = new CountManager(this)
   readonly triviaManager = new TriviaManager(this)
+
+  readonly storage = new ClientStorage()
 
   #updateAnalyticsInterval: NodeJS.Timeout | null = null
   #updateCountsInterval: NodeJS.Timeout | null = null
