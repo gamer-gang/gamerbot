@@ -3,6 +3,7 @@ import {
   ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
+  ComponentType,
   SelectMenuBuilder,
 } from 'discord.js'
 import assert from 'node:assert'
@@ -22,7 +23,7 @@ const CONFIG_OPTION_LOGCHANNELS = configOption({
   type: ApplicationCommandOptionType.String,
   choices: [{ name: 'edit', value: 'edit' }],
 
-  async handle(context, { getValue, getConfig, updateConfig }) {
+  async handle(context, { getValue, getConfig }) {
     const { interaction } = context
 
     const value = getValue()
@@ -109,7 +110,9 @@ const CONFIG_OPTION_LOGCHANNELS = configOption({
 
     const reply = interaction.channel.messages.resolve((await interaction.fetchReply()).id)!
 
-    const collector = reply.createMessageComponentCollector({
+    const collector = reply.createMessageComponentCollector<
+      ComponentType.Button | ComponentType.StringSelect
+    >({
       filter: (component) => component.customId.endsWith(`_${menuId}`),
     })
 

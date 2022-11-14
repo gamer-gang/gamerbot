@@ -5,6 +5,7 @@ import {
   ApplicationCommandType,
   ButtonBuilder,
   ButtonStyle,
+  ComponentType,
 } from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'
@@ -168,7 +169,7 @@ const COMMAND_EGGLEADERBOARD = command(ApplicationCommandType.ChatInput, {
 
     const reply = interaction.channel.messages.cache.get((await interaction.fetchReply()).id)!
 
-    const collector = reply.createMessageComponentCollector({
+    const collector = reply.createMessageComponentCollector<ComponentType.Button>({
       idle: 5 * 60_000,
     })
 

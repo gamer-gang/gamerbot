@@ -1,11 +1,13 @@
 import {
   ActionRowBuilder,
+  APIButtonComponentWithCustomId,
   ApplicationCommandOptionType,
   ApplicationCommandType,
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
   CommandInteraction,
+  ComponentType,
   Message,
 } from 'discord.js'
 import he from 'he'
@@ -136,7 +138,7 @@ const COMMAND_TRIVIA = command(ApplicationCommandType.ChatInput, {
     const componentsHighlighted = (components ?? []).slice(0, 1).map((row) => {
       const components = row.components.map((button) => {
         button.setDisabled(true)
-        const buttonId = (button.toJSON() as any).custom_id
+        const buttonId = (button.toJSON() as APIButtonComponentWithCustomId).custom_id
         if (buttonId === `ans_${correctEncoded}`) {
           button.setStyle(ButtonStyle.Success)
         } else if (response?.customId === buttonId) {
@@ -266,7 +268,7 @@ const collectResponse = (
 ): Promise<ButtonInteraction | undefined> => {
   return new Promise((resolve) => {
     let resolved = false
-    const collector = questionMessage.createMessageComponentCollector({
+    const collector = questionMessage.createMessageComponentCollector<ComponentType.Button>({
       time: TIME_LIMIT,
       dispose: true,
     })

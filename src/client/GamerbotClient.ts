@@ -28,6 +28,8 @@ import { AnalyticsManager } from './AnalyticsManager.js'
 import { ClientStorage } from './ClientStorage.js'
 import { CountManager } from './CountManager.js'
 import * as eggs from './egg.js'
+import { MarkovManager } from './MarkovManager.js'
+import { PresenceManager } from './PresenceManager.js'
 import { TriviaManager } from './TriviaManager.js'
 import { AnalyticsEvent } from './_analytics/event.js'
 
@@ -44,6 +46,7 @@ export class GamerbotClient extends Client {
   readonly analytics = new AnalyticsManager(this)
   readonly countManager = new CountManager(this)
   readonly triviaManager = new TriviaManager(this)
+  readonly markov = new MarkovManager(this)
 
   readonly storage = new ClientStorage()
 
@@ -69,6 +72,7 @@ export class GamerbotClient extends Client {
         GatewayIntentBits.GuildBans,
         GatewayIntentBits.GuildEmojisAndStickers,
         GatewayIntentBits.GuildInvites,
+        GatewayIntentBits.MessageContent,
       ],
     })
 
@@ -86,6 +90,8 @@ export class GamerbotClient extends Client {
       this.analytics.trackEvent(AnalyticsEvent.BotLogin)
 
       await this.countManager.update()
+
+      this.markov.load().then(() => void this.markov.sync())
     })
 
     this.on('debug', this.onDebug.bind(this))
@@ -96,6 +102,8 @@ export class GamerbotClient extends Client {
 
     this.#updateAnalyticsInterval = setInterval(() => void this.#updateAnalytics(), 5 * 60_000)
     this.#updateCountsInterval = setInterval(() => void this.countManager.update(), 5 * 60_000)
+
+    setInterval(() => void this.markov.save(), 60 * 60_000)
   }
 
   getLogger(category: string): log4js.Logger {
@@ -148,6 +156,9 @@ export class GamerbotClient extends Client {
   async onMessageCreate(message: Message): Promise<void> {
     if (message.author.id === this.user.id) return
     void eggs.onMessage(this, message)
+    if (!message.author.bot) {
+      void this.markov.addMessage(message.cleanContent || message.content)
+    }
   }
 
   async onGuildCreate(guild: Guild): Promise<void> {
@@ -178,7 +189,7 @@ export class GamerbotClient extends Client {
 
         assert(command.type === ApplicationCommandType.ChatInput, 'Command type must be ChatInput')
 
-        const results = await command.autocomplete(interaction)
+        const results = await command.autocomplete(interaction, this)
 
         if (results.length === 0) {
           await interaction.respond([{ name: 'No results found.', value: 'no-results-found' }])

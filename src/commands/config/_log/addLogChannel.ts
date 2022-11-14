@@ -6,6 +6,7 @@ import {
   ButtonInteraction,
   ButtonStyle,
   ChannelType,
+  ComponentType,
   GuildTextBasedChannel,
 } from 'discord.js'
 import { Embed } from '../../../util/embed.js'
@@ -97,7 +98,7 @@ const addLogChannel = async (
 
         const reply = interaction.channel.messages.resolve((await interaction.fetchReply()).id)!
 
-        const response = await reply.awaitMessageComponent({
+        const response = await reply.awaitMessageComponent<ComponentType.Button>({
           filter: (component) => component.customId.endsWith(`_${menuId}`),
           time: 120000,
         })

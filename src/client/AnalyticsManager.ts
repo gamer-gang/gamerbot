@@ -122,9 +122,8 @@ export class AnalyticsManager {
     })
 
     // pull report from database to be safe
-    this.#report = await prisma.analyticsReport.findUnique({
+    this.#report = await prisma.analyticsReport.findUniqueOrThrow({
       where: { month: this.#report.month },
-      rejectOnNotFound: true,
     })
 
     this.#flushingGlobal = false

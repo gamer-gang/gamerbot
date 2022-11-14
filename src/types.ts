@@ -13,6 +13,7 @@ import type {
   PermissionsString,
   UserContextMenuCommandInteraction,
 } from 'discord.js'
+import { GamerbotClient } from './client/GamerbotClient.js'
 import type { ChatCommand, CommandResult, MessageCommand, UserCommand } from './commands/command.js'
 import type {
   BaseContext,
@@ -134,7 +135,8 @@ export type ChatCommandDef = CommandType<
      * autocompleteable.
      */
     autocomplete?: (
-      interaction: AutocompleteInteraction
+      interaction: AutocompleteInteraction,
+      client: GamerbotClient
     ) => Promise<ApplicationCommandOptionChoiceData[]>
   }
 >
