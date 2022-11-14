@@ -7,10 +7,9 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:import/recommended",
-    "plugin:import/typescript",
-    "standard-with-typescript"
+    "plugin:import/typescript"
   ],
-  "ignorePatterns": ["dist/*", "types/gamerbot.d.ts"],
+  "ignorePatterns": ["dist/*", "types/gamerbot.d.ts", "scripts/*"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2021,
@@ -28,8 +27,10 @@
     ],
     "@typescript-eslint/restrict-template-expressions": "off",
     "@typescript-eslint/naming-convention": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/promise-function-async": "off",
     "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-misused-promises": "off",
     // "consistent-return": "error",
     "curly": ["error", "multi-line", "consistent"],
@@ -44,15 +45,6 @@
     "import/extensions": ["error", "always"],
     "import/no-unresolved": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
-    "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/ban-ts-comment": [
-      "error",
-      {
-        "ts-expect-error": "allow-with-description",
-        "ts-ignore": "allow-with-description",
-        "ts-nocheck": "allow-with-description",
-        "ts-check": false
-      }
-    ]
+    "@typescript-eslint/no-non-null-assertion": "off"
   }
 }
