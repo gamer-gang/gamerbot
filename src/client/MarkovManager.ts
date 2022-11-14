@@ -1,5 +1,5 @@
 import Filter from 'bad-words'
-import { ChannelType, Snowflake } from 'discord.js'
+import { ChannelType, DiscordAPIError, Snowflake } from 'discord.js'
 import emojiRegex from 'emoji-regex'
 import { Logger } from 'log4js'
 import { getDateFromSnowflake } from '../util/discord.js'
@@ -146,70 +146,87 @@ export class MarkovManager {
     let messageCount = 0
     let latestTimestamp = 0
 
-    for (const guild of this.client.guilds.cache.values()) {
-      let guildMessageCount = 0
+    try {
+      for (const guild of this.client.guilds.cache.values()) {
+        let guildMessageCount = 0
 
-      this.#logger.info(`SYNC guild ${guild.id} ${guild.name}`)
-      for (const channel of guild.channels.cache.values()) {
-        if (
-          channel.type !== ChannelType.GuildText &&
-          channel.type !== ChannelType.GuildAnnouncement &&
-          channel.type !== ChannelType.GuildForum
-        ) {
-          continue
-        }
+        this.#logger.info(`SYNC guild ${guild.id} ${guild.name}`)
 
-        if (
-          channel.lastMessageId &&
-          getDateFromSnowflake(channel.lastMessageId).millisecond < graphTimestamp
-        ) {
-          this.#logger.debug(`SYNC channel ${channel.id} ${channel.name} skip`)
-          continue
-        }
-
-        let channelMessageCount = 0
-
-        this.#logger.debug(`SYNC channel ${channel.id} ${channel.name}`)
-
-        let oldestMessage: Snowflake | undefined
-        let oldestMessageTimestamp = Infinity
-
-        while (oldestMessageTimestamp > graphTimestamp) {
-          this.#logger.debug(
-            `SYNC messages ${channel.id} ${channel.name} ${oldestMessage ?? 'latest'}`
-          )
-          const messages = await channel.messages.fetch({
-            limit: 100,
-            before: oldestMessage,
-          })
-
-          if (!messages.size) {
-            this.#logger.debug(`SYNC messages break`)
-            break
-          }
-
-          for (const message of messages.values()) {
-            if (!oldestMessage || message.createdTimestamp < oldestMessageTimestamp) {
-              oldestMessage = message.id
-              oldestMessageTimestamp = message.createdTimestamp
+        try {
+          for (const channel of guild.channels.cache.values()) {
+            if (
+              channel.type !== ChannelType.GuildText &&
+              channel.type !== ChannelType.GuildAnnouncement &&
+              channel.type !== ChannelType.GuildForum
+            ) {
+              continue
             }
 
-            if (message.author.bot) continue
+            if (
+              channel.lastMessageId &&
+              getDateFromSnowflake(channel.lastMessageId).millisecond < graphTimestamp
+            ) {
+              this.#logger.debug(`SYNC channel ${channel.id} ${channel.name} skip`)
+              continue
+            }
 
-            if (message.createdTimestamp <= graphTimestamp) continue
-            this.addMessage(message.content)
-            channelMessageCount++
+            let channelMessageCount = 0
 
-            latestTimestamp = Math.max(latestTimestamp, message.createdTimestamp)
+            this.#logger.debug(`SYNC channel ${channel.id} ${channel.name}`)
+
+            let oldestMessage: Snowflake | undefined
+            let oldestMessageTimestamp = Infinity
+
+            try {
+              while (oldestMessageTimestamp > graphTimestamp) {
+                this.#logger.debug(
+                  `SYNC messages ${channel.id} ${channel.name} ${oldestMessage ?? 'latest'}`
+                )
+                const messages = await channel.messages.fetch({
+                  limit: 100,
+                  before: oldestMessage,
+                })
+
+                if (!messages.size) {
+                  this.#logger.debug(`SYNC messages break`)
+                  break
+                }
+
+                for (const message of messages.values()) {
+                  if (!oldestMessage || message.createdTimestamp < oldestMessageTimestamp) {
+                    oldestMessage = message.id
+                    oldestMessageTimestamp = message.createdTimestamp
+                  }
+
+                  if (message.author.bot) continue
+
+                  if (message.createdTimestamp <= graphTimestamp) continue
+                  this.addMessage(message.content)
+                  channelMessageCount++
+                  guildMessageCount++
+                  messageCount++
+
+                  latestTimestamp = Math.max(latestTimestamp, message.createdTimestamp)
+                }
+              }
+            } catch (err) {
+              if (err instanceof DiscordAPIError && err.code === 50001) {
+                // missing access, ignore
+              } else {
+                this.#logger.error(`SYNC messages error`, err)
+              }
+            }
+
+            this.#logger.debug(`SYNC channel done ${channelMessageCount}`)
           }
+        } catch (err) {
+          this.#logger.error(`SYNC guild error`, err)
         }
 
-        this.#logger.debug(`SYNC channel done ${channelMessageCount}`)
-        guildMessageCount += channelMessageCount
+        this.#logger.info(`SYNC guild done ${guildMessageCount}`)
       }
-
-      this.#logger.info(`SYNC guild done ${guildMessageCount}`)
-      messageCount += guildMessageCount
+    } catch (err) {
+      this.#logger.error(`SYNC guild error`, err)
     }
 
     this.graph.timestamp = Math.max(this.graph.timestamp, latestTimestamp)
