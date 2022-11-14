@@ -19,6 +19,7 @@ services:
     # user: '1000:1001'
     volumes:
       - ./logs:/app/logs
+      - ./storage:/app/storage
     depends_on:
       - db
     env_file: .env
