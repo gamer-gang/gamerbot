@@ -32,4 +32,4 @@ RUN ./node_modules/.bin/prisma generate
 
 USER node
 
-CMD [ "node", "./dist/main.mjs" ]
+CMD [ "node", "./dist/main.js" ]
