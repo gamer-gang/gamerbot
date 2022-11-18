@@ -1,6 +1,6 @@
 {
   "exclude": ["node_modules", "**/node_modules/*", "types/gamerbot.d.ts"],
-  "include": ["src", "webpack.*", "types", "scripts"],
+  "include": ["src", "webpack.*", "types", "scripts", "src/types/*.d.ts"],
   "compilerOptions": {
     "module": "esnext",
     "target": "esnext",

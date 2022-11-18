@@ -9,7 +9,7 @@
     "types"
   ],
   "scripts": {
-    "esbuild": "esbuild $(echo $(cat .esbuild))",
+    "esbuild": "esbuild $(echo $(cat .esbuild)) --banner:js=\"globalThis.GAMERBOT_VERSION='$(echo $(node ./scripts/version.js))'\"",
     "_build": "yarn esbuild --outdir=dist src/index.ts src/docgen.ts",
     "build": "yarn _build --minify --sourcemap",
     "watch": "yarn _build --watch",

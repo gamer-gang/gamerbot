@@ -21,7 +21,7 @@ const COMMAND_ABOUT = command(ApplicationCommandType.ChatInput, {
       .addField('Issues', '[Issues](https://github.com/gamer-gang/gamerbot/issues)')
       .addField('Servers', guilds.toLocaleString(), true)
       .addField('Users', users.toLocaleString(), true)
-      .addField('Version', packageJson.version, true)
+      .addField('Version', globalThis.GAMERBOT_VERSION || packageJson.version, true)
 
     await interaction.reply({ embeds: [embed] })
 
