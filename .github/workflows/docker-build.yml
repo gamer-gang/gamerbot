@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: build docker image
-        run: yarn docker:build
+        run: docker build . --tag ghcr.io/gamer-gang/gamerbot:latest
       - name: login to github container registry
         uses: docker/login-action@v1
         with:
