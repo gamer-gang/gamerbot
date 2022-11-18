@@ -2217,7 +2217,7 @@ __metadata:
     lodash: ^4.17.21
     log4js: ^6.6.1
     luxon: ^3.1.0
-    mathjax-full: 3.2.2
+    mathjax-full: 3.2.1
     mathjs: ^11.3.3
     nodemon: ^2.0.19
     object-hash: ^3.0.0
@@ -2963,15 +2963,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mathjax-full@npm:3.2.2":
-  version: 3.2.2
-  resolution: "mathjax-full@npm:3.2.2"
+"mathjax-full@npm:3.2.1":
+  version: 3.2.1
+  resolution: "mathjax-full@npm:3.2.1"
   dependencies:
     esm: ^3.2.25
     mhchemparser: ^4.1.0
     mj-context-menu: ^0.6.1
     speech-rule-engine: ^4.0.6
-  checksum: 6fbccb9338e1fbf686202d924666d79ac9eb658157c1c8102ba018672188978c4cacfb1b6f65adf7d2d51dc79535ff3e32ba86b15e66d3011dda2ab99562d90d
+  checksum: 35d5ed7c4f3f84e05f3d4c609335b29e13d1ddfb9609043cc7ab888327e72454377b12ca1b8c758f58f9b8677ff7703f858f3e668a8ca327ba8caeed03e05cdb
   languageName: node
   linkType: hard
 
