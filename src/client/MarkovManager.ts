@@ -103,17 +103,50 @@ export class MarkovManager {
     }
   }
 
-  generateMessage(length = 10, seed?: string): string {
+  generateMessage(length: number, seed?: string, guaranteed = false): string {
     const words = [seed ?? this.getRandomWord()]
 
+    if (guaranteed) {
+      return (
+        this.generateMessageRecursive(length, words)?.join(' ') ?? 'Failed to generate message.'
+      )
+    }
+
     while (words.length < length) {
-      const current = words[words.length - 1]
-      const next = this.getNextWord(current)
-      if (!next) break
-      words.push(next)
+      const nextWord = this.getNextWord(words[words.length - 1])
+      if (!nextWord) break
+      words.push(nextWord)
     }
 
     return words.join(' ')
+  }
+
+  generateMessageRecursive(length: number, _words: string[]): string[] | null {
+    if (_words.length >= length) return _words
+
+    const words = [..._words]
+
+    const current = words[_words.length - 1] ?? words[words.push(this.getRandomWord())]
+
+    const excluded: string[] = []
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const nextWord = this.getNextWord(current, excluded)
+      if (!nextWord) {
+        // end of branch, signal to parent
+        return null
+      }
+
+      const result = this.generateMessageRecursive(length, [...words, nextWord])
+      if (result === null) {
+        // end of branch, try again with different next word
+        excluded.push(nextWord)
+        continue
+      }
+
+      // found a valid branch, return it
+      return result
+    }
   }
 
   getRandomWord(): string {
@@ -121,9 +154,14 @@ export class MarkovManager {
     return words[Math.floor(Math.random() * words.length)]
   }
 
-  getNextWord(word: string): string | undefined {
-    const nextWords = this.graph.words[word]
-    if (!nextWords) return undefined
+  getNextWord(word: string, exclude?: string[]): string | undefined {
+    const nextWords = { ...(this.graph.words[word] ?? {}) }
+
+    for (const excludeWord of exclude ?? []) {
+      delete nextWords[excludeWord]
+    }
+
+    if (Object.keys(nextWords).length === 0) return undefined
 
     const totalWeight = Object.values(nextWords).reduce((a, b) => a + b, 0)
     const random = Math.random() * totalWeight

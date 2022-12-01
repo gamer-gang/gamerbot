@@ -8,7 +8,7 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
   options: [
     {
       name: 'length',
-      description: 'Number of words to generate (default: 10).',
+      description: 'Number of words to generate (2-200, default: 20).',
       type: ApplicationCommandOptionType.Integer,
     },
     {
@@ -16,6 +16,12 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
       description: 'A word to start the chain with (default: random).',
       type: ApplicationCommandOptionType.String,
       autocomplete: true,
+    },
+    {
+      name: 'guaranteed',
+      description:
+        'Only chooses words that have connections to other words (chain will not end before given length).',
+      type: ApplicationCommandOptionType.Boolean,
     },
   ],
 
@@ -45,10 +51,10 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
   async run(context) {
     const { interaction, client } = context
 
-    const length = interaction.options.getInteger('length') ?? 10
+    const length = interaction.options.getInteger('length') ?? 20
 
-    if (length < 2 || length > 100) {
-      await interaction.reply({ embeds: [Embed.error('Length must be between 2 and 100.')] })
+    if (length < 2 || length > 200) {
+      await interaction.reply({ embeds: [Embed.error('Length must be between 2 and 200.')] })
       return CommandResult.Success
     }
 
@@ -62,7 +68,11 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
       return CommandResult.Success
     }
 
-    const chain = client.markov.generateMessage(length, seed ?? undefined)
+    const chain = client.markov.generateMessage(
+      length,
+      seed ?? undefined,
+      interaction.options.getBoolean('guaranteed') ?? false
+    )
 
     await interaction.reply(chain)
 
