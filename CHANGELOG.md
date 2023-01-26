@@ -1,3 +1,20 @@
+# v2.6.0
+
+## Features
+
+- Add `/joke` command
+- Add `/markov` command
+- Add internal storage manager for filesystem storage
+
+## Changes
+
+- Update packages to latest versions
+
+## Fixes
+
+- Fix canvas errors in `/stats`
+- Fix path errors
+
 # v2.5.0
 
 ## Changes
