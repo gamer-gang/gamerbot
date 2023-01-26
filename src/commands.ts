@@ -12,6 +12,7 @@ import COMMAND_SERVERINFO from './commands/general/serverinfo.js'
 import COMMAND_UPTIME from './commands/general/uptime.js'
 import COMMAND_COWSAY from './commands/messages/cowsay.js'
 import COMMAND_EGGLEADERBOARD from './commands/messages/eggleaderboard.js'
+import COMMAND_JOKE from './commands/messages/joke.js'
 import COMMAND_LMGTFY from './commands/messages/lmgtfy.js'
 import COMMAND_MARKOV from './commands/messages/markov.js'
 import COMMAND_XKCD from './commands/messages/xkcd.js'
@@ -53,6 +54,7 @@ export const DEFAULT_COMMANDS = [
   // messages
   COMMAND_COWSAY,
   COMMAND_EGGLEADERBOARD,
+  COMMAND_JOKE,
   COMMAND_LMGTFY,
   COMMAND_MARKOV,
   COMMAND_XKCD,
