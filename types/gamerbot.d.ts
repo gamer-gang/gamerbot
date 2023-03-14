@@ -1,5 +1,5 @@
-/// <reference types="node" />
-/// <reference types="node" />
+/// <reference types="node" resolution-mode="require"/>
+/// <reference types="node" resolution-mode="require"/>
 /// <reference lib="dom" />
 declare module "gamerbot/src/util/color" {
     export type ColorFormat = 'number' | 'hex' | 'plain' | 'rgb' | 'hsl';
@@ -582,7 +582,7 @@ declare module "gamerbot/src/commands/command" {
 }
 declare module "gamerbot/src/commands/config/_configOption" {
     import type { Config, Prisma } from '@prisma/client';
-    import type { APIInteractionDataResolvedChannel, APIRole } from 'discord-api-types/v9.js';
+    import type { APIInteractionDataResolvedChannel, APIRole } from 'discord-api-types/v9';
     import type { ApplicationCommandOptionChoiceData, CommandInteraction, Guild, GuildChannel, GuildMember, Role, ThreadChannel, User } from 'discord.js';
     import { ApplicationCommandOptionType } from 'discord.js';
     import type { CommandResult } from "gamerbot/src/commands/command";

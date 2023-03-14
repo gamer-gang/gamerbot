@@ -1,3 +1,9 @@
+# v2.6.1
+
+## Changes
+
+- Update packages to latest versions
+
 # v2.6.0
 
 ## Features
