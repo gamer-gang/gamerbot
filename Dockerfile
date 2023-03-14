@@ -1,6 +1,6 @@
 FROM node:18-alpine as builder
 
-RUN apk add --no-cache git
+RUN apk add --no-cache git openssl
 
 WORKDIR /app
 
@@ -15,6 +15,8 @@ COPY . .
 RUN yarn build
 
 FROM node:18-alpine as runner
+
+RUN apk add --no-cache git openssl
 
 ENV NODE_ENV=production DOCKER=true
 
