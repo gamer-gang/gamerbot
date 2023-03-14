@@ -11,7 +11,7 @@
     "resolveJsonModule": true,
     "useUnknownInCatchVariables": false,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "sourceMap": true,
     "skipDefaultLibCheck": true,

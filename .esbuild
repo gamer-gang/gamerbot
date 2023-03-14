@@ -4,3 +4,4 @@
 --bundle
 --external:discord.js
 --external:./node_modules/*
+--external:@wiisportsresorts/cowsay
