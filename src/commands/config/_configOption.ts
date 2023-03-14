@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/indent */
 import type { Config, Prisma } from '@prisma/client'
-import type { APIInteractionDataResolvedChannel, APIRole } from 'discord-api-types/v9.js'
+import type { APIInteractionDataResolvedChannel, APIRole } from 'discord-api-types/v9'
 import type {
   ApplicationCommandOptionChoiceData,
   CommandInteraction,

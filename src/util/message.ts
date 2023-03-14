@@ -1,4 +1,4 @@
-import type { APIMessage } from 'discord-api-types/v9.js'
+import type { APIMessage } from 'discord-api-types/v9'
 import { MessageCreateOptions } from 'discord.js'
 import { Embed, EmbedOptions } from './embed.js'
 

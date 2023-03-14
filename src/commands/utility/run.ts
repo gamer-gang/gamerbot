@@ -1,6 +1,6 @@
 /* eslint-disable import/no-named-as-default */
 import { stripIndent } from 'common-tags'
-import type { APIMessage } from 'discord-api-types/v9.js'
+import type { APIMessage } from 'discord-api-types/v9'
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,

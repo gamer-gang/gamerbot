@@ -1,5 +1,6 @@
 import { CowFunction, say } from '@wiisportsresorts/cowsay'
-import * as cows from '@wiisportsresorts/cowsay/lib/cows.js'
+// eslint-disable-next-line import/extensions
+import * as cows from '@wiisportsresorts/cowsay/cows'
 import { stripIndent } from 'common-tags'
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
 import command, { CommandResult } from '../command.js'
