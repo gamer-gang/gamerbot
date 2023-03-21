@@ -695,6 +695,101 @@ declare module "gamerbot/src/commands/messages/markov" {
     const COMMAND_MARKOV: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_MARKOV;
 }
+declare module "gamerbot/src/types/wikipedia" {
+    export interface WikipediaSearchResponse {
+        pages: Page[];
+    }
+    export interface Page {
+        /** Page identifier */
+        id: number;
+        /** Page title in URL-friendly format */
+        key: string;
+        /** Page title in reading-friendly format */
+        title: string;
+        /**
+         * For [search pages endpoint](https://www.mediawiki.org/wiki/API:REST_API/Reference#Search_pages):
+         * A few lines giving a sample of page content with search terms highlighted
+         * with `<span class=\"searchmatch\">` tags
+         *
+         * For [autocomplete page title endpoint](https://www.mediawiki.org/wiki/API:REST_API/Reference#Autocomplete_page_title):
+         * Page title in reading-friendly format
+         */
+        excerpt: string;
+        /** The title of the page redirected from, if the search term originally matched a redirect page or null if search term did not match a redirect page */
+        matched_title: string | null;
+        /** Short summary of the page topic based on the corresponding entry on Wikidata or null if no entry exists */
+        description: string | null;
+        /** Information about the thumbnail image for the page or null if no thumbnail exists */
+        thumbnail: Thumbnail | null;
+    }
+    /** Information about the thumbnail image for the page */
+    export interface Thumbnail {
+        /** Thumbnail [media type](https://en.wikipedia.org/wiki/Media_type) */
+        mimetype: string;
+        /** File size in bytes or `null` if not available */
+        size: number | null;
+        /** Maximum recommended image width in pixels or `null` if not available */
+        width: number | null;
+        /** Maximum recommended image height in pixels or `null` if not available */
+        height: number | null;
+        /** Length of the video, audio, or multimedia file or `null` for other media types */
+        duration: number | null;
+        /** URL to download the file */
+        url: string;
+    }
+    /**
+     * Query the Wikpedia REST API for search results.
+     *
+     * `'page'`: Searches wiki page titles and contents for the provided search
+     * terms, and returns matching pages.
+     *
+     * `'title'`: Searches wiki page titles, and returns matches between the
+     * beginning of a title and the provided search terms. You can use this endpoint
+     * for a typeahead search that automatically suggests relevant pages by title.
+     */
+    export const search: (type: 'page' | 'title', query: string, limit?: number) => Promise<WikipediaSearchResponse>;
+    export interface WikipediaPage {
+        id: number;
+        key: string;
+        title: string;
+        latest: Revision;
+        content_model: string;
+        license: License;
+    }
+    export interface Revision {
+        id: number;
+        timestamp: string;
+    }
+    export interface License {
+        url: string;
+        title: string;
+    }
+    export const getPage: (key: string) => Promise<WikipediaPage & {
+        html_url: string;
+    }>;
+    export const getPageOffline: (key: string) => Promise<WikipediaPage & {
+        html: string;
+    }>;
+    export interface SummaryResponse {
+        batchcomplete: string;
+        query: {
+            pages: {
+                [id: string]: SummaryPage;
+            };
+        };
+    }
+    export interface SummaryPage {
+        pageid: number;
+        ns: number;
+        title: string;
+        extract: string;
+    }
+    export const getSummary: (key: string) => Promise<string>;
+}
+declare module "gamerbot/src/commands/messages/wiki" {
+    const COMMAND_WIKI: import("gamerbot/src/commands/command").ChatCommand;
+    export default COMMAND_WIKI;
+}
 declare module "gamerbot/src/commands/messages/xkcd" {
     const COMMAND_XKCD: import("gamerbot/src/commands/command").ChatCommand;
     export default COMMAND_XKCD;

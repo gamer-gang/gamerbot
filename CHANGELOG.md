@@ -1,3 +1,9 @@
+# v2.7.0
+
+## Features
+
+- Add `/wiki` command
+
 # v2.6.1
 
 ## Changes
