@@ -15,6 +15,7 @@ import COMMAND_EGGLEADERBOARD from './commands/messages/eggleaderboard.js'
 import COMMAND_JOKE from './commands/messages/joke.js'
 import COMMAND_LMGTFY from './commands/messages/lmgtfy.js'
 import COMMAND_MARKOV from './commands/messages/markov.js'
+import COMMAND_WIKI from './commands/messages/wiki.js'
 import COMMAND_XKCD from './commands/messages/xkcd.js'
 import COMMAND_SKIN from './commands/minecraft/skin.js'
 import COMMAND_STATS from './commands/minecraft/stats.js'
@@ -57,6 +58,7 @@ export const DEFAULT_COMMANDS = [
   COMMAND_JOKE,
   COMMAND_LMGTFY,
   COMMAND_MARKOV,
+  COMMAND_WIKI,
   COMMAND_XKCD,
   // minecraft
   COMMAND_SKIN,
