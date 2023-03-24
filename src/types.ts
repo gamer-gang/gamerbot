@@ -183,3 +183,7 @@ export interface DocsJson {
     sourceLocation: string
   }>
 }
+
+export const enum KnownInteractions {
+  UrbanDefine = 'urban_define',
+}

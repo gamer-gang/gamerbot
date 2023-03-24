@@ -17,9 +17,11 @@ import assert from 'node:assert'
 import { DEFAULT_COMMANDS } from '../commands.js'
 import { Command, CommandResult } from '../commands/command.js'
 import { CommandContext, MessageCommandContext, UserCommandContext } from '../commands/context.js'
+import { sendUrban } from '../commands/messages/urban.js'
 import { IS_DEVELOPMENT } from '../constants.js'
 import { initLogger } from '../logger.js'
 import { prisma } from '../prisma.js'
+import { KnownInteractions } from '../types.js'
 import { applicationCommandTypeName, hasPermissions } from '../util.js'
 import { interactionReplySafe } from '../util/discord.js'
 import { Embed } from '../util/embed.js'
@@ -27,11 +29,11 @@ import { formatErrorMessage, formatOptions } from '../util/format.js'
 import { AnalyticsManager } from './AnalyticsManager.js'
 import { ClientStorage } from './ClientStorage.js'
 import { CountManager } from './CountManager.js'
-import * as eggs from './egg.js'
 import { MarkovManager } from './MarkovManager.js'
 import { PresenceManager } from './PresenceManager.js'
 import { TriviaManager } from './TriviaManager.js'
 import { AnalyticsEvent } from './_analytics/event.js'
+import * as eggs from './egg.js'
 
 export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {}
 
@@ -268,6 +270,7 @@ export class GamerbotClient extends Client {
 
         const [action, id] = interaction.customId.split('_')
 
+        // TODO: refactor and move to a separate file
         if (action === 'role-toggle') {
           if (interaction.guild == null) return
           if (interaction.member == null) return
@@ -292,6 +295,15 @@ export class GamerbotClient extends Client {
           }
         }
 
+        return
+      }
+
+      if (interaction.isStringSelectMenu()) {
+        const id = interaction.customId
+        if (id === KnownInteractions.UrbanDefine) {
+          const term = interaction.values[0]
+          sendUrban(interaction, term)
+        }
         return
       }
     } catch (err) {
