@@ -23,7 +23,7 @@ const COMMAND_WIKI = command(ApplicationCommandType.ChatInput, {
 
     if (!value) return []
 
-    const results = await search('title', value, 5)
+    const results = await search('title', value, 25)
 
     return results.pages.map((page) => ({
       name: page.title,
