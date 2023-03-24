@@ -26,7 +26,7 @@
     "docker:build": "docker build . --tag ghcr.io/gamer-gang/gamerbot:latest",
     "docker:tag": "docker tag ghcr.io/gamer-gang/gamerbot:latest ghcr.io/gamer-gang/gamerbot:$(echo $(node ./scripts/version.js --version-only))",
     "docker:push": "docker push -a ghcr.io/gamer-gang/gamerbot",
-    "git:tag": "git tag v$(echo $(node ./scripts/version.js)) -m \"v$(echo $(node ./scripts/version.js))\""
+    "git:tag": "git tag v$(echo $(node ./scripts/version.js --version-only)) -m \"v$(echo $(node ./scripts/version.js --version-only))\""
   },
   "engines": {
     "node": ">=18.0.0"
