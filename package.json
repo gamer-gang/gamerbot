@@ -25,7 +25,7 @@
     "docker:db": "docker-compose up db --no-log-prefix",
     "docker:build": "docker build . --tag ghcr.io/gamer-gang/gamerbot:latest",
     "docker:tag": "docker tag ghcr.io/gamer-gang/gamerbot:latest ghcr.io/gamer-gang/gamerbot:$(echo $(node ./scripts/version.js --version-only))",
-    "docker:push": "docker push -a ghcr.io/gamer-gang/gamerbot",
+    "docker:push": "docker push ghcr.io/gamer-gang/gamerbot:latest && docker push ghcr.io/gamer-gang/gamerbot:$(echo $(node ./scripts/version.js --version-only))",
     "git:tag": "git tag v$(echo $(node ./scripts/version.js --version-only)) -m \"v$(echo $(node ./scripts/version.js --version-only))\""
   },
   "engines": {
