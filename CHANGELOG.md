@@ -1,3 +1,14 @@
+# v2.9.0
+
+## Features
+
+- Support autocompletion in `/urban`
+  
+## Changes
+
+- Return 25 autocompletions instead of 5 in `/wiki`
+- Remove message components from `/urban` after idle timeout
+
 # v2.8.0
 
 ## Features
