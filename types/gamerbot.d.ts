@@ -117,6 +117,30 @@ declare module "gamerbot/src/commands/context" {
         get targetMessage(): Message;
     }
 }
+declare module "gamerbot/src/types/urbandictionary" {
+    export interface UrbanDictionaryResponse {
+        list: UrbanDictionaryTerm[];
+    }
+    export interface UrbanDictionaryTerm {
+        definition: string;
+        permalink: string;
+        thumbs_up: number;
+        author: string;
+        word: string;
+        defid: number;
+        current_vote: string;
+        written_on: string;
+        example: string;
+        thumbs_down: number;
+    }
+}
+declare module "gamerbot/src/commands/messages/urban" {
+    import { RepliableInteraction } from 'discord.js';
+    import { CommandResult } from "gamerbot/src/commands/command";
+    const COMMAND_URBAN: import("gamerbot/src/commands/command").ChatCommand;
+    export const sendUrban: (interaction: RepliableInteraction, term: string) => Promise<CommandResult>;
+    export default COMMAND_URBAN;
+}
 declare module "gamerbot/src/util/path" {
     export const resolvePath: (dir: string) => string;
 }
@@ -257,13 +281,6 @@ declare module "gamerbot/src/client/CountManager" {
         update(): Promise<void>;
     }
 }
-declare module "gamerbot/src/client/egg" {
-    import { Message, PartialMessage } from 'discord.js';
-    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
-    export const hasEggs: (msg: Message | PartialMessage) => boolean;
-    export const getTotal: () => Promise<bigint>;
-    export const onMessage: (client: GamerbotClient, message: Message | PartialMessage) => Promise<void>;
-}
 declare module "gamerbot/src/client/MarkovManager" {
     import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
     interface MarkovGraph {
@@ -373,6 +390,13 @@ declare module "gamerbot/src/client/TriviaManager" {
         static getCategories(): Promise<CategoriesResponse['trivia_categories']>;
         fetchQuestion(options?: TriviaOptions): Promise<TriviaResponse>;
     }
+}
+declare module "gamerbot/src/client/egg" {
+    import { Message, PartialMessage } from 'discord.js';
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    export const hasEggs: (msg: Message | PartialMessage) => boolean;
+    export const getTotal: () => Promise<bigint>;
+    export const onMessage: (client: GamerbotClient, message: Message | PartialMessage) => Promise<void>;
 }
 declare module "gamerbot/src/client/GamerbotClient" {
     import { Client, ClientOptions, ClientUser, Guild, Interaction, Message } from 'discord.js';
@@ -550,6 +574,9 @@ declare module "gamerbot/src/types" {
             botPermissions: PermissionsString[];
             sourceLocation: string;
         }>;
+    }
+    export const enum KnownInteractions {
+        UrbanDefine = "urban_define"
     }
 }
 declare module "gamerbot/src/commands/command" {

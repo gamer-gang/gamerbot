@@ -1,3 +1,9 @@
+# v2.8.0
+
+## Features
+
+- Add `/urban` command
+
 # v2.7.0
 
 ## Features
