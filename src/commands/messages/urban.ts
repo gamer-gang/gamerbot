@@ -23,8 +23,25 @@ const COMMAND_URBAN = command(ApplicationCommandType.ChatInput, {
       description: 'The term to define.',
       type: ApplicationCommandOptionType.String,
       required: true,
+      autocomplete: true,
     },
   ],
+
+  async autocomplete(interaction) {
+    const term = interaction.options.getString('term', true)
+    if (term.length < 1) []
+
+    const url = new URL('https://api.urbandictionary.com/v0/autocomplete')
+    url.searchParams.set('term', term)
+
+    const response = await fetch(url)
+    const suggestions = (await response.json()) as string[]
+
+    return suggestions.map((suggestion) => ({
+      name: suggestion,
+      value: suggestion,
+    }))
+  },
 
   async run(context) {
     const { interaction } = context
