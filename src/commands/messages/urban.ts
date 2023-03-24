@@ -97,6 +97,13 @@ export const sendUrban = async (
     interaction.update(makeMessage(index, definitions))
   })
 
+  collector.on('end', () => {
+    const m = message.channel.messages.cache.get(message.id)
+    if (m) {
+      m.edit({ components: [] })
+    }
+  })
+
   return CommandResult.Success
 }
 
@@ -109,10 +116,12 @@ const makeMessage = (
   const [linkedDefinition, definitionTerms] = linkDefinitions(definition)
   const [linkedExample, exampleTerms] = linkDefinitions(example)
 
-  const newTerms = [...new Set([
-    ...definitionTerms.map((term) => term.toLowerCase()),
-    ...exampleTerms.map((term) => term.toLowerCase()),
-  ])]
+  const newTerms = [
+    ...new Set([
+      ...definitionTerms.map((term) => term.toLowerCase()),
+      ...exampleTerms.map((term) => term.toLowerCase()),
+    ]),
+  ]
 
   const embed = new Embed({
     author: {
