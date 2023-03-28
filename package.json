@@ -37,7 +37,9 @@
     "project": "./tsconfig.json"
   },
   "resolutions": {
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "json5": "^1.0.2",
+    "http-cache-semantics": "^4.1.1"
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.39",
@@ -81,8 +83,8 @@
     "@types/prettier": "^2.7.2",
     "@types/sharp": "^0.31.1",
     "@types/source-map-support": "^0.5.6",
-    "@typescript-eslint/eslint-plugin": "latest",
-    "@typescript-eslint/parser": "latest",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
     "discord-api-types": "0.37.37",
     "dotenv": "^16.0.3",
     "esbuild": "^0.17.14",
