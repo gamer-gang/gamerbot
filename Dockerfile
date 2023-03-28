@@ -7,7 +7,6 @@ WORKDIR /app
 COPY .yarn .yarn
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY types types
-COPY patches patches
 COPY prisma/schema.prisma prisma/schema.prisma
 RUN yarn install --immutable --inline-builds
 
