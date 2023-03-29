@@ -32,6 +32,7 @@ import { CountManager } from './CountManager.js'
 import { MarkovManager } from './MarkovManager.js'
 import { PresenceManager } from './PresenceManager.js'
 import { TriviaManager } from './TriviaManager.js'
+import { TruthOrDareManager } from './TruthOrDareManager.js'
 import { AnalyticsEvent } from './_analytics/event.js'
 import * as eggs from './egg.js'
 
@@ -49,6 +50,7 @@ export class GamerbotClient extends Client {
   readonly countManager = new CountManager(this)
   readonly triviaManager = new TriviaManager(this)
   readonly markov = new MarkovManager(this)
+  readonly tod = new TruthOrDareManager()
 
   readonly storage = new ClientStorage()
 
@@ -93,7 +95,7 @@ export class GamerbotClient extends Client {
 
       await this.countManager.update()
 
-      this.markov.load().then(() => void this.markov.sync())
+      // this.markov.load().then(() => void this.markov.sync())
     })
 
     this.on('debug', this.onDebug.bind(this))
@@ -105,7 +107,7 @@ export class GamerbotClient extends Client {
     this.#updateAnalyticsInterval = setInterval(() => void this.#updateAnalytics(), 5 * 60_000)
     this.#updateCountsInterval = setInterval(() => void this.countManager.update(), 5 * 60_000)
 
-    setInterval(() => void this.markov.save(), 60 * 60_000)
+    // setInterval(() => void this.marskov.save(), 60 * 60_000)
   }
 
   getLogger(category: string): log4js.Logger {
@@ -136,6 +138,8 @@ export class GamerbotClient extends Client {
       update: {},
       where: { guildId },
     })
+
+    await this.tod.ensureConfig(guildId)
 
     this.#hasConfig.add(guildId)
   }

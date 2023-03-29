@@ -38,7 +38,6 @@ model LogChannel {
 
   channelId        String @id
   subscribedEvents BigInt @default(0)
-
 }
 
 model EggLeaderboard {
@@ -59,11 +58,39 @@ model MinecraftPlayer {
   minecraftIdentifier String
 }
 
+enum TODPlayerOrder {
+  Random
+  OldestFirst
+  YoungestFirst
+  Manual
+}
+
+enum TODGameMode {
+  Normal
+  TruthOnly
+  DareOnly
+}
+
+model TruthOrDareConfig {
+  guildId   String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  autoRole       Boolean
+  autoPin        Boolean
+  askTimeout     Int
+  respondTimeout Int
+  prepareTimeout Int
+  maxPlayers     Int
+  rounds         Int
+  playerOrder    TODPlayerOrder
+  gameMode       TODGameMode
+}
+
 model AnalyticsReport {
   month     DateTime @id
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
 
   botLogins       Int      @default(0)
   guildCount      Int      @default(0)

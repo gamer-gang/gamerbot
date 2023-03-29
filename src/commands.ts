@@ -3,6 +3,7 @@ import COMMAND_CONNECT4 from './commands/games/connect4.js'
 import COMMAND_DICE from './commands/games/dice.js'
 import COMMAND_RPS from './commands/games/rps.js'
 import COMMAND_TRIVIA from './commands/games/trivia.js'
+import COMMAND_TRUTHORDARE from './commands/games/truthordare.js'
 import COMMAND_ABOUT from './commands/general/about.js'
 import COMMAND_ANALYTICS from './commands/general/analytics.js'
 import COMMAND_AVATAR from './commands/general/avatar.js'
@@ -45,6 +46,7 @@ export const DEFAULT_COMMANDS = [
   COMMAND_DICE,
   COMMAND_RPS,
   COMMAND_TRIVIA,
+  COMMAND_TRUTHORDARE,
   // general
   COMMAND_ABOUT,
   COMMAND_ANALYTICS,

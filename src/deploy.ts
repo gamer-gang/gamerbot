@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  ApplicationCommandDataResolvable,
+  ApplicationCommandData,
   ApplicationCommandManager,
   ApplicationCommandType,
   Guild,
@@ -42,26 +42,24 @@ export const deployCommands = async (client: GamerbotClient): Promise<void> => {
     return
   }
 
-  let commands: ApplicationCommandDataResolvable[] = [...client.commands.values()].map(
-    (command) => ({
+  const commands: ApplicationCommandData[] = [...client.commands.values()]
+    .map((command) => ({
       type: command.type as never,
       name: command.name,
       description:
         command.type === ApplicationCommandType.ChatInput ? command.description ?? '' : '',
       options: (command as any).options ?? [],
-    })
-  )
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
 
-  commands = _.sortBy(commands, 'name')
-
-  let existing = [...(await commandManager.fetch({})).values()].map((c) => ({
-    type: c.type,
-    name: c.name,
-    description: c.description,
-    options: c.options,
-  }))
-
-  existing = _.sortBy(existing, 'name')
+  const existing = [...(await commandManager.fetch({})).values()]
+    .map((c) => ({
+      type: c.type,
+      name: c.name,
+      description: c.description,
+      options: c.options,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
 
   if (_.isEqual(commands, existing)) {
     if (IS_DEVELOPMENT) {
