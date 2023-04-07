@@ -1,3 +1,7 @@
+import { version } from 'discord.js'
+
+const userAgent = `gamerbot/${GAMERBOT_VERSION} (${process.env.WIKIPEDIA_CONTACT}) discord.js/${version}`
+
 export interface WikipediaSearchResponse {
   pages: Page[]
 }
@@ -61,7 +65,7 @@ export const search = async (
   const url = new URL(`https://en.wikipedia.org/w/rest.php/v1/search/${type}`)
   url.searchParams.set('q', query)
   url.searchParams.set('limit', limit.toString())
-  const res = await fetch(url.toString())
+  const res = await fetch(url.toString(), { headers: { 'User-Agent': userAgent } })
   return res.json()
 }
 
@@ -89,14 +93,14 @@ export interface License {
 export const getPage = async (key: string): Promise<WikipediaPage & { html_url: string }> => {
   const url = new URL(`https://en.wikipedia.org/w/rest.php/v1/page/${key}/bare
   `)
-  const res = await fetch(url.toString())
+  const res = await fetch(url.toString(), { headers: { 'User-Agent': userAgent } })
   return res.json()
 }
 
 export const getPageOffline = async (key: string): Promise<WikipediaPage & { html: string }> => {
   const url = new URL(`https://en.wikipedia.org/w/rest.php/v1/page/${key}/with_html
   `)
-  const res = await fetch(url.toString())
+  const res = await fetch(url.toString(), { headers: { 'User-Agent': userAgent } })
   return res.json()
 }
 
@@ -122,7 +126,7 @@ export const getSummary = async (key: string): Promise<string> => {
   const url = new URL(
     `https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=${key}`
   )
-  const res = await fetch(url.toString())
+  const res = await fetch(url.toString(), { headers: { 'User-Agent': userAgent } })
   const json: SummaryResponse = await res.json()
   const pages = Object.values(json.query.pages)
   if (pages.length === 0) throw new Error('No page found')
