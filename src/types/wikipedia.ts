@@ -1,6 +1,6 @@
 import { version } from 'discord.js'
 
-const userAgent = `gamerbot/${GAMERBOT_VERSION} (${process.env.WIKIPEDIA_CONTACT}) discord.js/${version}`
+export const userAgent = `gamerbot/${GAMERBOT_VERSION} (${process.env.WIKIPEDIA_CONTACT}) discord.js/${version}`
 
 export interface WikipediaSearchResponse {
   pages: Page[]
