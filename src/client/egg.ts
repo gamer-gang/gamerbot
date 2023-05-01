@@ -93,7 +93,10 @@ export const onMessage = async (
   if (message.channel.type === ChannelType.DM) return
   if (message.guild == null) return
 
-  const config = await prisma.config.findFirst({ where: { guildId: message.guild.id } })
+  const config = await prisma.config.findFirst({
+    where: { guildId: message.guild.id },
+    select: { egg: true },
+  })
   if (config == null || !config.egg) return
 
   if (!hasEggs(message)) return
