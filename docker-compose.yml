@@ -4,13 +4,12 @@ services:
     image: postgres:14
     volumes:
       - ./.docker/db:/var/lib/postgresql/data
+      - ./.docker/db_socket:/var/run/postgresql
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
     user: '1000:1001'
-    ports:
-      - 127.0.0.1:5433:5432
   app:
     build: .
     volumes:
