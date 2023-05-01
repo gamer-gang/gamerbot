@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import dotenv from 'dotenv'
 import log4js from 'log4js'
+import 'source-map-support'
 import { GamerbotClient } from './client/GamerbotClient.js'
 import { deployCommands } from './deploy.js'
 import { prisma } from './prisma.js'
