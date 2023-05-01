@@ -46,7 +46,7 @@ const COMMAND_TIMESTAMP = command(ApplicationCommandType.ChatInput, {
 
     const id = options.getString('id', true)
 
-    if (!id || !/^\d{18}$/.test(id)) {
+    if (!id || !/^\d{18,}$/.test(id)) {
       await interaction.reply({
         embeds: [Embed.error('Invalid ID.')],
         ephemeral: true,

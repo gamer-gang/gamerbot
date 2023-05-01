@@ -29,6 +29,7 @@ import { formatErrorMessage, formatOptions } from '../util/format.js'
 import { AnalyticsManager } from './AnalyticsManager.js'
 import { ClientStorage } from './ClientStorage.js'
 import { CountManager } from './CountManager.js'
+import { FlagsManager } from './FlagsManager.js'
 import { MarkovManager } from './MarkovManager.js'
 import { PresenceManager } from './PresenceManager.js'
 import { TriviaManager } from './TriviaManager.js'
@@ -49,6 +50,7 @@ export class GamerbotClient extends Client {
   readonly countManager = new CountManager(this)
   readonly triviaManager = new TriviaManager(this)
   readonly markov = new MarkovManager(this)
+  readonly flags = new FlagsManager()
 
   readonly storage = new ClientStorage()
 
