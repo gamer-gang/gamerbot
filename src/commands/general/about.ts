@@ -12,6 +12,8 @@ const COMMAND_ABOUT = command(ApplicationCommandType.ChatInput, {
 
     const embed = new Embed({ title: 'About' })
 
+    await interaction.deferReply()
+
     const [guilds, users] = await Promise.all([client.countGuilds(), client.countUsers()])
 
     embed.author = Embed.profileAuthor(client.user.username, client.user)
@@ -23,7 +25,7 @@ const COMMAND_ABOUT = command(ApplicationCommandType.ChatInput, {
       .addField('Users', users.toLocaleString(), true)
       .addField('Version', globalThis.GAMERBOT_VERSION || packageJson.version, true)
 
-    await interaction.reply({ embeds: [embed] })
+    await interaction.editReply({ embeds: [embed] })
 
     return CommandResult.Success
   },

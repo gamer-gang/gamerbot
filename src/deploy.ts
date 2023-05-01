@@ -52,6 +52,7 @@ export const deployCommands = async (client: GamerbotClient): Promise<void> => {
     })
   )
 
+  // @ts-expect-error
   commands = _.sortBy(commands, 'name')
 
   let existing = [...(await commandManager.fetch({})).values()].map((c) => ({
