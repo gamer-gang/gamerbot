@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord.js'
+import { ApplicationCommandOptionType, ApplicationCommandType, escapeItalic } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
@@ -6,6 +6,12 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
   name: 'markov',
   description: 'Generate a markov chain from all messages gamerbot has seen.',
   options: [
+    {
+      name: 'connections',
+      description: 'Get the top completions for a specific word.',
+      type: ApplicationCommandOptionType.String,
+      autocomplete: true,
+    },
     {
       name: 'length',
       description: 'Number of words to generate (2-200, default: 20).',
@@ -27,7 +33,7 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
 
   async autocomplete(interaction, client) {
     const input = interaction.options.getFocused(true)
-    if (input == null || input.name !== 'seed') return []
+    if (input == null || (input.name !== 'seed' && input.name !== 'connections')) return []
 
     const seed = input.value
     if (typeof seed !== 'string') return []
@@ -50,6 +56,39 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
 
   async run(context) {
     const { interaction, client } = context
+
+    const connectionsSeed = interaction.options.getString('connections')
+    if (connectionsSeed) {
+      if (!client.markov.graph.words[connectionsSeed]) {
+        await interaction.reply({
+          embeds: [Embed.error('Seed not found.')],
+          ephemeral: true,
+        })
+        return CommandResult.Success
+      }
+
+      const connections = client.markov.connections(connectionsSeed)
+      const list = Object.entries(connections)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 25)
+      const total = Object.values(connections).reduce((a, b) => a + b, 0)
+
+      const embed = new Embed({
+        title: `Connections for ${connectionsSeed}`,
+        description: list
+          .map(
+            ([word, count], i) =>
+              `**${i + 1}.** ${
+                /^\*+$/.test(word) ? `\`${word}\`` : escapeItalic(word)
+              } (${count.toLocaleString()}, \`${Math.round((count / total) * 100_00) / 100}%\`)`
+          )
+          .join('\n'),
+      })
+
+      await interaction.reply({ embeds: [embed] })
+
+      return CommandResult.Success
+    }
 
     const length = interaction.options.getInteger('length') ?? 20
 

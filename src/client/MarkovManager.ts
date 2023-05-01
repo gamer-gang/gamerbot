@@ -103,6 +103,10 @@ export class MarkovManager {
     }
   }
 
+  connections(seed: string): { [nextWord: string]: number } {
+    return this.graph.words[seed] ?? {}
+  }
+
   generateMessage(length: number, seed?: string, guaranteed = false): string {
     const words = [seed ?? this.getRandomWord()]
 
