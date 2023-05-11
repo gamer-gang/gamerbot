@@ -1,6 +1,9 @@
+import * as Sentry from '@sentry/node'
+import { ProfilingIntegration } from '@sentry/profiling-node'
 import {
   ActivityType,
   ApplicationCommandType,
+  ChannelType,
   Client,
   ClientOptions,
   ClientUser,
@@ -78,6 +81,13 @@ export class GamerbotClient extends Client {
         GatewayIntentBits.GuildInvites,
         GatewayIntentBits.MessageContent,
       ],
+    })
+
+    Sentry.init({
+      dsn: env.SENTRY_DSN,
+      integrations: [new ProfilingIntegration()],
+      tracesSampleRate: 1.0,
+      environment: IS_DEVELOPMENT ? 'development' : 'production',
     })
 
     initLogger()
@@ -181,6 +191,7 @@ export class GamerbotClient extends Client {
     }
 
     let command: Command | undefined
+    let transaction: Sentry.Transaction | undefined
 
     try {
       if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
@@ -211,6 +222,42 @@ export class GamerbotClient extends Client {
           await interaction.reply({ embeds: [Embed.error('Command not found.')] })
           return
         }
+
+        Sentry.setUser({
+          id: interaction.user.id,
+          username: interaction.user.tag,
+        })
+        Sentry.setContext(
+          'options',
+          Object.fromEntries(interaction.options.data.map((o) => [o.name, o]))
+        )
+        Sentry.setContext('channel', {
+          id: interaction.channelId,
+          type: interaction.channel ? ChannelType[interaction.channel.type] : '<unknown>',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          name: (interaction.channel as any)?.name,
+        })
+        Sentry.setContext(
+          'guild',
+          interaction.guild
+            ? {
+                id: interaction.guild.id,
+                name: interaction.guild.name,
+                size: interaction.guild.memberCount,
+              }
+            : null
+        )
+
+        transaction = Sentry.startTransaction({
+          op: 'command',
+          name:
+            interaction.commandType === ApplicationCommandType.ChatInput
+              ? `/${command.name}`
+              : `${command.name} (context menu)`,
+          tags: {
+            command: command.name,
+          },
+        })
 
         if (command.type !== ApplicationCommandType.ChatInput) {
           const context =
@@ -310,11 +357,15 @@ export class GamerbotClient extends Client {
       }
     } catch (err) {
       this.#logger.error(err)
-
+      Sentry.captureException(err)
       await interactionReplySafe(interaction, { embeds: [Embed.error(formatErrorMessage(err))] })
       if (command != null) {
         this.analytics.trackCommandResult(CommandResult.Failure, command)
       }
+    } finally {
+      transaction?.finish()
+      Sentry.setUser(null)
+      Sentry.configureScope((scope) => scope.clear())
     }
   }
 }
