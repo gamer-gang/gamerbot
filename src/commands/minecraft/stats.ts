@@ -4,7 +4,7 @@ import { ApplicationCommandOptionType, ApplicationCommandType, Formatters } from
 import type { HypixelCacheResponse } from 'hypixel-cache'
 import assert from 'node:assert'
 import { performance } from 'node:perf_hooks'
-import { IS_DEVELOPMENT } from '../../constants.js'
+import env, { IS_DEVELOPMENT } from '../../env.js'
 import { interactionReplySafe } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
 import { formatBytes } from '../../util/format.js'
@@ -59,7 +59,7 @@ const COMMAND_STATS = command(ApplicationCommandType.ChatInput, {
   async run(context) {
     const { interaction, prisma, client, options } = context
 
-    if (process.env.HYPIXEL_CACHE_URL == null || process.env.HYPIXEL_CACHE_SECRET == null) {
+    if (!env.HYPIXEL_CACHE_URL || !env.HYPIXEL_CACHE_SECRET) {
       await interaction.reply({
         embeds: [
           Embed.error(
@@ -136,8 +136,8 @@ const COMMAND_STATS = command(ApplicationCommandType.ChatInput, {
 
       timers.data = performance.now()
 
-      const response = await fetch(`${process.env.HYPIXEL_CACHE_URL}/${inputType}/${identifier}`, {
-        headers: { 'X-Secret': process.env.HYPIXEL_CACHE_SECRET },
+      const response = await fetch(`${env.HYPIXEL_CACHE_URL}/${inputType}/${identifier}`, {
+        headers: { 'X-Secret': env.HYPIXEL_CACHE_SECRET },
       })
 
       if (response.status === 429) {

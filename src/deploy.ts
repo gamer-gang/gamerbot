@@ -9,7 +9,7 @@ import {
 import _ from 'lodash'
 import assert from 'node:assert'
 import type { GamerbotClient } from './client/GamerbotClient.js'
-import { IS_DEVELOPMENT } from './constants.js'
+import env, { IS_DEVELOPMENT } from './env.js'
 
 export const deployCommands = async (client: GamerbotClient): Promise<void> => {
   let commandManager: GuildApplicationCommandManager | ApplicationCommandManager | undefined
@@ -18,12 +18,12 @@ export const deployCommands = async (client: GamerbotClient): Promise<void> => {
   const logger = client.getLogger('deploy')
 
   if (IS_DEVELOPMENT) {
-    if (process.env.DEVELOPMENT_GUILD_ID == null) {
+    if (!env.DEVELOPMENT_GUILD_ID) {
       logger.error('DEVELOPMENT_GUILD_ID environment variable not set, not deploying commands')
       return
     }
 
-    guild = client.guilds.cache.get(process.env.DEVELOPMENT_GUILD_ID)
+    guild = client.guilds.cache.get(env.DEVELOPMENT_GUILD_ID)
 
     if (guild == null) {
       logger.error(

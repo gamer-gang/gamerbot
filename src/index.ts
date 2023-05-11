@@ -4,6 +4,7 @@ import log4js from 'log4js'
 import 'source-map-support'
 import { GamerbotClient } from './client/GamerbotClient.js'
 import { deployCommands } from './deploy.js'
+import env from './env.js'
 import { prisma } from './prisma.js'
 
 dotenv.config()
@@ -15,7 +16,7 @@ client.on('ready', async () => {
   void deployCommands(client)
 })
 
-void client.login(process.env.DISCORD_TOKEN)
+void client.login(env.DISCORD_TOKEN)
 
 let isExiting = false
 const exit = (): void => {

@@ -1,5 +1,5 @@
 import { codeBlock, CommandInteractionOption } from 'discord.js'
-import { IS_DEVELOPMENT } from '../constants.js'
+import { IS_DEVELOPMENT } from '../env.js'
 
 export const formatOptions = (options: readonly CommandInteractionOption[]): string =>
   options

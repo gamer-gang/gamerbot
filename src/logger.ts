@@ -1,5 +1,5 @@
 import log4js, { type Appender, type DateFileAppender } from 'log4js'
-import { IS_DEBUG, IS_DEVELOPMENT } from './constants.js'
+import env, { IS_DEVELOPMENT } from './env.js'
 import { resolvePath } from './util/path.js'
 
 interface Category {
@@ -27,7 +27,7 @@ const file = (filename: string, level: string): { [name: string]: Appender } => 
 const DEFAULT_PATTERN = '%[%d{yyyy-MM-dd HH:mm:ss} %p %c -%] %m'
 const stdout = (name: string, pattern?: string): { [name: string]: Appender } => ({
   [`_${name}`]: {
-    type: IS_DEBUG ? 'console' : 'stdout',
+    type: env.DEBUG ? 'console' : 'stdout',
     layout: IS_DEVELOPMENT ? { type: 'pattern', pattern: pattern ?? DEFAULT_PATTERN } : undefined,
   },
   [name]: {

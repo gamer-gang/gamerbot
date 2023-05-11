@@ -2,7 +2,7 @@
 import { bold, userMention } from 'discord.js'
 import yaml from 'js-yaml'
 import fs from 'node:fs'
-import { IS_DEVELOPMENT } from '../constants.js'
+import { IS_DEVELOPMENT } from '../env.js'
 import { MultiplayerGame } from '../models/MultiplayerGame.js'
 import { MultiplayerGameManager } from '../models/MutliplayerGameManager.js'
 import { Embed } from '../util/embed.js'

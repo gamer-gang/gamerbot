@@ -1,6 +1,6 @@
 import Prisma from '@prisma/client'
 import log4js from 'log4js'
-import { IS_DEVELOPMENT } from './constants.js'
+import { IS_DEVELOPMENT } from './env.js'
 import { initLogger } from './logger.js'
 
 initLogger()

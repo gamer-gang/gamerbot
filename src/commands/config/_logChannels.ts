@@ -7,7 +7,7 @@ import {
   SelectMenuBuilder,
 } from 'discord.js'
 import assert from 'node:assert'
-import { IS_DEVELOPMENT } from '../../constants.js'
+import { IS_DEVELOPMENT } from '../../env.js'
 import { prisma } from '../../prisma.js'
 import { Embed } from '../../util/embed.js'
 import { CommandResult } from '../command.js'
