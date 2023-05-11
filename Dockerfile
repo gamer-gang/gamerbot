@@ -33,4 +33,4 @@ RUN ./node_modules/.bin/prisma generate
 
 USER node
 
-CMD [ "node", "/app/dist/index.js" ]
+CMD [ "node", "-r", "source-map-support/register", "/app/dist/index.js" ]

@@ -9,17 +9,15 @@
     "types"
   ],
   "scripts": {
-    "esbuild": "esbuild $(echo $(cat .esbuild)) --banner:js=\"globalThis.GAMERBOT_VERSION='$(echo $(node ./scripts/version.js))'\"",
-    "_build": "yarn esbuild --outdir=dist src/index.ts src/docgen.ts",
-    "build": "yarn _build --minify --sourcemap",
+    "dev": "NODE_ENV=development nodemon -r source-map-support/register ./dist/index.js",
+    "build": "yarn _build --minify --production",
     "watch": "yarn _build --watch",
     "docgen": "node -r source-map-support/register ./dist/docgen.js",
     "types": "tsc && sed -i -e 's|\"src|\"gamerbot/src|g' -e 's|\"scripts|\"gamerbot/scripts|g' ./types/gamerbot.d.ts",
+    "_build": "./build.js --outdir=./dist src/index.ts src/docgen.ts",
     "precommit": "yarn build && yarn docgen && yarn types",
-    "dev": "NODE_ENV=development nodemon -r source-map-support/register ./dist/index.js",
+    "postcommit": "yarn build --sentry",
     "prod": "node ./dist/index.js",
-    "scripts:build": "yarn esbuild --outdir=scripts/build ./scripts/*.ts",
-    "scripts:watch": "yarn scripts:build --watch",
     "docker:all": "docker-compose up --no-log-prefix --attach app",
     "docker:db": "docker-compose up db --no-log-prefix",
     "docker:build": "docker build . --tag ghcr.io/gamer-gang/gamerbot:latest",
@@ -44,6 +42,9 @@
   "dependencies": {
     "@napi-rs/canvas": "^0.1.39",
     "@prisma/client": "4.12.0",
+    "@sentry/node": "^7.51.2",
+    "@sentry/profiling-node": "^0.3.0",
+    "@t3-oss/env-core": "^0.3.1",
     "@vvo/tzdb": "^6.105.0",
     "@wiisportsresorts/cowsay": "^0.3.2",
     "bad-words": "^3.0.4",
@@ -69,9 +70,11 @@
     "source-map-support": "^0.5.21",
     "string-length": "^5.0.1",
     "tzdata": "^1.0.37",
-    "unicode": "^14.0.0"
+    "unicode": "^14.0.0",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@sentry/esbuild-plugin": "^0.7.2",
     "@types/bad-words": "^3.0.1",
     "@types/common-tags": "^1.8.1",
     "@types/didyoumean": "^1.2.0",
@@ -84,6 +87,7 @@
     "@types/prettier": "^2.7.2",
     "@types/sharp": "^0.31.1",
     "@types/source-map-support": "^0.5.6",
+    "@types/yargs-parser": "^21",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",
     "discord-api-types": "0.37.37",
@@ -97,6 +101,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "prettier": "^2.8.7",
     "prisma": "4.12.0",
-    "typescript": "5.0.2"
+    "typescript": "5.0.2",
+    "yargs-parser": "^21.1.1"
   }
 }
