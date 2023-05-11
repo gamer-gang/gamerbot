@@ -38,6 +38,7 @@ import { PresenceManager } from './PresenceManager.js'
 import { TriviaManager } from './TriviaManager.js'
 import { AnalyticsEvent } from './_analytics/event.js'
 import * as eggs from './egg.js'
+import * as eval from './eval.js'
 
 export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {}
 
@@ -170,6 +171,7 @@ export class GamerbotClient extends Client {
   async onMessageCreate(message: Message): Promise<void> {
     if (message.author.id === this.user.id) return
     void eggs.onMessage(this, message)
+    void eval.onMessage(this, message)
     if (!message.author.bot) {
       void this.markov.addMessage(message.cleanContent || message.content)
     }
