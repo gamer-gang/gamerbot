@@ -106,7 +106,7 @@ declare module 'piston-client' {
     language: string
     version: string
     compile?: ExecuteStageResult
-    run: ExecuteStageResult
+    run?: ExecuteStageResult
   }
 
   export interface ExecuteErrorResult {

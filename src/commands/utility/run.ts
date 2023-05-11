@@ -264,21 +264,21 @@ const COMMAND_RUN = command(ApplicationCommandType.ChatInput, {
 
     const { compile, run } = codeResult as ExecuteSuccessResult
 
-    const output = `${compile?.stderr ?? ''}${run.output}`.replace('`', '`\u200b').trim()
+    const output = `${compile?.stderr ?? ''}${run?.output}`.replace('`', '`\u200b').trim()
     const outputLanguage = options.getString('output-syntax') ?? 'txt'
     const formattedOutput = codeBlock(outputLanguage, output)
     const files = []
 
     let embed: Embed
-    if (run.signal) {
+    if (run?.signal) {
       embed = Embed.error(
-        `Process killed by ${run.signal} (probably timed out, OOM, or exceeded size limits).`
+        `Process killed by ${run?.signal} (probably timed out, OOM, or exceeded size limits).`
       )
-    } else if (!compile?.stderr && !run.stdout && !run.stderr) {
+    } else if (!compile?.stderr && !run?.stdout && !run?.stderr) {
       embed = Embed.info('Execution completed with no output.')
     } else if (compile?.stderr) {
       embed = Embed.error('Compilation errored.')
-    } else if (!run.stdout && run.stderr) {
+    } else if (!run?.stdout && run?.stderr) {
       embed = Embed.warning('Execution only produced stderr.')
     } else {
       embed = Embed.success('Execution completed.')
@@ -297,12 +297,12 @@ const COMMAND_RUN = command(ApplicationCommandType.ChatInput, {
     embed.author = Embed.profileAuthor(interaction.user.username, interaction.user)
     embed.title = `Run code: ${runtime.language} v${runtime.version}`
 
-    if (run.signal && !(embed.description ?? 'OOM').includes('OOM')) {
-      embed.addField('Process killed by', run.signal, true)
+    if (run?.signal && !(embed.description ?? 'OOM').includes('OOM')) {
+      embed.addField('Process killed by', run?.signal, true)
     }
 
-    if (run.code !== 0 && run.code != null) {
-      embed.addField('Exit code', run.code.toString(), true)
+    if (run?.code !== 0 && run?.code != null) {
+      embed.addField('Exit code', run?.code.toString(), true)
     }
 
     if (options.getString('code') && options.getString('code')!.length < 300) {
