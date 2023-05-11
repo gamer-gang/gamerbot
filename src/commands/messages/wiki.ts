@@ -53,7 +53,8 @@ const COMMAND_WIKI = command(ApplicationCommandType.ChatInput, {
         url: 'https://wikipedia.org',
         iconURL: 'https://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia-logo.png',
       },
-      title: `${page.title} https://wikipedia.org/wiki/${page.key}`,
+      title: `${page.title}`,
+      url: `https://wikipedia.org/wiki/${page.key}`,
       description: `${page.description}\n\n${_.truncate(summary, { length: 500 })}`,
     })
 
