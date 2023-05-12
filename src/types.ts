@@ -13,7 +13,7 @@ import type {
   PermissionsString,
   UserContextMenuCommandInteraction,
 } from 'discord.js'
-import { GamerbotClient } from './client/GamerbotClient.js'
+import type { GamerbotClient } from './client/GamerbotClient.js'
 import type { ChatCommand, CommandResult, MessageCommand, UserCommand } from './commands/command.js'
 import type {
   BaseContext,
@@ -184,6 +184,11 @@ export interface DocsJson {
   }>
 }
 
-export const enum KnownInteractions {
-  UrbanDefine = 'urban_define',
+export const KnownInteractions = {
+  StringSelect: {
+    UrbanDefine: 'urban-define',
+  },
+  Button: {
+    RoleToggle: 'role-toggle',
+  },
 }

@@ -1,34 +1,26 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as Sentry from '@sentry/node'
 import { ProfilingIntegration } from '@sentry/profiling-node'
 import {
   ActivityType,
-  ApplicationCommandType,
   ChannelType,
   Client,
   ClientOptions,
   ClientUser,
-  Formatters,
-  GatewayIntentBits,
   Guild,
   Interaction,
   InteractionType,
   Message,
-  UserContextMenuCommandInteraction,
 } from 'discord.js'
 import log4js from 'log4js'
-import assert from 'node:assert'
 import { DEFAULT_COMMANDS } from '../commands.js'
-import { Command, CommandResult } from '../commands/command.js'
-import { CommandContext, MessageCommandContext, UserCommandContext } from '../commands/context.js'
-import { sendUrban } from '../commands/messages/urban.js'
-import env, { IS_DEVELOPMENT } from '../env.js'
+import { Command } from '../commands/command.js'
+import env, { CLIENT_INTENTS, IS_DEVELOPMENT } from '../env.js'
 import { initLogger } from '../logger.js'
 import { prisma } from '../prisma.js'
-import { KnownInteractions } from '../types.js'
-import { hasPermissions } from '../util.js'
 import { interactionReplySafe } from '../util/discord.js'
 import { Embed } from '../util/embed.js'
-import { formatErrorMessage, formatOptions } from '../util/format.js'
+import { ClientContext } from './ClientContext.js'
 import { ClientStorage } from './ClientStorage.js'
 import { CountManager } from './CountManager.js'
 import { FlagsManager } from './FlagsManager.js'
@@ -37,6 +29,9 @@ import { PresenceManager } from './PresenceManager.js'
 import { TriviaManager } from './TriviaManager.js'
 import * as eggs from './egg.js'
 import * as eval from './eval.js'
+import handleApplicationCommand from './handleApplicationCommand.js'
+import handleAutocomplete from './handleAutocomplete.js'
+import handleMessageComponent from './handleMessageComponent.js'
 
 export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {}
 
@@ -44,11 +39,9 @@ export class GamerbotClient extends Client {
   declare readonly user: ClientUser
   readonly #logger = log4js.getLogger('client')
   readonly #discordLogger = log4js.getLogger('discord')
-  readonly #commandLogger = log4js.getLogger('command')
 
   readonly commands = new Map<string, Command>()
   readonly presenceManager = new PresenceManager(this)
-  // readonly analytics = new AnalyticsManager(this)
   readonly countManager = new CountManager(this)
   readonly triviaManager = new TriviaManager(this)
   readonly markov = new MarkovManager(this)
@@ -56,31 +49,12 @@ export class GamerbotClient extends Client {
 
   readonly storage = new ClientStorage()
 
-  #updateAnalyticsInterval: NodeJS.Timeout | null = null
   #updateCountsInterval: NodeJS.Timeout | null = null
   /** set of guild ids that are already known to have config rows in the db to save queries */
   #hasConfig = new Set<string>()
 
-  // async #updateAnalytics(): Promise<void> {
-  //   await this.analytics.flushAll()
-  //   await this.analytics.update()
-  // }
-
   constructor(options?: GamerbotClientOptions) {
-    super({
-      ...options,
-      intents: [
-        GatewayIntentBits.DirectMessages,
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.GuildBans,
-        GatewayIntentBits.GuildEmojisAndStickers,
-        GatewayIntentBits.GuildInvites,
-        GatewayIntentBits.MessageContent,
-      ],
-    })
+    super({ ...options, intents: CLIENT_INTENTS })
 
     Sentry.init({
       dsn: env.SENTRY_DSN,
@@ -101,9 +75,6 @@ export class GamerbotClient extends Client {
     this.on('warn', (warn) => this.#discordLogger.warn(warn))
 
     this.on('ready', async () => {
-      // await this.analytics.initialize()
-      // this.analytics.trackEvent(AnalyticsEvent.BotLogin)
-
       await this.countManager.update()
 
       this.markov.load().then(() => void this.markov.sync())
@@ -115,7 +86,6 @@ export class GamerbotClient extends Client {
     this.on('guildDelete', this.onGuildDelete.bind(this))
     this.on('interactionCreate', this.onInteractionCreate.bind(this))
 
-    // this.#updateAnalyticsInterval = setInterval(() => void this.#updateAnalytics(), 5 * 60_000)
     this.#updateCountsInterval = setInterval(() => void this.countManager.update(), 5 * 60_000)
 
     setInterval(() => void this.markov.save(), 60 * 60_000)
@@ -192,182 +162,58 @@ export class GamerbotClient extends Client {
       await this.ensureConfig(interaction.guild.id)
     }
 
-    let command: Command | undefined
-    let transaction: Sentry.Transaction | undefined
+    const ctx = new ClientContext()
 
     try {
-      if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
-        command = this.commands.get(interaction.commandName)
-
-        if (command == null) {
-          await interaction.respond([{ name: 'Command not found.', value: 'command-not-found' }])
-          return
-        }
-
-        assert(command.type === ApplicationCommandType.ChatInput, 'Command type must be ChatInput')
-
-        const results = await command.autocomplete(interaction, this)
-
-        if (results.length === 0) {
-          await interaction.respond([{ name: 'No results found.', value: 'no-results-found' }])
-          return
-        }
-
-        await interaction.respond(results)
-        return
-      }
-
-      if (interaction.type === InteractionType.ApplicationCommand) {
-        command = this.commands.get(interaction.commandName)
-
-        if (command == null) {
-          await interaction.reply({ embeds: [Embed.error('Command not found.')] })
-          return
-        }
-
-        Sentry.setUser({
-          id: interaction.user.id,
-          username: interaction.user.tag,
-        })
-        Sentry.setContext(
-          'options',
-          Object.fromEntries(interaction.options.data.map((o) => [o.name, o]))
-        )
-        Sentry.setContext('channel', {
-          id: interaction.channelId,
-          type: interaction.channel ? ChannelType[interaction.channel.type] : '<unknown>',
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          name: (interaction.channel as any)?.name,
-        })
-        Sentry.setContext(
-          'guild',
-          interaction.guild
-            ? {
-                id: interaction.guild.id,
-                name: interaction.guild.name,
-                size: interaction.guild.memberCount,
-              }
-            : null
-        )
-
-        transaction = Sentry.startTransaction({
-          op: 'command',
-          name:
-            interaction.commandType === ApplicationCommandType.ChatInput
-              ? `/${command.name}`
-              : `${command.name} (context menu)`,
-          tags: {
-            command: command.name,
-          },
-        })
-
-        if (command.type !== ApplicationCommandType.ChatInput) {
-          const context =
-            interaction.commandType === ApplicationCommandType.Message
-              ? new MessageCommandContext(this, interaction, prisma)
-              : new UserCommandContext(
-                  this,
-                  interaction as UserContextMenuCommandInteraction,
-                  prisma
-                )
-
-          assert(command.type === interaction.commandType)
-
-          let result: CommandResult
-          if (hasPermissions(interaction, command)) {
-            result = await command.run(
-              // @ts-expect-error
-              context
-            )
-          } else {
-            result = CommandResult.Success
-          }
-
-          // this.analytics.trackCommandResult(result, command)
-        } else {
-          assert(command.type === interaction.commandType)
-
-          const context = new CommandContext(this, interaction, prisma)
-
-          if (IS_DEVELOPMENT) {
-            this.#commandLogger.debug(
-              `/${interaction.commandName} ${formatOptions(interaction.options.data)}`
-            )
-          }
-
-          // this.analytics.trackEvent(
-          //   AnalyticsEvent.CommandSent,
-          //   command.name,
-          //   applicationCommandTypeName[command.type],
-          //   interaction.user.id
-          // )
-
-          let result: CommandResult
-          if (hasPermissions(interaction, command)) {
-            result = await command.run(
-              // @ts-expect-error
-              context
-            )
-          } else {
-            result = CommandResult.Success
-          }
-
-          // this.analytics.trackCommandResult(result, command)
-        }
-      }
-
-      if (interaction.isButton()) {
-        if (!interaction.customId.includes('_')) return
-
-        const [action, id] = interaction.customId.split('_')
-
-        // TODO: refactor and move to a separate file
-        if (action === 'role-toggle') {
-          if (interaction.guild == null) return
-          if (interaction.member == null) return
-
-          const member = interaction.guild.members.resolve(interaction.member.user.id)
-          if (!member) return
-
-          const role = interaction.guild.roles.resolve(id)
-          if (!role) return
-
-          await interaction.deferReply({ ephemeral: true })
-          if (member.roles.cache.has(role.id)) {
-            await member.roles.remove(role.id)
-            await interaction.editReply({
-              embeds: [Embed.success(`Success! Removed role ${Formatters.roleMention(role.id)}.`)],
-            })
-          } else {
-            await member.roles.add(role.id)
-            await interaction.editReply({
-              embeds: [Embed.success(`Success! Got role ${Formatters.roleMention(role.id)}.`)],
-            })
-          }
-        }
-
-        return
-      }
-
-      if (interaction.isStringSelectMenu()) {
-        const id = interaction.customId
-        if (id === KnownInteractions.UrbanDefine) {
-          const term = interaction.values[0]
-          sendUrban(interaction, term)
-        }
-        return
+      switch (interaction.type) {
+        case InteractionType.ApplicationCommandAutocomplete:
+          await handleAutocomplete.call(this, ctx, interaction)
+          break
+        case InteractionType.ApplicationCommand:
+          await handleApplicationCommand.call(this, ctx, interaction)
+          break
+        case InteractionType.MessageComponent:
+          await handleMessageComponent.call(this, ctx, interaction)
+          break
       }
     } catch (err) {
-      this.#logger.error(err)
       Sentry.captureException(err)
-      await interactionReplySafe(interaction, { embeds: [Embed.error(formatErrorMessage(err))] })
-      if (command != null) {
-        // this.analytics.trackCommandResult(CommandResult.Failure, command)
-      }
+      ctx.transaction?.setStatus('internal_error')
+      this.#logger.error(err)
+      await interactionReplySafe(interaction, { embeds: [Embed.error(err)] })
     } finally {
-      transaction?.finish()
+      ctx.transaction?.finish()
       Sentry.setUser(null)
       Sentry.configureScope((scope) => scope.clear())
     }
+  }
+
+  startSentry(interaction: Interaction) {
+    Sentry.setUser({
+      id: interaction.user.id,
+      username: interaction.user.tag,
+    })
+    if ('options' in interaction) {
+      Sentry.setContext(
+        'options',
+        Object.fromEntries(interaction.options.data.map((o) => [o.name, o]))
+      )
+    }
+    Sentry.setContext('channel', {
+      id: interaction.channelId,
+      type: interaction.channel ? ChannelType[interaction.channel.type] : '<unknown>',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      name: (interaction.channel as any)?.name,
+    })
+    Sentry.setContext(
+      'guild',
+      interaction.guild
+        ? {
+            id: interaction.guild.id,
+            name: interaction.guild.name,
+            size: interaction.guild.memberCount,
+          }
+        : null
+    )
   }
 }

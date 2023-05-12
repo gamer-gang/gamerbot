@@ -3,6 +3,7 @@ import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   Role,
   roleMention,
@@ -115,3 +116,29 @@ const COMMAND_ROLE = command(ApplicationCommandType.ChatInput, {
 })
 
 export default COMMAND_ROLE
+
+export const roleToggle = async (interaction: ButtonInteraction) => {
+  if (interaction.guild == null) return
+  if (interaction.member == null) return
+
+  const [, id] = interaction.customId.split('_')
+
+  const member = interaction.guild.members.resolve(interaction.member.user.id)
+  if (!member) return
+
+  const role = interaction.guild.roles.resolve(id)
+  if (!role) return
+
+  await interaction.deferReply({ ephemeral: true })
+  if (member.roles.cache.has(role.id)) {
+    await member.roles.remove(role.id)
+    await interaction.editReply({
+      embeds: [Embed.success(`Success! Removed role ${roleMention(role.id)}.`)],
+    })
+  } else {
+    await member.roles.add(role.id)
+    await interaction.editReply({
+      embeds: [Embed.success(`Success! Got role ${roleMention(role.id)}.`)],
+    })
+  }
+}

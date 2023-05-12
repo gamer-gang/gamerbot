@@ -24,15 +24,26 @@ export type Command = ChatCommand | UserCommand | MessageCommand
 
 export enum CommandResult {
   /**
-   * Denotes successful execution of the command. This includes user errors, such as a missing
-   * option or bad value.
+   * Denotes successful execution of the command.
    */
   Success,
+  /**
+   * Denotes a failure to execute the command due to invalid user input.
+   */
+  Invalid,
   /**
    * Denotes a failure to fulfill execution of the command. Typicall an error that is not caused by
    * the user, such as a failed request to an external API, logic error, etc.
    */
   Failure,
+  /**
+   * Denotes a failure to execute the command due to the user not having the required permissions.
+   */
+  Unauthorized,
+  /**
+   * Denotes a failure to execute the command because a resource was not found.
+   */
+  NotFound,
 }
 
 const normalizeOptions = (

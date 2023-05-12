@@ -146,7 +146,7 @@ const makeMessage = (
     components.push(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
-          .setCustomId(KnownInteractions.UrbanDefine)
+          .setCustomId(KnownInteractions.StringSelect.UrbanDefine)
           .setMinValues(1)
           .setMaxValues(1)
           .setPlaceholder('Define a term...')

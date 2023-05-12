@@ -1,4 +1,5 @@
 import { createEnv } from '@t3-oss/env-core'
+import { GatewayIntentBits } from 'discord.js'
 import dotenv from 'dotenv'
 import { z } from 'zod'
 
@@ -33,3 +34,15 @@ const env = createEnv({
 export default env
 
 export const IS_DEVELOPMENT = env.NODE_ENV === 'development'
+
+export const CLIENT_INTENTS = [
+  GatewayIntentBits.DirectMessages,
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMembers,
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.GuildMessageReactions,
+  GatewayIntentBits.GuildBans,
+  GatewayIntentBits.GuildEmojisAndStickers,
+  GatewayIntentBits.GuildInvites,
+  GatewayIntentBits.MessageContent,
+]
