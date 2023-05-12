@@ -5,7 +5,6 @@ import COMMAND_FLAGS from './commands/games/flags.js'
 import COMMAND_RPS from './commands/games/rps.js'
 import COMMAND_TRIVIA from './commands/games/trivia.js'
 import COMMAND_ABOUT from './commands/general/about.js'
-import COMMAND_ANALYTICS from './commands/general/analytics.js'
 import COMMAND_AVATAR from './commands/general/avatar.js'
 import COMMAND_GETAVATAR from './commands/general/getavatar.js'
 import COMMAND_SERVERICON from './commands/general/servericon.js'
@@ -49,7 +48,7 @@ export const DEFAULT_COMMANDS = [
   COMMAND_TRIVIA,
   // general
   COMMAND_ABOUT,
-  COMMAND_ANALYTICS,
+  // COMMAND_ANALYTICS,
   COMMAND_AVATAR,
   COMMAND_GETAVATAR,
   COMMAND_SERVERICON,
