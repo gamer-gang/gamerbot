@@ -1,18 +1,16 @@
 import {
   ActionRowBuilder,
+  APIMessageComponentEmoji,
   APISelectMenuOption,
   ApplicationCommandOptionType,
   ApplicationCommandType,
   ComponentType,
   Message,
-  SelectMenuBuilder,
+  StringSelectMenuBuilder,
 } from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
-
-// represents every possible bid
-const possibleBids = [1, 2, 3, 4].map((i) => [1, 2, 3, 4].map((j) => [i, j])).flat()
 
 const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
   name: 'dice',
@@ -50,17 +48,14 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
     ]
 
     await interaction.followUp({
-      embeds: [Embed.info('Here is your hand:', hands[0].join(', '))],
+      embeds: [Embed.info('Here is your hand:', handToString(hands[0]))],
       ephemeral: true,
     })
 
     await response.followUp({
-      embeds: [Embed.info('Here is your hand:', hands[1].join(', '))],
+      embeds: [Embed.info('Here is your hand:', handToString(hands[1]))],
       ephemeral: true,
     })
-
-    // await interaction.user.send(hands[0].toString())
-    // await opponent.send(hands[1].toString())
 
     let firstPlayerTurn = true
     // the index of the last bid in possibleBids
@@ -69,8 +64,8 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
       const msg = (await interaction.channel?.send({
         content: `Place your bid, ${firstPlayerTurn ? interaction.user.tag : opponent.tag}!`,
         components: [
-          new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-            new SelectMenuBuilder({
+          new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+            new StringSelectMenuBuilder({
               customId: 'bidSelection',
               placeholder: 'Select bid...',
               options:
@@ -92,7 +87,7 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
 
       try {
         bid = await msg.awaitMessageComponent({
-          componentType: ComponentType.SelectMenu,
+          componentType: ComponentType.StringSelect,
           filter: (i) => i.user.id === (firstPlayerTurn ? interaction.user.id : opponent.id),
           time: 60000,
         })
@@ -134,11 +129,11 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
             ).addFields(
               {
                 name: interaction.user.tag,
-                value: hands[0].join(', '),
+                value: handToString(hands[0]),
               },
               {
                 name: opponent.tag,
-                value: hands[1].join(', '),
+                value: handToString(hands[1]),
               }
             ),
           ],
@@ -149,9 +144,9 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
       const bidIndex = parseInt(bid.values[0])
 
       await bid.update({
-        content: `${firstPlayerTurn ? interaction.user.tag : opponent.tag} bids ${
-          possibleBids[bidIndex][0]
-        } dice with value ${possibleBids[bidIndex][1]}`,
+        content: `${firstPlayerTurn ? interaction.user.tag : opponent.tag} bids ${numberToEmoji(
+          possibleBids[bidIndex][1]
+        )} x${possibleBids[bidIndex][0]}`,
         components: [],
       })
 
@@ -163,13 +158,38 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
   },
 })
 
+// represents every possible bid
+const possibleBids = [1, 2, 3, 4].map((i) => [1, 2, 3, 4].map((j) => [i, j])).flat()
+
+const emojis: APIMessageComponentEmoji[] = [
+  { name: 'dice_1', id: '810580628445069332' },
+  { name: 'dice_2', id: '810580488548253717' },
+  { name: 'dice_3', id: '810580516892966913' },
+  { name: 'dice_4', id: '810580555212259350' },
+  { name: 'dice_5', id: '810580587240620062' },
+  { name: 'dice_6', id: '810581269561737277' },
+]
+
+function numberToEmoji(face: number): string {
+  const emoji = emojis[face - 1]
+  return `<:${emoji.name}:${emoji.id}>`
+}
+
+function handToString(hand: number[]): string {
+  return hand.map((die) => numberToEmoji(die)).join(', ')
+}
+
 function roll(): number {
   return Math.floor(Math.random() * 4) + 1
 }
 
 function generateBids(last: number): APISelectMenuOption[] {
   return possibleBids.slice(last + 1).map((e, i) => {
-    return { label: `${e[0]} dice of value ${e[1]}`, value: (last + i + 1).toString() }
+    return {
+      emoji: emojis[e[1] - 1],
+      label: `x${e[0]}`,
+      value: (last + i + 1).toString(),
+    }
   })
 }
 
