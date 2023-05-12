@@ -1,6 +1,6 @@
 {
   "name": "gamerbot",
-  "version": "2.10.1",
+  "version": "2.10.2",
   "license": "MIT",
   "type": "module",
   "packageManager": "yarn@3.2.3",

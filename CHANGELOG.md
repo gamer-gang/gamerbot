@@ -1,3 +1,13 @@
+# v2.10.2
+
+## Changes
+
+- Set release name on tagged commits to version only
+
+## Fixes
+
+- Add mkdirp on dist directory before build
+
 # v2.10.1
 
 ## Changes
