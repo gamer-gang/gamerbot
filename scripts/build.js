@@ -3,6 +3,7 @@
 import { sentryEsbuildPlugin } from '@sentry/esbuild-plugin'
 import * as dotenv from 'dotenv'
 import * as esbuild from 'esbuild'
+import { mkdir } from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import parse from 'yargs-parser'
@@ -61,6 +62,7 @@ const options = {
   ].filter(Boolean),
 }
 
+await mkdir(path.resolve(__dirname, '..', 'dist'), { recursive: true })
 if (argv.watch) {
   const context = await esbuild.context(options)
   await context.watch()
