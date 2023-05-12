@@ -29,7 +29,7 @@ export class MarkovManager {
   }
 
   async load(): Promise<void> {
-    this.#logger.debug('LOAD')
+    this.#logger.trace('LOAD')
 
     const data = await this.client.storage.read<string>('markov')
 
@@ -42,20 +42,20 @@ export class MarkovManager {
       connections += Object.keys(word).length
     }
 
-    this.#logger.debug(
+    this.#logger.trace(
       `LOAD done ${Object.keys(this.graph.words).length} words, ${connections} connections`
     )
   }
 
   async save(): Promise<void> {
-    this.#logger.debug('SAVE')
+    this.#logger.trace('SAVE')
     const data = this.#format.serialize(this.graph)
     await this.client.storage.write('markov', data)
-    this.#logger.debug(`SAVE done ${formatBytes(data.length)}`)
+    this.#logger.trace(`SAVE done ${formatBytes(data.length)}`)
   }
 
   addMessage(message: string): void {
-    this.#logger.debug(`ADD message "${message}"`)
+    this.#logger.trace(`ADD message "${message}"`)
 
     const emoji = new RegExp(`^${emojiRegex().source}$`)
     // valid words are alphanumeric (no unicode) or emojis
@@ -208,20 +208,20 @@ export class MarkovManager {
               channel.lastMessageId &&
               getDateFromSnowflake(channel.lastMessageId).millisecond < graphTimestamp
             ) {
-              this.#logger.debug(`SYNC channel ${channel.id} ${channel.name} skip`)
+              this.#logger.trace(`SYNC channel ${channel.id} ${channel.name} skip`)
               continue
             }
 
             let channelMessageCount = 0
 
-            this.#logger.debug(`SYNC channel ${channel.id} ${channel.name}`)
+            this.#logger.trace(`SYNC channel ${channel.id} ${channel.name}`)
 
             let oldestMessage: Snowflake | undefined
             let oldestMessageTimestamp = Infinity
 
             try {
               while (oldestMessageTimestamp > graphTimestamp) {
-                this.#logger.debug(
+                this.#logger.trace(
                   `SYNC messages ${channel.id} ${channel.name} ${oldestMessage ?? 'latest'}`
                 )
                 const messages = await channel.messages.fetch({
@@ -230,7 +230,7 @@ export class MarkovManager {
                 })
 
                 if (!messages.size) {
-                  this.#logger.debug(`SYNC messages break`)
+                  this.#logger.trace(`SYNC messages break`)
                   break
                 }
 
@@ -259,7 +259,7 @@ export class MarkovManager {
               }
             }
 
-            this.#logger.debug(`SYNC channel done ${channelMessageCount}`)
+            this.#logger.trace(`SYNC channel done ${channelMessageCount}`)
           }
         } catch (err) {
           this.#logger.error(`SYNC guild error`, err)

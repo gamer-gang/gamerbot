@@ -25,18 +25,16 @@ import env, { IS_DEVELOPMENT } from '../env.js'
 import { initLogger } from '../logger.js'
 import { prisma } from '../prisma.js'
 import { KnownInteractions } from '../types.js'
-import { applicationCommandTypeName, hasPermissions } from '../util.js'
+import { hasPermissions } from '../util.js'
 import { interactionReplySafe } from '../util/discord.js'
 import { Embed } from '../util/embed.js'
 import { formatErrorMessage, formatOptions } from '../util/format.js'
-import { AnalyticsManager } from './AnalyticsManager.js'
 import { ClientStorage } from './ClientStorage.js'
 import { CountManager } from './CountManager.js'
 import { FlagsManager } from './FlagsManager.js'
 import { MarkovManager } from './MarkovManager.js'
 import { PresenceManager } from './PresenceManager.js'
 import { TriviaManager } from './TriviaManager.js'
-import { AnalyticsEvent } from './_analytics/event.js'
 import * as eggs from './egg.js'
 import * as eval from './eval.js'
 
@@ -50,7 +48,7 @@ export class GamerbotClient extends Client {
 
   readonly commands = new Map<string, Command>()
   readonly presenceManager = new PresenceManager(this)
-  readonly analytics = new AnalyticsManager(this)
+  // readonly analytics = new AnalyticsManager(this)
   readonly countManager = new CountManager(this)
   readonly triviaManager = new TriviaManager(this)
   readonly markov = new MarkovManager(this)
@@ -63,10 +61,10 @@ export class GamerbotClient extends Client {
   /** set of guild ids that are already known to have config rows in the db to save queries */
   #hasConfig = new Set<string>()
 
-  async #updateAnalytics(): Promise<void> {
-    await this.analytics.flushAll()
-    await this.analytics.update()
-  }
+  // async #updateAnalytics(): Promise<void> {
+  //   await this.analytics.flushAll()
+  //   await this.analytics.update()
+  // }
 
   constructor(options?: GamerbotClientOptions) {
     super({
@@ -86,9 +84,11 @@ export class GamerbotClient extends Client {
 
     Sentry.init({
       dsn: env.SENTRY_DSN,
-      integrations: [new ProfilingIntegration()],
       tracesSampleRate: 1.0,
+      profilesSampleRate: 1.0,
       environment: IS_DEVELOPMENT ? 'development' : 'production',
+      integrations: [new ProfilingIntegration()],
+      release: globalThis.SENTRY_RELEASE,
     })
 
     initLogger()
@@ -101,8 +101,8 @@ export class GamerbotClient extends Client {
     this.on('warn', (warn) => this.#discordLogger.warn(warn))
 
     this.on('ready', async () => {
-      await this.analytics.initialize()
-      this.analytics.trackEvent(AnalyticsEvent.BotLogin)
+      // await this.analytics.initialize()
+      // this.analytics.trackEvent(AnalyticsEvent.BotLogin)
 
       await this.countManager.update()
 
@@ -115,7 +115,7 @@ export class GamerbotClient extends Client {
     this.on('guildDelete', this.onGuildDelete.bind(this))
     this.on('interactionCreate', this.onInteractionCreate.bind(this))
 
-    this.#updateAnalyticsInterval = setInterval(() => void this.#updateAnalytics(), 5 * 60_000)
+    // this.#updateAnalyticsInterval = setInterval(() => void this.#updateAnalytics(), 5 * 60_000)
     this.#updateCountsInterval = setInterval(() => void this.countManager.update(), 5 * 60_000)
 
     setInterval(() => void this.markov.save(), 60 * 60_000)
@@ -283,7 +283,7 @@ export class GamerbotClient extends Client {
             result = CommandResult.Success
           }
 
-          this.analytics.trackCommandResult(result, command)
+          // this.analytics.trackCommandResult(result, command)
         } else {
           assert(command.type === interaction.commandType)
 
@@ -295,12 +295,12 @@ export class GamerbotClient extends Client {
             )
           }
 
-          this.analytics.trackEvent(
-            AnalyticsEvent.CommandSent,
-            command.name,
-            applicationCommandTypeName[command.type],
-            interaction.user.id
-          )
+          // this.analytics.trackEvent(
+          //   AnalyticsEvent.CommandSent,
+          //   command.name,
+          //   applicationCommandTypeName[command.type],
+          //   interaction.user.id
+          // )
 
           let result: CommandResult
           if (hasPermissions(interaction, command)) {
@@ -312,7 +312,7 @@ export class GamerbotClient extends Client {
             result = CommandResult.Success
           }
 
-          this.analytics.trackCommandResult(result, command)
+          // this.analytics.trackCommandResult(result, command)
         }
       }
 
@@ -362,7 +362,7 @@ export class GamerbotClient extends Client {
       Sentry.captureException(err)
       await interactionReplySafe(interaction, { embeds: [Embed.error(formatErrorMessage(err))] })
       if (command != null) {
-        this.analytics.trackCommandResult(CommandResult.Failure, command)
+        // this.analytics.trackCommandResult(CommandResult.Failure, command)
       }
     } finally {
       transaction?.finish()

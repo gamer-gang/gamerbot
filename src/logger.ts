@@ -34,7 +34,8 @@ const stdout = (name: string, pattern?: string): { [name: string]: Appender } =>
     type: 'logLevelFilter',
     appender: `_${name}`,
     maxLevel: 'mark',
-    level: IS_DEVELOPMENT ? 'trace' : 'info',
+    // eslint-disable-next-line no-nested-ternary
+    level: env.DEBUG ? 'trace' : IS_DEVELOPMENT ? 'debug' : 'info',
   },
 })
 

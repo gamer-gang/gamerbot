@@ -1,6 +1,6 @@
 {
   "exclude": ["node_modules", "**/node_modules/*", "types/gamerbot.d.ts"],
-  "include": ["src", "build.js", "types", "lib", "src/types/*.d.ts", "scripts"],
+  "include": ["src", "scripts", "types", "lib", "src/types/*.d.ts", "scripts"],
   "compilerOptions": {
     "checkJs": true,
     "module": "esnext",

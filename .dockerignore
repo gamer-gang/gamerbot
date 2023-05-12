@@ -5,7 +5,6 @@
 /.yarn/*
 !/.yarn/releases
 !/.yarn/plugins
-/dist
 /example
 /node_modules
 /.env*

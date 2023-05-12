@@ -6,13 +6,13 @@ import * as esbuild from 'esbuild'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import parse from 'yargs-parser'
-import { getVersion } from './lib/version.js'
+import { createReleaseName, getVersion } from '../lib/version.js'
 
 dotenv.config()
 
 const argv = parse(process.argv.slice(2), {
   boolean: ['minify', 'watch', 'production', 'sentry'],
-  string: ['outdir'],
+  string: ['outdir', 'release'],
 })
 
 if (!argv._.length) {
@@ -23,12 +23,15 @@ if (!argv._.length) {
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+const releaseName = argv.release || (await createReleaseName())
 /**
  * @satisfies {import('esbuild').BuildOptions}
  */
 const options = {
   banner: {
-    js: `globalThis.GAMERBOT_VERSION='${await getVersion()}'`,
+    js: `globalThis.GAMERBOT_VERSION='${await getVersion()}';globalThis.SENTRY_RELEASE=${
+      argv.production ? `'${releaseName}'` : 'undefined'
+    };`,
   },
   target: 'esnext',
   format: 'esm',
@@ -48,6 +51,11 @@ const options = {
         authToken: process.env.SENTRY_AUTH_TOKEN,
         sourcemaps: {
           assets: './dist/**',
+        },
+        release: releaseName,
+        finalize: true,
+        deploy: {
+          env: argv.production ? 'production' : 'development',
         },
       }),
   ].filter(Boolean),

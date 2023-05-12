@@ -10,20 +10,14 @@
   ],
   "scripts": {
     "dev": "NODE_ENV=development nodemon -r source-map-support/register ./dist/index.js",
-    "build": "yarn _build --minify --production",
-    "watch": "yarn _build --watch",
+    "build": "./scripts/build.js --outdir=./dist src/index.ts src/docgen.ts --minify --production",
+    "watch": "./scripts/build.js --outdir=./dist src/index.ts src/docgen.ts --watch",
     "docgen": "node -r source-map-support/register ./dist/docgen.js",
     "types": "tsc && sed -i -e 's|\"src|\"gamerbot/src|g' -e 's|\"scripts|\"gamerbot/scripts|g' ./types/gamerbot.d.ts",
-    "_build": "./build.js --outdir=./dist src/index.ts src/docgen.ts",
-    "precommit": "yarn build && yarn docgen && yarn types",
-    "postcommit": "yarn build --sentry",
-    "prod": "node ./dist/index.js",
-    "docker:all": "docker-compose up --no-log-prefix --attach app",
-    "docker:db": "docker-compose up db --no-log-prefix",
-    "docker:build": "docker build . --tag ghcr.io/gamer-gang/gamerbot:latest",
-    "docker:tag": "docker tag ghcr.io/gamer-gang/gamerbot:latest ghcr.io/gamer-gang/gamerbot:$(echo $(node ./scripts/version.js --version-only))",
-    "docker:push": "docker push ghcr.io/gamer-gang/gamerbot:latest && docker push ghcr.io/gamer-gang/gamerbot:$(echo $(node ./scripts/version.js --version-only))",
-    "git:tag": "git tag v$(echo $(node ./scripts/version.js --version-only)) -m \"v$(echo $(node ./scripts/version.js --version-only))\""
+    "db": "docker-compose up db --no-log-prefix",
+    "git:tag": "git tag v$(echo $(./scripts/version.js --version-only)) -m \"v$(echo $(./scripts/version.js --version-only))\"",
+    "publish": "./scripts/publish.js",
+    "release": "yarn git:tag && yarn build && concurrently yarn:docgen yarn:types yarn:publish"
   },
   "engines": {
     "node": ">=18.0.0"
