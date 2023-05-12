@@ -18,6 +18,20 @@ const RPS_CHOICES = {
   scissors: '✌',
 }
 
+const RPSLS_CHOICES = {
+  ...RPS_CHOICES,
+  lizard: '🤌',
+  spock: '🖖',
+}
+
+const RPSLS_MATRIX = [
+  [0, 0, 'crushes', 'smushes', 0],
+  ['covers', 0, 0, 0, 'disproves'],
+  [0, 'cuts', 0, 'decapitates', 0],
+  [0, 'eats', 0, 0, 'poisons'],
+  ['vaporizes', 0, 'breaks', 0, 0],
+]
+
 const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
   name: 'rps',
   description: 'Duel a user in rock paper scissors.',
@@ -34,12 +48,24 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
       type: ApplicationCommandOptionType.User,
       required: true,
     },
+    {
+      name: 'lizard-and-spock',
+      description: 'Whether to include lizard and spock.',
+      type: ApplicationCommandOptionType.Boolean,
+      required: false,
+    },
   ],
 
   async run(context) {
     const { interaction, options } = context
+    const lizardSpock = options.getBoolean('lizard-and-spock')
 
-    const response = await challengePlayer(interaction, options, 'Rock Paper Scissors', '🪨')
+    const response = await challengePlayer(
+      interaction,
+      options,
+      lizardSpock ? 'Rock Paper Scissors Lizard Spock' : 'Rock Paper Scissors',
+      '🪨'
+    )
 
     if (!response) {
       return CommandResult.Success
@@ -47,7 +73,7 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
 
     const opponent = response.button.user
 
-    const choices = Object.entries(RPS_CHOICES).map(
+    const choices = Object.entries(lizardSpock ? RPSLS_CHOICES : RPS_CHOICES).map(
       ([name, emoji]) =>
         new ButtonBuilder({
           customId: name,
@@ -72,8 +98,8 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
     })
 
     return await new Promise<CommandResult>((resolve) => {
-      let move1: keyof typeof RPS_CHOICES | undefined
-      let move2: keyof typeof RPS_CHOICES | undefined
+      let move1: keyof typeof RPSLS_CHOICES | undefined
+      let move2: keyof typeof RPSLS_CHOICES | undefined
 
       const collector = moveMessage.createMessageComponentCollector({
         componentType: ComponentType.Button,
@@ -142,7 +168,7 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
         assert(move1, 'move1 undefined after check')
         assert(move2, 'move2 undefined after check')
 
-        const moveString = `${RPS_CHOICES[move1]} vs ${RPS_CHOICES[move2]}`
+        const moveString = `${RPSLS_CHOICES[move1]} vs ${RPSLS_CHOICES[move2]}`
 
         if (move1 === move2) {
           void moveMessage.edit({
@@ -158,29 +184,19 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
           return
         }
 
-        let p1Win = true
+        const keys = Object.keys(RPSLS_CHOICES)
+        const key1 = keys.indexOf(move1)
+        const key2 = keys.indexOf(move2)
 
-        switch (move1) {
-          case 'rock':
-            if (move2 === 'scissors') p1Win = true
-            if (move2 === 'paper') p1Win = false
-            break
-          case 'paper':
-            if (move2 === 'rock') p1Win = true
-            if (move2 === 'scissors') p1Win = false
-            break
-          case 'scissors':
-            if (move2 === 'paper') p1Win = true
-            if (move2 === 'rock') p1Win = false
-            break
-        }
+        const matchup1 = RPSLS_MATRIX[key1][key2]
+        const matchup2 = RPSLS_MATRIX[key2][key1]
 
-        if (p1Win) {
+        if (matchup1) {
           void moveMessage.edit({
             embeds: [
               new Embed({
                 title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
-                description: `${interaction.user.tag} has won (${moveString})!`,
+                description: `${interaction.user.tag} has won (${RPSLS_CHOICES[move1]} ${matchup1} ${RPSLS_CHOICES[move2]})!`,
               }),
             ],
             components: [],
@@ -193,7 +209,7 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
           embeds: [
             new Embed({
               title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
-              description: `${opponent.tag} has won (${moveString})!`,
+              description: `${opponent.tag} has won (${RPSLS_CHOICES[move2]} ${matchup2} ${RPSLS_CHOICES[move1]})!`,
             }),
           ],
           components: [],
