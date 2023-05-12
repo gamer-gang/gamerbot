@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import dotenv from 'dotenv'
 import log4js from 'log4js'
 import 'source-map-support'
 import { GamerbotClient } from './client/GamerbotClient.js'
@@ -7,7 +6,6 @@ import { deployCommands } from './deploy.js'
 import env from './env.js'
 import { prisma } from './prisma.js'
 
-dotenv.config()
 const client = new GamerbotClient()
 
 client.on('ready', async () => {
