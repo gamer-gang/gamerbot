@@ -1,10 +1,20 @@
+# v2.10.1
+
+## Changes
+
+- Remove analytics subsystem (we have Sentry now)
+- Internal cleanup
+
+## Fixes
+
+- Fix .env file not being loaded correctly
+
 # v2.10.0
 
 ## Features
 
 - Add `$$<id>.eval` admin command
 - Add `/flags` game
-- 
 
 ## Changes
 

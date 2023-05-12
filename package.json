@@ -1,6 +1,6 @@
 {
   "name": "gamerbot",
-  "version": "2.10.0",
+  "version": "2.10.1",
   "license": "MIT",
   "type": "module",
   "packageManager": "yarn@3.2.3",
@@ -17,7 +17,8 @@
     "db": "docker-compose up db --no-log-prefix",
     "git:tag": "git tag v$(echo $(./scripts/version.js --version-only)) -m \"v$(echo $(./scripts/version.js --version-only))\"",
     "publish": "./scripts/publish.js",
-    "release": "yarn git:tag && yarn build && concurrently yarn:docgen yarn:types yarn:publish"
+    "precommit": "yarn build && concurrently yarn:docgen yarn:types",
+    "release": "yarn git:tag && yarn:publish"
   },
   "engines": {
     "node": ">=18.0.0"
