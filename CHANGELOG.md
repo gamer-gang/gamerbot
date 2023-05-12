@@ -1,3 +1,19 @@
+# v2.10.0
+
+## Features
+
+- Add `$$<id>.eval` admin command
+- Add `/flags` game
+- 
+
+## Changes
+
+- Use t3-env for environment validation
+- Completely rework build system
+  - esbuild, sentry, and docker
+- Add Sentry error and performance monitoring
+- Use UNIX sockets for database
+
 # v2.9.0
 
 ## Features

@@ -1,6 +1,6 @@
 {
   "name": "gamerbot",
-  "version": "2.9.0",
+  "version": "2.10.0",
   "license": "MIT",
   "type": "module",
   "packageManager": "yarn@3.2.3",
@@ -84,6 +84,7 @@
     "@types/yargs-parser": "^21",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",
+    "concurrently": "^8.0.1",
     "discord-api-types": "0.37.37",
     "dotenv": "^16.0.3",
     "esbuild": "^0.17.14",
