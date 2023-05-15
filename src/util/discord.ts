@@ -8,15 +8,13 @@ import {
 import { DateTime } from 'luxon'
 
 export const getDateStringFromSnowflake = (id: string): [timestamp: string, age: string] => {
-  const timestamp = parseInt(id.padStart(18, '0'), 10) / 4194304 + 1420070400000
-
-  const time = DateTime.fromMillis(timestamp)
-
+  const time = getDateFromSnowflake(id)
   return [time.toLocaleString(DateTime.DATETIME_FULL), time.toRelative() as string]
 }
 
 export const getDateFromSnowflake = (id: string): DateTime => {
-  return DateTime.fromMillis(parseInt(id.padStart(18, '0'), 10) / 4194304 + 1420070400000)
+  const ms = (BigInt(id) >> 22n) + 1420070400000n
+  return DateTime.fromMillis(Number(ms))
 }
 
 export const getProfileImageUrl = (user: User): string => {
