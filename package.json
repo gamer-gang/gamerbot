@@ -18,7 +18,7 @@
     "git:tag": "git tag v$(echo $(./scripts/version.js --version-only)) -m \"v$(echo $(./scripts/version.js --version-only))\"",
     "publish": "./scripts/publish.js",
     "precommit": "yarn build && concurrently yarn:docgen yarn:types",
-    "release": "yarn git:tag && yarn publish && git push && git push --tags"
+    "release": "./scripts/release.js"
   },
   "engines": {
     "node": ">=18.0.0"
