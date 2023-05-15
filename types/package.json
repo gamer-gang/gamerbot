@@ -1,6 +1,6 @@
 {
   "name": "gamerbot-types",
-  "version": "2.10.2",
+  "version": "2.11",
   "description": "Types for gamerbot",
   "types": "./gamerbot.d.ts",
   "files": [

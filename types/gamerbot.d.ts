@@ -2,162 +2,6 @@
 /// <reference types="node" resolution-mode="require"/>
 /// <reference types="node" resolution-mode="require"/>
 /// <reference lib="dom" />
-declare module "gamerbot/src/util/color" {
-    export type ColorFormat = 'number' | 'hex' | 'plain' | 'rgb' | 'hsl';
-    export type RgbTriple = [r: number, g: number, b: number];
-    export type HslTriple = [h: number, s: number, l: number];
-    export const hslToRgb: (h: number, s: number, l: number) => RgbTriple;
-    export const rgbToHsl: (r: number, g: number, b: number) => HslTriple;
-    export class Color {
-        #private;
-        static from(input: RgbTriple | HslTriple | number | string, type?: 'rgb' | 'hsl'): Color;
-        constructor(num: number);
-        get number(): number;
-        get plain(): string;
-        get rgb(): RgbTriple;
-        get hsl(): HslTriple;
-        get hex(): string;
-    }
-}
-declare module "gamerbot/src/util/discord" {
-    import { Interaction, InteractionReplyOptions, MessagePayload, User } from 'discord.js';
-    import { DateTime } from 'luxon';
-    export const getDateStringFromSnowflake: (id: string) => [timestamp: string, age: string];
-    export const getDateFromSnowflake: (id: string) => DateTime;
-    export const getProfileImageUrl: (user: User) => string;
-    export const interactionReplySafe: (interaction: Interaction, content: string | MessagePayload | InteractionReplyOptions) => Promise<void>;
-}
-declare module "gamerbot/src/env" {
-    import { GatewayIntentBits } from 'discord.js';
-    const env: {
-        NODE_ENV: string;
-        DEBUG: boolean;
-        DOCKER: boolean;
-        DISCORD_TOKEN: string;
-        DATABASE_URL: string;
-        WIKIPEDIA_CONTACT: string;
-        EVAL_ALLOWED_USERS?: string | undefined;
-        MEDIA_SERVER_ID?: string | undefined;
-        DEVELOPMENT_GUILD_ID?: string | undefined;
-        SENTRY_DSN?: string | undefined;
-        HYPIXEL_CACHE_URL?: string | undefined;
-        HYPIXEL_CACHE_SECRET?: string | undefined;
-    };
-    export default env;
-    export const IS_DEVELOPMENT: boolean;
-    export const CLIENT_INTENTS: GatewayIntentBits[];
-}
-declare module "gamerbot/src/util/format" {
-    import { CommandInteractionOption } from 'discord.js';
-    export const formatOptions: (options: readonly CommandInteractionOption[]) => string;
-    export const formatBytes: (bytes: number, decimals?: number) => string;
-    export const formatUtcOffset: (offset: number) => string;
-    export const formatErrorMessage: (err: unknown) => string;
-}
-declare module "gamerbot/src/util/embed" {
-    import { APIEmbed, APIEmbedAuthor, APIEmbedFooter, APIEmbedProvider, EmbedBuilder, EmbedData, User } from 'discord.js';
-    import { Color } from "gamerbot/src/util/color";
-    type EmbedIntent = 'info' | 'success' | 'warning' | 'error';
-    export interface EmbedOptions {
-        noColor?: boolean;
-        noAuthor?: boolean;
-        intent?: EmbedIntent;
-    }
-    export const COLORS: {
-        blue: Color;
-        green: Color;
-        red: Color;
-        orange: Color;
-    };
-    export class Embed extends EmbedBuilder {
-        static error(error: unknown): Embed;
-        static error(message: string, description?: string): Embed;
-        static warning(message: string, description?: string): Embed;
-        static success(message: string, description?: string): Embed;
-        static info(message: string, description?: string): Embed;
-        constructor(options?: (EmbedBuilder | EmbedData | APIEmbed) & EmbedOptions);
-        get title(): string | undefined;
-        set title(title: string | undefined);
-        get description(): string | undefined;
-        set description(description: string | undefined);
-        get url(): string | undefined;
-        set url(url: string | undefined);
-        get timestamp(): Date | undefined;
-        set timestamp(timestamp: Date | undefined);
-        get color(): number | undefined;
-        set color(color: number | undefined);
-        get footer(): APIEmbedFooter | undefined;
-        set footer(footer: APIEmbedFooter | undefined);
-        get image(): string | undefined;
-        set image(image: string | undefined);
-        get video(): string | undefined;
-        get provider(): APIEmbedProvider | undefined;
-        get author(): APIEmbedAuthor | undefined;
-        set author(author: APIEmbedAuthor | undefined);
-        get thumbnail(): string | undefined;
-        set thumbnail(thumbnail: string | undefined);
-        addField(name: string, value: string, inline?: boolean): this;
-        set intent(intent: EmbedIntent);
-        static profileAuthor(name: string, user: User, url?: string): APIEmbedAuthor;
-        static profileThumbnail(user: User): string;
-    }
-}
-declare module "gamerbot/src/util/path" {
-    export const resolvePath: (dir: string) => string;
-}
-declare module "gamerbot/src/logger" {
-    export const initLogger: () => void;
-}
-declare module "gamerbot/src/prisma" {
-    import Prisma from '@prisma/client';
-    export const prisma: Prisma.PrismaClient<{
-        errorFormat: "pretty" | "colorless";
-        log: ({
-            emit: "event";
-            level: "query";
-        } | {
-            emit: "event";
-            level: "info";
-        } | {
-            emit: "event";
-            level: "warn";
-        } | {
-            emit: "event";
-            level: "error";
-        })[];
-    }, "info" | "error" | "warn" | "query", false>;
-}
-declare module "gamerbot/src/client/ClientContext" {
-    import * as Sentry from '@sentry/node';
-    export class ClientContext {
-        transaction: Sentry.Transaction | null;
-    }
-}
-declare module "gamerbot/src/client/ClientStorage" {
-    import fs from 'node:fs/promises';
-    export class ClientStorage {
-        constructor();
-        read<T>(key: string, encoding?: BufferEncoding): Promise<T | undefined>;
-        write(key: string, data: Parameters<typeof fs.writeFile>[1], encoding?: BufferEncoding): Promise<void>;
-        delete(key: string): Promise<boolean>;
-        list(): Promise<string[]>;
-        stat(key: string): Promise<import('fs').Stats | undefined>;
-        exists(key: string): Promise<boolean>;
-    }
-}
-declare module "gamerbot/src/client/CountManager" {
-    import type { Client } from 'discord.js';
-    import { Logger } from 'log4js';
-    export class CountManager {
-        #private;
-        readonly client: Client;
-        logger: Logger;
-        constructor(client: Client);
-        countGuilds(): Promise<number>;
-        countUsers(): Promise<number>;
-        update(): Promise<void>;
-    }
-}
 declare module "gamerbot/src/commands/context" {
     import type { PrismaClient } from '@prisma/client';
     import { BaseInteraction, ChatInputCommandInteraction, ContextMenuCommandInteraction, Message, MessageContextMenuCommandInteraction, User, UserContextMenuCommandInteraction } from 'discord.js';
@@ -188,300 +32,6 @@ declare module "gamerbot/src/commands/context" {
     }
     export class MessageCommandContext extends ContextMenuCommandContext<MessageContextMenuCommandInteraction> {
         get targetMessage(): Message;
-    }
-}
-declare module "gamerbot/src/models/MultiplayerGame" {
-    import { AutocompleteInteraction, GuildMember, Interaction, TextChannel } from 'discord.js';
-    import { CommandContext } from "gamerbot/src/commands/context";
-    export abstract class MultiplayerGame {
-        private context;
-        channel: TextChannel;
-        creator: GuildMember;
-        players: GuildMember[];
-        constructor(context: CommandContext, channel: TextChannel, creator: GuildMember);
-        get guild(): import("discord.js").Guild;
-        abstract main(): Promise<void>;
-        setup(): Promise<void>;
-        teardown(): Promise<void>;
-        onError(err: Error): void;
-        start(): Promise<void>;
-        get maxPlayers(): number;
-        join(interaction: Exclude<Interaction, AutocompleteInteraction>): Promise<void>;
-        leave(interaction: Exclude<Interaction, AutocompleteInteraction>): Promise<void>;
-    }
-}
-declare module "gamerbot/src/models/MutliplayerGameManager" {
-    import { GuildMember, TextChannel } from 'discord.js';
-    import { CommandContext } from "gamerbot/src/commands/context";
-    import { MultiplayerGame } from "gamerbot/src/models/MultiplayerGame";
-    type Constructor<T> = new (context: CommandContext, channel: TextChannel, creator: GuildMember, ...args: unknown[]) => T;
-    export class MultiplayerGameManager<T extends MultiplayerGame> {
-        type: Constructor<T>;
-        constructor(type: Constructor<T>);
-        games: Map<string, T>;
-        get(channelId: string): T | undefined;
-        create(context: CommandContext, channel: TextChannel, creator: GuildMember): Promise<T>;
-        delete(channelId: string): void;
-    }
-}
-declare module "gamerbot/src/client/FlagsManager" {
-    import { MultiplayerGame } from "gamerbot/src/models/MultiplayerGame";
-    import { MultiplayerGameManager } from "gamerbot/src/models/MutliplayerGameManager";
-    class FlagsGame extends MultiplayerGame {
-        flagsLeft: Flag[];
-        scores: Map<string, number>;
-        nextFlag(): Flag | undefined;
-        static isCorrectGuess(flag: Flag, guess: string): boolean;
-        static makeHint(name: string, hintedChars: number): string;
-        delay(ms: number): Promise<boolean>;
-        scoreboard(): string;
-        main(): Promise<void>;
-    }
-    export class FlagsManager extends MultiplayerGameManager<FlagsGame> {
-        constructor();
-    }
-    export interface Flag {
-        displayName: string;
-        names: string[];
-        imageUrl: string;
-    }
-    export interface FlagData {
-        name: string;
-        aliases?: string[];
-        prefix: string;
-        image: string;
-    }
-    export interface FlagYaml {
-        url: string;
-        flags: FlagData[];
-    }
-}
-declare module "gamerbot/src/client/MarkovManager" {
-    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
-    interface MarkovGraph {
-        timestamp: number;
-        words: {
-            [startingWord: string]: {
-                [nextWord: string]: number;
-            };
-        };
-    }
-    export class MarkovManager {
-        #private;
-        readonly client: GamerbotClient;
-        constructor(client: GamerbotClient);
-        graph: MarkovGraph;
-        load(): Promise<void>;
-        save(): Promise<void>;
-        addMessage(message: string): void;
-        connections(seed: string): {
-            [nextWord: string]: number;
-        };
-        generateMessage(length: number, seed?: string, guaranteed?: boolean): string;
-        generateMessageRecursive(length: number, _words: string[]): string[] | null;
-        getRandomWord(): string;
-        getNextWord(word: string, exclude?: string[]): string | undefined;
-        /** read all messages newer than the last time the graph was updated and add them to the graph */
-        sync(): Promise<void>;
-    }
-}
-declare module "gamerbot/src/client/PresenceManager" {
-    import type { Client, PresenceData } from 'discord.js';
-    export class PresenceManager {
-        #private;
-        static cooldown: number;
-        worker: NodeJS.Timeout;
-        constructor(client: Client);
-        destroy(): void;
-        get destroyed(): boolean;
-        get needsUpdate(): boolean;
-        get presence(): PresenceData;
-        set presence(data: PresenceData);
-    }
-}
-declare module "gamerbot/src/types/trivia" {
-    export interface CategoriesResponse {
-        trivia_categories: Array<{
-            id: number;
-            name: string;
-        }>;
-    }
-    export interface TriviaOptions {
-        category?: number | string;
-        type?: 'boolean' | 'multiple';
-        difficulty?: 'easy' | 'medium' | 'hard';
-    }
-    export interface TriviaQuestion {
-        category: string;
-        type: 'boolean' | 'multiple';
-        difficulty: 'easy' | 'medium' | 'hard';
-        question: string;
-        correct_answer: string;
-        incorrect_answers: string[];
-    }
-    export const enum TriviaResponseType {
-        Success = 0,
-        NoResults = 1,
-        InvalidParameters = 2,
-        InvalidToken = 3,
-        QuestionsExhausted = 4
-    }
-    export interface TriviaResponse {
-        /**
-         * #### Response Codes
-         *
-         * The API appends a "Response Code" to each API Call to help tell developers what the API is
-         * doing.
-         *
-         * - Code 0: Success Returned results successfully.
-         * - Code 1: No Results Could not return results. The API doesn't have enough questions for your
-         *   query. (Ex. Asking for 50 Questions in a Category that only has 20.)
-         * - Code 2: Invalid Parameter Contains an invalid parameter. Arguements passed in aren't valid.
-         *   (Ex. Amount = Five)
-         * - Code 3: Token Not Found Session Token does not exist.
-         * - Code 4: Token Empty Session Token has returned all possible questions for the specified
-         *   query. Resetting the Token is necessary.
-         */
-        response_code: 0 | 1 | 2 | 3 | 4;
-        results: TriviaQuestion[];
-    }
-    export interface TokenRequestResponse {
-        response_code: number;
-        response_message: string;
-        token: string;
-    }
-    export interface TokenResetResponse {
-        response_code: number;
-        token: string;
-    }
-}
-declare module "gamerbot/src/client/TriviaManager" {
-    import type { Logger } from 'log4js';
-    import { CategoriesResponse, TriviaOptions, TriviaResponse } from "gamerbot/src/types/trivia";
-    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
-    export class TriviaManager {
-        #private;
-        readonly client: GamerbotClient;
-        logger: Logger;
-        constructor(client: GamerbotClient);
-        resetToken(): Promise<boolean>;
-        static getCategories(): Promise<CategoriesResponse['trivia_categories']>;
-        fetchQuestion(options?: TriviaOptions): Promise<TriviaResponse>;
-    }
-}
-declare module "gamerbot/src/client/egg" {
-    import { Message, PartialMessage } from 'discord.js';
-    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
-    export const hasEggs: (msg: Message | PartialMessage) => boolean;
-    export const getTotal: () => Promise<bigint>;
-    export const onMessage: (client: GamerbotClient, message: Message | PartialMessage) => Promise<void>;
-}
-declare module "gamerbot/src/client/eval" {
-    import { Message, PartialMessage } from 'discord.js';
-    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
-    export const onMessage: (client: GamerbotClient, message: Message | PartialMessage) => Promise<void>;
-}
-declare module "gamerbot/src/util" {
-    import { TimeZone } from '@vvo/tzdb';
-    import { ApplicationCommandOptionChoiceData, CommandInteraction, ContextMenuCommandInteraction } from 'discord.js';
-    import type { Command } from "gamerbot/src/commands/command";
-    import type { ChatCommandDef, MessageCommandDef, UserCommandDef } from "gamerbot/src/types";
-    export const isChatCommand: (def: ChatCommandDef | UserCommandDef | MessageCommandDef) => def is ChatCommandDef;
-    export const insertUuidDashes: (uuid: string) => string;
-    export const hasPermissions: (interaction: CommandInteraction | ContextMenuCommandInteraction, command: Command) => boolean;
-    export const matchString: (input: string, possible: string[]) => ApplicationCommandOptionChoiceData[];
-    export const findTimeZone: (input: string) => TimeZone | undefined;
-    export const escapeMarkdown: (str: string) => string;
-    export const applicationCommandTypeName: {
-        readonly 1: "CHAT_INPUT";
-        readonly 2: "USER";
-        readonly 3: "MESSAGE";
-    };
-}
-declare module "gamerbot/src/client/handleApplicationCommand" {
-    import { Interaction, InteractionType } from 'discord.js';
-    import { ClientContext } from "gamerbot/src/client/ClientContext";
-    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
-    export default function handleApplicationCommand(this: GamerbotClient, ctx: ClientContext, interaction: Extract<Interaction, {
-        type: InteractionType.ApplicationCommand;
-    }>): Promise<void>;
-}
-declare module "gamerbot/src/client/handleAutocomplete" {
-    import { AutocompleteInteraction } from 'discord.js';
-    import { ClientContext } from "gamerbot/src/client/ClientContext";
-    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
-    export default function handleAutocomplete(this: GamerbotClient, ctx: ClientContext, interaction: AutocompleteInteraction): Promise<void>;
-}
-declare module "gamerbot/src/types/urbandictionary" {
-    export interface UrbanDictionaryResponse {
-        list: UrbanDictionaryTerm[];
-    }
-    export interface UrbanDictionaryTerm {
-        definition: string;
-        permalink: string;
-        thumbs_up: number;
-        author: string;
-        word: string;
-        defid: number;
-        current_vote: string;
-        written_on: string;
-        example: string;
-        thumbs_down: number;
-    }
-}
-declare module "gamerbot/src/commands/messages/urban" {
-    import { RepliableInteraction } from 'discord.js';
-    import { CommandResult } from "gamerbot/src/commands/command";
-    const COMMAND_URBAN: import("gamerbot/src/commands/command.js").ChatCommand;
-    export const sendUrban: (interaction: RepliableInteraction, term: string) => Promise<CommandResult>;
-    export default COMMAND_URBAN;
-}
-declare module "gamerbot/src/commands/moderation/role" {
-    import { ButtonInteraction } from 'discord.js';
-    const COMMAND_ROLE: import("gamerbot/src/commands/command.js").ChatCommand;
-    export default COMMAND_ROLE;
-    export const roleToggle: (interaction: ButtonInteraction) => Promise<void>;
-}
-declare module "gamerbot/src/client/handleMessageComponent" {
-    import { MessageComponentInteraction } from 'discord.js';
-    import { ClientContext } from "gamerbot/src/client/ClientContext";
-    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
-    export default function handleMessageComponent(this: GamerbotClient, ctx: ClientContext, interaction: MessageComponentInteraction): Promise<void>;
-}
-declare module "gamerbot/src/client/GamerbotClient" {
-    import { Client, ClientOptions, ClientUser, Guild, Interaction, Message } from 'discord.js';
-    import log4js from 'log4js';
-    import { Command } from "gamerbot/src/commands/command";
-    import { ClientStorage } from "gamerbot/src/client/ClientStorage";
-    import { CountManager } from "gamerbot/src/client/CountManager";
-    import { FlagsManager } from "gamerbot/src/client/FlagsManager";
-    import { MarkovManager } from "gamerbot/src/client/MarkovManager";
-    import { PresenceManager } from "gamerbot/src/client/PresenceManager";
-    import { TriviaManager } from "gamerbot/src/client/TriviaManager";
-    export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {
-    }
-    export class GamerbotClient extends Client {
-        #private;
-        readonly user: ClientUser;
-        readonly commands: Map<string, Command>;
-        readonly presenceManager: PresenceManager;
-        readonly countManager: CountManager;
-        readonly triviaManager: TriviaManager;
-        readonly markov: MarkovManager;
-        readonly flags: FlagsManager;
-        readonly storage: ClientStorage;
-        constructor(options?: GamerbotClientOptions);
-        getLogger(category: string): log4js.Logger;
-        refreshPresence(): Promise<void>;
-        ensureConfig(guildId: string): Promise<void>;
-        countUsers: () => Promise<number>;
-        countGuilds: () => Promise<number>;
-        onDebug(content: string): void;
-        onMessageCreate(message: Message): Promise<void>;
-        onGuildCreate(guild: Guild): Promise<void>;
-        onGuildDelete(guild: Guild): Promise<void>;
-        onInteractionCreate(interaction: Interaction): Promise<void>;
-        startSentry(interaction: Interaction): void;
     }
 }
 declare module "gamerbot/src/types" {
@@ -635,6 +185,23 @@ declare module "gamerbot/src/types" {
         };
     };
 }
+declare module "gamerbot/src/util" {
+    import { TimeZone } from '@vvo/tzdb';
+    import { ApplicationCommandOptionChoiceData, CommandInteraction, ContextMenuCommandInteraction } from 'discord.js';
+    import type { Command } from "gamerbot/src/commands/command";
+    import type { ChatCommandDef, MessageCommandDef, UserCommandDef } from "gamerbot/src/types";
+    export const isChatCommand: (def: ChatCommandDef | UserCommandDef | MessageCommandDef) => def is ChatCommandDef;
+    export const insertUuidDashes: (uuid: string) => string;
+    export const hasPermissions: (interaction: CommandInteraction | ContextMenuCommandInteraction, command: Command) => boolean;
+    export const matchString: (input: string, possible: string[]) => ApplicationCommandOptionChoiceData[];
+    export const findTimeZone: (input: string) => TimeZone | undefined;
+    export const escapeMarkdown: (str: string) => string;
+    export const applicationCommandTypeName: {
+        readonly 1: "CHAT_INPUT";
+        readonly 2: "USER";
+        readonly 3: "MESSAGE";
+    };
+}
 declare module "gamerbot/src/commands/command" {
     import { ApplicationCommandType } from 'discord.js';
     import type { ChatCommandDef, CommandDefinitionType, CommandObjectType, MessageCommandDef, UserCommandDef } from "gamerbot/src/types";
@@ -673,6 +240,457 @@ declare module "gamerbot/src/commands/command" {
     }
     function command<T extends ApplicationCommandType>(type: T, def: CommandDefinitionType[T]): CommandObjectType[T];
     export default command;
+}
+declare module "gamerbot/src/env" {
+    import { GatewayIntentBits } from 'discord.js';
+    const env: {
+        NODE_ENV: string;
+        DEBUG: boolean;
+        DOCKER: boolean;
+        DISCORD_TOKEN: string;
+        DATABASE_URL: string;
+        WIKIPEDIA_CONTACT: string;
+        EVAL_ALLOWED_USERS?: string | undefined;
+        MEDIA_SERVER_ID?: string | undefined;
+        DEVELOPMENT_GUILD_ID?: string | undefined;
+        SENTRY_DSN?: string | undefined;
+        HYPIXEL_CACHE_URL?: string | undefined;
+        HYPIXEL_CACHE_SECRET?: string | undefined;
+    };
+    export default env;
+    export const IS_DEVELOPMENT: boolean;
+    export const CLIENT_INTENTS: GatewayIntentBits[];
+}
+declare module "gamerbot/src/util/path" {
+    export const resolvePath: (dir: string) => string;
+}
+declare module "gamerbot/src/logger" {
+    export const initLogger: () => void;
+}
+declare module "gamerbot/src/prisma" {
+    import Prisma from '@prisma/client';
+    export const prisma: Prisma.PrismaClient<{
+        errorFormat: "pretty" | "colorless";
+        log: ({
+            emit: "event";
+            level: "query";
+        } | {
+            emit: "event";
+            level: "info";
+        } | {
+            emit: "event";
+            level: "warn";
+        } | {
+            emit: "event";
+            level: "error";
+        })[];
+    }, "info" | "query" | "warn" | "error", false>;
+}
+declare module "gamerbot/src/util/discord" {
+    import { Interaction, InteractionReplyOptions, MessagePayload, User } from 'discord.js';
+    import { DateTime } from 'luxon';
+    export const getDateStringFromSnowflake: (id: string) => [timestamp: string, age: string];
+    export const getDateFromSnowflake: (id: string) => DateTime;
+    export const getProfileImageUrl: (user: User) => string;
+    export const interactionReplySafe: (interaction: Interaction, content: string | MessagePayload | InteractionReplyOptions) => Promise<void>;
+}
+declare module "gamerbot/src/client/ClientContext" {
+    import * as Sentry from '@sentry/node';
+    export class ClientContext {
+        transaction: Sentry.Transaction | null;
+    }
+}
+declare module "gamerbot/src/client/ClientStorage" {
+    import fs from 'node:fs/promises';
+    export class ClientStorage {
+        constructor();
+        read<T>(key: string, encoding?: BufferEncoding): Promise<T | undefined>;
+        write(key: string, data: Parameters<typeof fs.writeFile>[1], encoding?: BufferEncoding): Promise<void>;
+        delete(key: string): Promise<boolean>;
+        list(): Promise<string[]>;
+        stat(key: string): Promise<import('fs').Stats | undefined>;
+        exists(key: string): Promise<boolean>;
+    }
+}
+declare module "gamerbot/src/client/CountManager" {
+    import type { Client } from 'discord.js';
+    import { Logger } from 'log4js';
+    export class CountManager {
+        #private;
+        readonly client: Client;
+        logger: Logger;
+        constructor(client: Client);
+        countGuilds(): Promise<number>;
+        countUsers(): Promise<number>;
+        update(): Promise<void>;
+    }
+}
+declare module "gamerbot/src/client/CustomEmojiManager" {
+    import { GuildEmoji } from 'discord.js';
+    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    export class CustomEmojiManager {
+        #private;
+        client: GamerbotClient;
+        emojis: Map<string, GuildEmoji>;
+        constructor(client: GamerbotClient);
+        populateEmojis(): Promise<void>;
+        get(name: string): GuildEmoji | undefined;
+        getString(name: string, fallback?: string): string | undefined;
+    }
+}
+declare module "gamerbot/src/models/MultiplayerGame" {
+    import { AutocompleteInteraction, GuildMember, Interaction, TextChannel } from 'discord.js';
+    import { CommandContext } from "gamerbot/src/commands/context";
+    export abstract class MultiplayerGame {
+        private context;
+        channel: TextChannel;
+        creator: GuildMember;
+        players: GuildMember[];
+        constructor(context: CommandContext, channel: TextChannel, creator: GuildMember);
+        get guild(): import("discord.js").Guild;
+        abstract main(): Promise<void>;
+        setup(): Promise<void>;
+        teardown(): Promise<void>;
+        onError(err: Error): void;
+        start(): Promise<void>;
+        get maxPlayers(): number;
+        join(interaction: Exclude<Interaction, AutocompleteInteraction>): Promise<void>;
+        leave(interaction: Exclude<Interaction, AutocompleteInteraction>): Promise<void>;
+    }
+}
+declare module "gamerbot/src/models/MutliplayerGameManager" {
+    import { GuildMember, TextChannel } from 'discord.js';
+    import { CommandContext } from "gamerbot/src/commands/context";
+    import { MultiplayerGame } from "gamerbot/src/models/MultiplayerGame";
+    type Constructor<T> = new (context: CommandContext, channel: TextChannel, creator: GuildMember, ...args: unknown[]) => T;
+    export class MultiplayerGameManager<T extends MultiplayerGame> {
+        type: Constructor<T>;
+        constructor(type: Constructor<T>);
+        games: Map<string, T>;
+        get(channelId: string): T | undefined;
+        create(context: CommandContext, channel: TextChannel, creator: GuildMember): Promise<T>;
+        delete(channelId: string): void;
+    }
+}
+declare module "gamerbot/src/client/FlagsManager" {
+    import { MultiplayerGame } from "gamerbot/src/models/MultiplayerGame";
+    import { MultiplayerGameManager } from "gamerbot/src/models/MutliplayerGameManager";
+    class FlagsGame extends MultiplayerGame {
+        flagsLeft: Flag[];
+        scores: Map<string, number>;
+        nextFlag(): Flag | undefined;
+        static isCorrectGuess(flag: Flag, guess: string): boolean;
+        static makeHint(name: string, hintedChars: number): string;
+        delay(ms: number): Promise<boolean>;
+        scoreboard(): string;
+        main(): Promise<void>;
+    }
+    export class FlagsManager extends MultiplayerGameManager<FlagsGame> {
+        constructor();
+    }
+    export interface Flag {
+        displayName: string;
+        names: string[];
+        imageUrl: string;
+    }
+    export interface FlagData {
+        name: string;
+        aliases?: string[];
+        prefix: string;
+        image: string;
+    }
+    export interface FlagYaml {
+        url: string;
+        flags: FlagData[];
+    }
+}
+declare module "gamerbot/src/util/format" {
+    import { CommandInteractionOption } from 'discord.js';
+    export const formatOptions: (options: readonly CommandInteractionOption[]) => string;
+    export const formatBytes: (bytes: number, decimals?: number) => string;
+    export const formatUtcOffset: (offset: number) => string;
+    export const formatErrorMessage: (err: unknown) => string;
+}
+declare module "gamerbot/src/client/MarkovManager" {
+    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    interface MarkovGraph {
+        timestamp: number;
+        words: {
+            [startingWord: string]: {
+                [nextWord: string]: number;
+            };
+        };
+    }
+    export class MarkovManager {
+        #private;
+        readonly client: GamerbotClient;
+        constructor(client: GamerbotClient);
+        graph: MarkovGraph;
+        load(): Promise<void>;
+        save(): Promise<void>;
+        addMessage(message: string): void;
+        connections(seed: string): {
+            [nextWord: string]: number;
+        };
+        generateMessage(length: number, seed?: string, guaranteed?: boolean): string;
+        generateMessageRecursive(length: number, _words: string[]): string[] | null;
+        getRandomWord(): string;
+        getNextWord(word: string, exclude?: string[]): string | undefined;
+        /** read all messages newer than the last time the graph was updated and add them to the graph */
+        sync(): Promise<void>;
+    }
+}
+declare module "gamerbot/src/client/PresenceManager" {
+    import type { Client, PresenceData } from 'discord.js';
+    export class PresenceManager {
+        #private;
+        static cooldown: number;
+        worker: NodeJS.Timeout;
+        constructor(client: Client);
+        destroy(): void;
+        get destroyed(): boolean;
+        get needsUpdate(): boolean;
+        get presence(): PresenceData;
+        set presence(data: PresenceData);
+    }
+}
+declare module "gamerbot/src/types/trivia" {
+    export interface CategoriesResponse {
+        trivia_categories: Array<{
+            id: number;
+            name: string;
+        }>;
+    }
+    export interface TriviaOptions {
+        category?: number | string;
+        type?: 'boolean' | 'multiple';
+        difficulty?: 'easy' | 'medium' | 'hard';
+    }
+    export interface TriviaQuestion {
+        category: string;
+        type: 'boolean' | 'multiple';
+        difficulty: 'easy' | 'medium' | 'hard';
+        question: string;
+        correct_answer: string;
+        incorrect_answers: string[];
+    }
+    export const enum TriviaResponseType {
+        Success = 0,
+        NoResults = 1,
+        InvalidParameters = 2,
+        InvalidToken = 3,
+        QuestionsExhausted = 4
+    }
+    export interface TriviaResponse {
+        /**
+         * #### Response Codes
+         *
+         * The API appends a "Response Code" to each API Call to help tell developers what the API is
+         * doing.
+         *
+         * - Code 0: Success Returned results successfully.
+         * - Code 1: No Results Could not return results. The API doesn't have enough questions for your
+         *   query. (Ex. Asking for 50 Questions in a Category that only has 20.)
+         * - Code 2: Invalid Parameter Contains an invalid parameter. Arguements passed in aren't valid.
+         *   (Ex. Amount = Five)
+         * - Code 3: Token Not Found Session Token does not exist.
+         * - Code 4: Token Empty Session Token has returned all possible questions for the specified
+         *   query. Resetting the Token is necessary.
+         */
+        response_code: 0 | 1 | 2 | 3 | 4;
+        results: TriviaQuestion[];
+    }
+    export interface TokenRequestResponse {
+        response_code: number;
+        response_message: string;
+        token: string;
+    }
+    export interface TokenResetResponse {
+        response_code: number;
+        token: string;
+    }
+}
+declare module "gamerbot/src/client/TriviaManager" {
+    import type { Logger } from 'log4js';
+    import { CategoriesResponse, TriviaOptions, TriviaResponse } from "gamerbot/src/types/trivia";
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    export class TriviaManager {
+        #private;
+        readonly client: GamerbotClient;
+        logger: Logger;
+        constructor(client: GamerbotClient);
+        resetToken(): Promise<boolean>;
+        static getCategories(): Promise<CategoriesResponse['trivia_categories']>;
+        fetchQuestion(options?: TriviaOptions): Promise<TriviaResponse>;
+    }
+}
+declare module "gamerbot/src/client/egg" {
+    import { Message, PartialMessage } from 'discord.js';
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    export const hasEggs: (msg: Message | PartialMessage) => boolean;
+    export const getTotal: () => Promise<bigint>;
+    export const onMessage: (client: GamerbotClient, message: Message | PartialMessage) => Promise<void>;
+}
+declare module "gamerbot/src/client/eval" {
+    import { Message, PartialMessage } from 'discord.js';
+    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    export const onMessage: (client: GamerbotClient, message: Message | PartialMessage) => Promise<void>;
+}
+declare module "gamerbot/src/client/handleApplicationCommand" {
+    import { Interaction, InteractionType } from 'discord.js';
+    import { ClientContext } from "gamerbot/src/client/ClientContext";
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    export default function handleApplicationCommand(this: GamerbotClient, ctx: ClientContext, interaction: Extract<Interaction, {
+        type: InteractionType.ApplicationCommand;
+    }>): Promise<void>;
+}
+declare module "gamerbot/src/client/handleAutocomplete" {
+    import { AutocompleteInteraction } from 'discord.js';
+    import { ClientContext } from "gamerbot/src/client/ClientContext";
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    export default function handleAutocomplete(this: GamerbotClient, ctx: ClientContext, interaction: AutocompleteInteraction): Promise<void>;
+}
+declare module "gamerbot/src/types/urbandictionary" {
+    export interface UrbanDictionaryResponse {
+        list: UrbanDictionaryTerm[];
+    }
+    export interface UrbanDictionaryTerm {
+        definition: string;
+        permalink: string;
+        thumbs_up: number;
+        author: string;
+        word: string;
+        defid: number;
+        current_vote: string;
+        written_on: string;
+        example: string;
+        thumbs_down: number;
+    }
+}
+declare module "gamerbot/src/commands/messages/urban" {
+    import { RepliableInteraction } from 'discord.js';
+    import { CommandResult } from "gamerbot/src/commands/command";
+    const COMMAND_URBAN: import("gamerbot/src/commands/command.js").ChatCommand;
+    export const sendUrban: (interaction: RepliableInteraction, term: string) => Promise<CommandResult>;
+    export default COMMAND_URBAN;
+}
+declare module "gamerbot/src/commands/moderation/role" {
+    import { ButtonInteraction } from 'discord.js';
+    const COMMAND_ROLE: import("gamerbot/src/commands/command.js").ChatCommand;
+    export default COMMAND_ROLE;
+    export const roleToggle: (interaction: ButtonInteraction) => Promise<void>;
+}
+declare module "gamerbot/src/client/handleMessageComponent" {
+    import { MessageComponentInteraction } from 'discord.js';
+    import { ClientContext } from "gamerbot/src/client/ClientContext";
+    import type { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    export default function handleMessageComponent(this: GamerbotClient, ctx: ClientContext, interaction: MessageComponentInteraction): Promise<void>;
+}
+declare module "gamerbot/src/client/GamerbotClient" {
+    import { Client, ClientOptions, ClientUser, Guild, Interaction, Message } from 'discord.js';
+    import log4js from 'log4js';
+    import { Command } from "gamerbot/src/commands/command";
+    import { ClientStorage } from "gamerbot/src/client/ClientStorage";
+    import { CountManager } from "gamerbot/src/client/CountManager";
+    import { CustomEmojiManager } from "gamerbot/src/client/CustomEmojiManager";
+    import { FlagsManager } from "gamerbot/src/client/FlagsManager";
+    import { MarkovManager } from "gamerbot/src/client/MarkovManager";
+    import { PresenceManager } from "gamerbot/src/client/PresenceManager";
+    import { TriviaManager } from "gamerbot/src/client/TriviaManager";
+    export interface GamerbotClientOptions extends Exclude<ClientOptions, 'intents'> {
+    }
+    export class GamerbotClient extends Client {
+        #private;
+        readonly user: ClientUser;
+        readonly commands: Map<string, Command>;
+        readonly presenceManager: PresenceManager;
+        readonly countManager: CountManager;
+        readonly triviaManager: TriviaManager;
+        readonly markov: MarkovManager;
+        readonly flags: FlagsManager;
+        readonly customEmojis: CustomEmojiManager;
+        readonly storage: ClientStorage;
+        constructor(options?: GamerbotClientOptions);
+        getLogger(category: string): log4js.Logger;
+        refreshPresence(): Promise<void>;
+        ensureConfig(guildId: string): Promise<void>;
+        countUsers: () => Promise<number>;
+        countGuilds: () => Promise<number>;
+        onDebug(content: string): void;
+        onMessageCreate(message: Message): Promise<void>;
+        onGuildCreate(guild: Guild): Promise<void>;
+        onGuildDelete(guild: Guild): Promise<void>;
+        onInteractionCreate(interaction: Interaction): Promise<void>;
+        startSentry(interaction: Interaction): void;
+    }
+}
+declare module "gamerbot/src/util/color" {
+    export type ColorFormat = 'number' | 'hex' | 'plain' | 'rgb' | 'hsl';
+    export type RgbTriple = [r: number, g: number, b: number];
+    export type HslTriple = [h: number, s: number, l: number];
+    export const hslToRgb: (h: number, s: number, l: number) => RgbTriple;
+    export const rgbToHsl: (r: number, g: number, b: number) => HslTriple;
+    export class Color {
+        #private;
+        static from(input: RgbTriple | HslTriple | number | string, type?: 'rgb' | 'hsl'): Color;
+        constructor(num: number);
+        get number(): number;
+        get plain(): string;
+        get rgb(): RgbTriple;
+        get hsl(): HslTriple;
+        get hex(): string;
+    }
+}
+declare module "gamerbot/src/util/embed" {
+    import { APIEmbed, APIEmbedAuthor, APIEmbedFooter, APIEmbedProvider, EmbedBuilder, EmbedData, User } from 'discord.js';
+    import { GamerbotClient } from "gamerbot/src/client/GamerbotClient";
+    import { Color } from "gamerbot/src/util/color";
+    type EmbedIntent = 'info' | 'success' | 'warning' | 'error';
+    export interface EmbedOptions {
+        noColor?: boolean;
+        noAuthor?: boolean;
+        intent?: EmbedIntent;
+    }
+    export const COLORS: {
+        blue: Color;
+        green: Color;
+        red: Color;
+        orange: Color;
+    };
+    export class Embed extends EmbedBuilder {
+        #private;
+        static setClient(client: GamerbotClient): void;
+        static error(error: unknown): Embed;
+        static error(message: string, description?: string): Embed;
+        static warning(message: string, description?: string): Embed;
+        static success(message: string, description?: string): Embed;
+        static info(message: string, description?: string): Embed;
+        constructor(options?: (EmbedBuilder | EmbedData | APIEmbed) & EmbedOptions);
+        get title(): string | undefined;
+        set title(title: string | undefined);
+        get description(): string | undefined;
+        set description(description: string | undefined);
+        get url(): string | undefined;
+        set url(url: string | undefined);
+        get timestamp(): Date | undefined;
+        set timestamp(timestamp: Date | undefined);
+        get color(): number | undefined;
+        set color(color: number | undefined);
+        get footer(): APIEmbedFooter | undefined;
+        set footer(footer: APIEmbedFooter | undefined);
+        get image(): string | undefined;
+        set image(image: string | undefined);
+        get video(): string | undefined;
+        get provider(): APIEmbedProvider | undefined;
+        get author(): APIEmbedAuthor | undefined;
+        set author(author: APIEmbedAuthor | undefined);
+        get thumbnail(): string | undefined;
+        set thumbnail(thumbnail: string | undefined);
+        addField(name: string, value: string, inline?: boolean): this;
+        set intent(intent: EmbedIntent);
+        static profileAuthor(name: string, user: User, url?: string): APIEmbedAuthor;
+        static profileThumbnail(user: User): string;
+    }
 }
 declare module "gamerbot/src/commands/config/_configOption" {
     import type { Config, Prisma } from '@prisma/client';

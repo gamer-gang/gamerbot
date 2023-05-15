@@ -1,3 +1,16 @@
+# v2.11.0
+
+## Features
+
+- Improve `/dice` UX and visuals
+- Use custom emojis for embeds and `/dice`
+- Improve `$$<id>.eval` object logging
+
+## Fixes
+
+- Fix `/purge` and `Purge to here` once and for all
+- Fix snowflake ID timestamp calculation
+
 # v2.10.2
 
 ## Changes
