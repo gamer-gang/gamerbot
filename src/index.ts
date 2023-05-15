@@ -5,8 +5,10 @@ import { GamerbotClient } from './client/GamerbotClient.js'
 import { deployCommands } from './deploy.js'
 import env from './env.js'
 import { prisma } from './prisma.js'
+import { Embed } from './util/embed.js'
 
 const client = new GamerbotClient()
+Embed.setClient(client)
 
 client.on('ready', async () => {
   client.getLogger('ready').info(`${client.user.tag} ready`)

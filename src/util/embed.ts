@@ -7,6 +7,7 @@ import {
   EmbedData,
   User,
 } from 'discord.js'
+import { GamerbotClient } from '../client/GamerbotClient.js'
 import { Color } from './color.js'
 import { getProfileImageUrl } from './discord.js'
 import { formatErrorMessage } from './format.js'
@@ -36,6 +37,10 @@ export const COLORS = {
 }
 
 export class Embed extends EmbedBuilder {
+  static #client: GamerbotClient | undefined
+  static setClient(client: GamerbotClient): void {
+    Embed.#client = client
+  }
   static error(error: unknown): Embed
   static error(message: string, description?: string): Embed
   static error(err: unknown, description?: string): Embed {
@@ -45,7 +50,10 @@ export class Embed extends EmbedBuilder {
 
     return new Embed({
       intent: 'error',
-      description: `❌${spacer}${intentText(`${err}`, description)}`,
+      description: `${this.#client?.customEmojis.getString('error', '❌')}${spacer}${intentText(
+        `${err}`,
+        description
+      )}`,
     })
   }
 
