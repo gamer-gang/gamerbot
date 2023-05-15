@@ -43,9 +43,7 @@ export default async function handleApplicationCommand(
     context = new UserCommandContext(this, interaction, prisma)
     if (IS_DEVELOPMENT) {
       this.getLogger('command').debug(
-        `/${interaction.commandName} target:${interaction.targetId} ${formatOptions(
-          interaction.options.data
-        )}`
+        `${interaction.commandName} ${formatOptions(interaction.options.data)}`
       )
     }
   } else if (command.type === ApplicationCommandType.Message) {
@@ -53,9 +51,7 @@ export default async function handleApplicationCommand(
     context = new MessageCommandContext(this, interaction, prisma)
     if (IS_DEVELOPMENT) {
       this.getLogger('command').debug(
-        `${interaction.commandName} target:${interaction.targetId} ${formatOptions(
-          interaction.options.data
-        )}`
+        `${interaction.commandName} ${formatOptions(interaction.options.data)}`
       )
     }
   } else if (command.type === ApplicationCommandType.ChatInput) {
