@@ -20,17 +20,19 @@ export const onMessage = async (
 
   let output = ''
 
-  const print = (str: string): void => {
-    output += str
+  const print = (data: unknown): void => {
+    const s = typeof data === 'object' ? codeBlock(JSON.stringify(data, null, 2)) : data
+    output += s
   }
 
-  const println = (str: string): void => {
-    output += str
+  const println = (data: unknown): void => {
+    print(data)
     output += '\n'
   }
 
-  const codeBlock = (str: string, lang = ''): string => {
-    return `\`\`\`${lang}\n${str}\n\`\`\``
+  const codeBlock = (data: unknown, lang = ''): string => {
+    const s = typeof data === 'object' ? JSON.stringify(data, null, 2) : data
+    return `\`\`\`${lang}\n${s}\n\`\`\``
   }
 
   try {
@@ -42,7 +44,7 @@ export const onMessage = async (
         files: [
           {
             name: 'output.txt',
-            attachment: Buffer.from(output),
+            attachment: Buffer.from(trimCodeFences(output)),
           },
         ],
       })
@@ -65,9 +67,9 @@ const execute = async (
   channel: Channel,
   guild: Guild | null,
   message: Message | PartialMessage,
-  print: (str: string) => void,
-  println: (str: string) => void,
-  codeBlock: (str: string, lang?: string) => string
+  print: (data: unknown) => void,
+  println: (data: unknown) => void,
+  codeBlock: (data: unknown, lang?: string) => string
 ): Promise<void> => {
   const ret = new Function(
     'code',
@@ -84,4 +86,16 @@ const execute = async (
     const s = typeof ret === 'object' ? JSON.stringify(ret, null, 2) : ret
     print(`*returned:*\n${codeBlock(s)}`)
   }
+}
+
+const trimCodeFences = (s: string): string => {
+  if (s.startsWith('```')) {
+    s = s.slice(3)
+  }
+
+  if (s.endsWith('```')) {
+    s = s.slice(0, -3)
+  }
+
+  return s
 }
