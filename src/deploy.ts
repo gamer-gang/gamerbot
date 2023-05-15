@@ -33,8 +33,12 @@ export const deployCommands = async (client: GamerbotClient): Promise<void> => {
     }
 
     commandManager = guild.commands
+    client.application?.commands.set([])
   } else {
     commandManager = client.application?.commands
+    for (const guild of client.guilds.cache.values()) {
+      guild.commands.set([])
+    }
   }
 
   if (commandManager == null) {
