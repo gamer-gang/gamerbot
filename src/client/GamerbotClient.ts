@@ -23,6 +23,7 @@ import { Embed } from '../util/embed.js'
 import { ClientContext } from './ClientContext.js'
 import { ClientStorage } from './ClientStorage.js'
 import { CountManager } from './CountManager.js'
+import { CustomEmojiManager } from './CustomEmojiManager.js'
 import { FlagsManager } from './FlagsManager.js'
 import { MarkovManager } from './MarkovManager.js'
 import { PresenceManager } from './PresenceManager.js'
@@ -46,6 +47,7 @@ export class GamerbotClient extends Client {
   readonly triviaManager = new TriviaManager(this)
   readonly markov = new MarkovManager(this)
   readonly flags = new FlagsManager()
+  readonly customEmojis = new CustomEmojiManager(this)
 
   readonly storage = new ClientStorage()
 
@@ -75,9 +77,11 @@ export class GamerbotClient extends Client {
     this.on('warn', (warn) => this.#discordLogger.warn(warn))
 
     this.on('ready', async () => {
-      await this.countManager.update()
-
-      this.markov.load().then(() => void this.markov.sync())
+      await Promise.all([
+        this.countManager.update(),
+        this.customEmojis.populateEmojis(),
+        this.markov.load().then(() => this.markov.sync()),
+      ])
     })
 
     this.on('debug', this.onDebug.bind(this))
