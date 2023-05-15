@@ -192,7 +192,7 @@ export class MarkovManager {
       for (const guild of this.client.guilds.cache.values()) {
         let guildMessageCount = 0
 
-        this.#logger.info(`SYNC guild ${guild.id} ${guild.name}`)
+        this.#logger.trace(`SYNC guild ${guild.id} ${guild.name}`)
 
         try {
           for (const channel of guild.channels.cache.values()) {
@@ -265,7 +265,7 @@ export class MarkovManager {
           this.#logger.error(`SYNC guild error`, err)
         }
 
-        this.#logger.info(`SYNC guild done ${guildMessageCount}`)
+        this.#logger.trace(`SYNC guild done ${guildMessageCount}`)
       }
     } catch (err) {
       this.#logger.error(`SYNC guild error`, err)
