@@ -38,7 +38,7 @@ const COMMAND_PURGE = command(ApplicationCommandType.ChatInput, {
   async run(context) {
     const { interaction, options } = context
 
-    let n = options.getNumber('n')
+    let n = options.getInteger('n')
     const to = options.getString('to')
 
     // if both n and to are specified or neither is specified, reply with an error
@@ -73,7 +73,7 @@ const COMMAND_PURGE = command(ApplicationCommandType.ChatInput, {
 
       if (n === 0) {
         await interaction.editReply({
-          embeds: [Embed.info(`Purged ${options.getNumber('n') ?? '<unknown>'} messages`)],
+          embeds: [Embed.success(`Purged **${options.getInteger('n') ?? '<unknown>'}** messages.`)],
         })
       }
       return CommandResult.Success

@@ -13,25 +13,29 @@ export const purgeTo = async (
   interaction: CommandInteraction | ContextMenuCommandInteraction,
   to: string
 ): Promise<CommandResult> => {
-  const timestamp = getDateFromSnowflake(to)
+  const timestamp = getDateFromSnowflake(to).toMillis()
 
   assert(interaction.channel)
   assert(interaction.channel.type !== ChannelType.DM)
 
-  while (getDateFromSnowflake(interaction.channel.lastMessage?.id ?? '0') > timestamp) {
-    const messages = await interaction.channel.messages.fetch({ limit: 200 })
+  while (getDateFromSnowflake(interaction.channel.lastMessage?.id ?? '0').toMillis() > timestamp) {
+    const messages = await interaction.channel.messages.fetch({ limit: 100 })
 
-    const toDelete = messages.filter((message) => message.createdTimestamp > timestamp.toMillis())
+    const toDelete = messages.filter(
+      (message) => getDateFromSnowflake(message.id ?? '0').toMillis() > timestamp
+    )
     if (toDelete.size === 0) break
 
-    const deleted = await interaction.channel.bulkDelete(200, true)
+    const deleted = await interaction.channel.bulkDelete(toDelete.size, true)
     if (deleted.size < toDelete.size) {
       await interaction.followUp({
-        embeds: [Embed.error('Could not delete messages older than 14 days')],
+        embeds: [Embed.error('Could not delete messages older than 14 days.')],
         ephemeral: true,
       })
       break
     }
+
+    await interaction.channel.fetch()
     await new Promise((resolve) => setTimeout(resolve, 1000))
   }
 
@@ -51,7 +55,16 @@ const COMMAND_PURGETOHERE = command(ApplicationCommandType.Message, {
 
     const message = context.targetMessage
 
-    return await purgeTo(interaction, message.id)
+    await interaction.reply({
+      embeds: [Embed.info('Purging...')],
+      ephemeral: true,
+    })
+    await purgeTo(interaction, message.id)
+    await interaction.editReply({
+      embeds: [Embed.success(`Purged messages newer than ${message.url}`)],
+    })
+
+    return CommandResult.Success
   },
 })
 
