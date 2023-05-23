@@ -20,6 +20,7 @@ const env = createEnv({
     // BOT_ADMINISTRATORS: z.string().optional(),
     EVAL_ALLOWED_USERS: z.string().optional(),
 
+    SUPPORT_SERVER_INVITE: z.string(),
     MEDIA_SERVER_ID: z.string().optional(),
     DEVELOPMENT_GUILD_ID: z.string().optional(),
 

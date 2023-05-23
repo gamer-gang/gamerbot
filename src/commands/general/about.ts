@@ -1,5 +1,8 @@
+import { stripIndent } from 'common-tags'
 import { ApplicationCommandType } from 'discord.js'
 import packageJson from '../../../package.json'
+import env from '../../env.js'
+import { getProfileImageUrl } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
@@ -10,17 +13,28 @@ const COMMAND_ABOUT = command(ApplicationCommandType.ChatInput, {
   async run(context) {
     const { interaction, client } = context
 
-    const embed = new Embed({ title: 'About' })
-
     await interaction.deferReply()
 
     const [guilds, users] = await Promise.all([client.countGuilds(), client.countUsers()])
 
-    embed.author = Embed.profileAuthor(client.user.username, client.user)
+    const embed = new Embed({
+      title: 'About',
+      author: Embed.profileAuthor(client.user),
+      description: stripIndent`
+        The general purpose bot that sometimes works™.
+
+        **Website**: https://gamerbot.dev
+        **Invite**: https://gamerbot.dev/invite
+        **Repository**: [GitHub](https://github.com/gamer-gang/gamerbot)
+        **Bug Reports/Feedback**: [GitHub Issues](https://github.com/gamer-gang/gamerbot/issues)
+        **Support**: [Discord](${env.SUPPORT_SERVER_INVITE})
+      `,
+      thumbnail: {
+        url: getProfileImageUrl(client.user),
+      },
+    })
 
     embed
-      .addField('Repository', '[GitHub](https://github.com/gamer-gang/gamerbot)')
-      .addField('Issues', '[Issues](https://github.com/gamer-gang/gamerbot/issues)')
       .addField('Servers', guilds.toLocaleString(), true)
       .addField('Users', users.toLocaleString(), true)
       .addField(
