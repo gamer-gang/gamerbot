@@ -63,6 +63,7 @@ export class GamerbotClient extends Client {
       tracesSampleRate: 1.0,
       profilesSampleRate: 1.0,
       environment: IS_DEVELOPMENT ? 'development' : 'production',
+      enabled: !IS_DEVELOPMENT,
       integrations: [new ProfilingIntegration()],
       release: globalThis.SENTRY_RELEASE,
     })
