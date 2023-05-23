@@ -18,9 +18,9 @@ export const getDateFromSnowflake = (id: string): DateTime => {
 }
 
 export const getProfileImageUrl = (user: User): string => {
-  let icon = user.displayAvatarURL({ size: 4096 })
+  let icon = user.displayAvatarURL({ size: 1024 })
   if (icon.includes('.webp')) {
-    icon = user.displayAvatarURL({ size: 4096, extension: 'png' })
+    icon = user.displayAvatarURL({ size: 1024, extension: 'png' })
   }
   return icon
 }

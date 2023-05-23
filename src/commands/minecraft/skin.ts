@@ -182,7 +182,7 @@ const COMMAND_SKIN = command(ApplicationCommandType.ChatInput, {
       image: { url },
     })
 
-    embed.author = Embed.profileAuthor(interaction.user.username, interaction.user)
+    embed.author = Embed.profileAuthor(interaction.user)
 
     timers.total = Math.round(performance.now() - timers.total)
 

@@ -24,12 +24,19 @@ export class CountManager {
   }
 
   async countGuilds(): Promise<number> {
-    if (Date.now() - this.#guildCountCacheTime < 5 * 60_000) {
-      return this.#guildCount!
+    if (!this.#guildCount) {
+      this.#guildCount = await this.#countGuilds()
+      this.#guildCountCacheTime = Date.now()
+      return this.#guildCount
     }
 
-    this.#guildCount = await this.#countGuilds()
-    this.#guildCountCacheTime = Date.now()
+    if (Date.now() - this.#guildCountCacheTime > 5 * 60_000) {
+      // return now but update in the background
+      this.#countGuilds().then((v) => {
+        this.#guildCount = v
+        this.#guildCountCacheTime = Date.now()
+      })
+    }
 
     return this.#guildCount
   }
@@ -56,12 +63,19 @@ export class CountManager {
   }
 
   async countUsers(): Promise<number> {
-    if (Date.now() - this.#userCountCacheTime < 5 * 60_000) {
-      return this.#userCount!
+    if (!this.#userCount) {
+      this.#userCount = await this.#countUsers()
+      this.#userCountCacheTime = Date.now()
+      return this.#userCount
     }
 
-    this.#userCount = await this.#countUsers()
-    this.#userCountCacheTime = Date.now()
+    if (Date.now() - this.#userCountCacheTime > 5 * 60_000) {
+      // return now but update in the background
+      this.#countUsers().then((v) => {
+        this.#userCount = v
+        this.#userCountCacheTime = Date.now()
+      })
+    }
 
     return this.#userCount
   }
@@ -85,6 +99,6 @@ export class CountManager {
 
   async update(): Promise<void> {
     this.logger.debug('UPDATE all')
-    await Promise.all([this.#countGuilds(), this.#countUsers()])
+    await Promise.all([this.countGuilds(), this.countUsers()])
   }
 }

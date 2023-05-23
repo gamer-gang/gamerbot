@@ -195,7 +195,7 @@ export class Embed extends EmbedBuilder {
     }
   }
 
-  static profileAuthor(name: string, user: User, url?: string): APIEmbedAuthor {
+  static profileAuthor(user: User, name = user.username, url?: string): APIEmbedAuthor {
     return {
       name,
       icon_url: getProfileImageUrl(user),

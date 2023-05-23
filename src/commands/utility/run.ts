@@ -1,6 +1,5 @@
 /* eslint-disable import/no-named-as-default */
 import { stripIndent } from 'common-tags'
-import type { APIMessage } from 'discord-api-types/v9'
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
@@ -224,26 +223,26 @@ const COMMAND_RUN = command(ApplicationCommandType.ChatInput, {
 
     assert(interaction.channel, 'Interaction has no channel')
 
-    let outputMessage: APIMessage | Message
+    let outputMessage: Message
     if (
       !options.getString('code') ||
       (!options.getString('stdin') && options.getBoolean('ask-stdin'))
     ) {
-      outputMessage = (await interaction.followUp({
+      outputMessage = await interaction.followUp({
         embeds: [
           Embed.info('Running code...')
             .setColor(COLORS.orange.number)
             .setTitle(`Run code: ${runtime.language} v${runtime.version}`),
         ],
-      })) as any // TODO: fix type
+      })
     } else {
-      outputMessage = (await interaction.editReply({
+      outputMessage = await interaction.editReply({
         embeds: [
           Embed.info('Running code...')
             .setColor(COLORS.orange.number)
             .setTitle(`Run code: ${runtime.language} v${runtime.version}`),
         ],
-      })) as any // TODO: fix type
+      })
     }
 
     const codeResult = await pistonClient.execute({
@@ -294,7 +293,7 @@ const COMMAND_RUN = command(ApplicationCommandType.ChatInput, {
       embed.setDescription(`${embed.description}\n\n${formattedOutput}`)
     }
 
-    embed.author = Embed.profileAuthor(interaction.user.username, interaction.user)
+    embed.author = Embed.profileAuthor(interaction.user)
     embed.title = `Run code: ${runtime.language} v${runtime.version}`
 
     if (run?.signal && !(embed.description ?? 'OOM').includes('OOM')) {
