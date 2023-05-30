@@ -11,6 +11,7 @@ import assert from 'node:assert'
 import { Embed } from '../../util/embed.js'
 import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
+import { isTooBroke, updateBalances } from './wager.js'
 
 const RPS_CHOICES = {
   rock: '✊',
@@ -54,11 +55,26 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
       type: ApplicationCommandOptionType.Boolean,
       required: false,
     },
+    {
+      name: 'wager',
+      description: 'How many eggs to bet. This is how much you will lose/win.',
+      type: ApplicationCommandOptionType.Integer,
+      required: false,
+    },
   ],
 
   async run(context) {
     const { interaction, options } = context
     const lizardSpock = options.getBoolean('lizard-and-spock')
+
+    const wager = options.getInteger('wager')
+    const opponentId = options.getUser('user')?.id
+
+    if (wager && opponentId) {
+      if (await isTooBroke(interaction, interaction.user.id, opponentId, wager)) {
+        return CommandResult.Success
+      }
+    }
 
     const response = await challengePlayer(
       interaction,
@@ -144,7 +160,7 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
         })
       })
 
-      collector.on('end', () => {
+      collector.on('end', async () => {
         if (!move1 && !move2) {
           void moveMessage.edit({
             embeds: [Embed.error('Neither player selected a move.')],
@@ -152,16 +168,22 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
           })
           return
         }
+
+        const losingWagerString = wager ? ` and lost ${wager} eggs` : ''
+
         if (!move1) {
           void moveMessage.edit({
-            embeds: [Embed.error(`${interaction.user} didn't select a move.`)],
+            embeds: [Embed.error(`${interaction.user} didn't select a move${losingWagerString}.`)],
             components: [],
           })
+          if (wager) await updateBalances(opponent.id, interaction.user.id, wager)
+          return
         } else if (!move2) {
           void moveMessage.edit({
-            embeds: [Embed.error(`${opponent} didn't select a move.`)],
+            embeds: [Embed.error(`${opponent} didn't select a move${losingWagerString}.`)],
             components: [],
           })
+          if (wager) await updateBalances(interaction.user.id, opponent.id, wager)
           return
         }
 
@@ -191,16 +213,19 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
         const matchup1 = RPSLS_MATRIX[key1][key2]
         const matchup2 = RPSLS_MATRIX[key2][key1]
 
+        const winningWagerString = wager ? ` ${wager} eggs` : ''
+
         if (matchup1) {
           void moveMessage.edit({
             embeds: [
               new Embed({
                 title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
-                description: `${interaction.user.tag} has won (${RPSLS_CHOICES[move1]} ${matchup1} ${RPSLS_CHOICES[move2]})!`,
+                description: `${interaction.user.tag} has won${winningWagerString} (${RPSLS_CHOICES[move1]} ${matchup1} ${RPSLS_CHOICES[move2]})!`,
               }),
             ],
             components: [],
           })
+          if (wager) await updateBalances(interaction.user.id, opponent.id, wager)
           resolve(CommandResult.Success)
           return
         }
@@ -209,11 +234,12 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
           embeds: [
             new Embed({
               title: `**${interaction.user.tag}'s and ${opponent.tag}'s RPS game**`,
-              description: `${opponent.tag} has won (${RPSLS_CHOICES[move2]} ${matchup2} ${RPSLS_CHOICES[move1]})!`,
+              description: `${opponent.tag} has won${winningWagerString} (${RPSLS_CHOICES[move2]} ${matchup2} ${RPSLS_CHOICES[move1]})!`,
             }),
           ],
           components: [],
         })
+        if (wager) await updateBalances(opponent.id, interaction.user.id, wager)
         resolve(CommandResult.Success)
       })
     })

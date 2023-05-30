@@ -15,6 +15,7 @@ import { GamerbotClient } from '../../client/GamerbotClient.js'
 import { Embed } from '../../util/embed.js'
 import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
+import { isTooBroke, updateBalances } from './wager.js'
 
 const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
   name: 'dice',
@@ -32,10 +33,25 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
       type: ApplicationCommandOptionType.User,
       required: true,
     },
+    {
+      name: 'wager',
+      description: 'How many eggs to bet. This is how much you will lose/win.',
+      type: ApplicationCommandOptionType.Integer,
+      required: false,
+    },
   ],
 
   async run(context) {
     const { interaction, options, client } = context
+
+    const wager = options.getInteger('wager')
+    const opponentId = options.getUser('user')?.id
+
+    if (wager && opponentId) {
+      if (await isTooBroke(interaction, interaction.user.id, opponentId, wager)) {
+        return CommandResult.Success
+      }
+    }
 
     const challengeResponse = await challengePlayer(interaction, options, 'dice', '🎲')
 
@@ -92,6 +108,8 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
         throw new Error('Invalid state: no bid interaction message and no last interaction')
       }
 
+      const losingWagerString = wager ? ` and lost ${wager} eggs` : ''
+
       try {
         lastInteraction = await gameMessage.awaitMessageComponent({
           componentType: ComponentType.StringSelect,
@@ -99,15 +117,19 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
           time: 60000,
         })
       } catch (error) {
+        if (wager) await updateBalances(interaction.user.id, opponent.id, wager)
+
         void interaction.followUp({
-          embeds: [Embed.error(`${currentTurn} failed to bid.`)],
+          embeds: [Embed.error(`${currentTurn} failed to bid${losingWagerString}.`)],
         })
         break
       }
 
       if (lastInteraction == null) {
+        if (wager) await updateBalances(opponent.id, interaction.user.id, wager)
+
         void interaction.followUp({
-          embeds: [Embed.error(`${currentTurn} failed to bid.`)],
+          embeds: [Embed.error(`${currentTurn} failed to bid${losingWagerString}.`)],
         })
         break
       }
@@ -130,10 +152,19 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
         }
         const callSuccess = winner === currentTurn
 
+        const winningWagerString = wager ? ` ${wager} eggs` : ''
+
+        if (wager) {
+          if (winner.id == interaction.user.id) await updateBalances(winner.id, opponent.id, wager)
+          else await updateBalances(winner.id, interaction.user.id, wager)
+        }
+
         await interaction.followUp({
           embeds: [
             Embed.success(
-              `The call ${callSuccess ? 'succeded' : 'failed'}; **${winner} wins!**`
+              `The call ${
+                callSuccess ? 'succeded' : 'failed'
+              }; **${winner} wins${winningWagerString}!**`
             ).addFields(
               {
                 name: interaction.user.tag,
@@ -165,7 +196,7 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
 })
 
 // represents every possible bid
-const possibleBids = [1, 2, 3, 4].map((i) => [1, 2, 3, 4].map((j) => [i, j])).flat()
+const possibleBids = [1, 2, 3, 4, 5, 6].map((i) => [1, 2, 3, 4].map((j) => [i, j])).flat()
 
 const emojis: (APIMessageComponentEmoji | null)[] = []
 

@@ -2,6 +2,7 @@ import { ApplicationCommandOptionType, ApplicationCommandType, Message } from 'd
 import { Embed } from '../../util/embed.js'
 import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
+import { isTooBroke, updateBalances } from './wager.js'
 
 const COMMAND_CONNECT4 = command(ApplicationCommandType.ChatInput, {
   name: 'connect4',
@@ -19,10 +20,25 @@ const COMMAND_CONNECT4 = command(ApplicationCommandType.ChatInput, {
       type: ApplicationCommandOptionType.User,
       required: true,
     },
+    {
+      name: 'wager',
+      description: 'How many eggs to bet. This is how much you will lose/win.',
+      type: ApplicationCommandOptionType.Integer,
+      required: false,
+    },
   ],
 
   async run(context) {
     const { interaction, options } = context
+
+    const wager = options.getInteger('wager')
+    const opponentId = options.getUser('user')?.id
+
+    if (wager && opponentId) {
+      if (await isTooBroke(interaction, interaction.user.id, opponentId, wager)) {
+        return CommandResult.Success
+      }
+    }
 
     const response = await challengePlayer(interaction, options, 'connect four', '⚔️')
 
@@ -107,7 +123,7 @@ const COMMAND_CONNECT4 = command(ApplicationCommandType.ChatInput, {
       })
     })
 
-    collector.on('end', (collected, reason) => {
+    collector.on('end', async (collected, reason) => {
       void msg.edit({
         embeds: [
           new Embed({
@@ -118,11 +134,18 @@ const COMMAND_CONNECT4 = command(ApplicationCommandType.ChatInput, {
       })
       void msg.reactions.removeAll()
       if (reason === 'won') {
+        if (wager) {
+          if (firstPlayerTurn) updateBalances(interaction.user.id, opponent.id, wager)
+          else updateBalances(opponent.id, interaction.user.id, wager)
+        }
+
         void msg.reply({
           embeds: [
             Embed.success(
               'Connect Four',
-              `${firstPlayerTurn ? interaction.user.tag : opponent.tag} won!`
+              `${firstPlayerTurn ? interaction.user.tag : opponent.tag} won${
+                wager ? ` ${wager} eggs` : ''
+              }!`
             ),
           ],
         })
@@ -131,13 +154,18 @@ const COMMAND_CONNECT4 = command(ApplicationCommandType.ChatInput, {
           embeds: [Embed.success('Connect Four', "It's a tie!")],
         })
       } else {
+        if (wager) {
+          if (firstPlayerTurn) updateBalances(opponent.id, interaction.user.id, wager)
+          else updateBalances(interaction.user.id, opponent.id, wager)
+        }
+
         void msg.reply({
           embeds: [
             new Embed({
               title: 'Connect Four',
               description: `${
                 firstPlayerTurn ? interaction.user.tag : opponent.tag
-              } failed to move.`,
+              } failed to move${wager ? ` and lost ${wager} eggs` : ''}.`,
             }),
           ],
         })
