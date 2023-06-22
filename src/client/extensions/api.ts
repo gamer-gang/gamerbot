@@ -16,7 +16,7 @@ const devLogger: PinoLoggerOptions = {
   },
 }
 
-const prodLogger = false
+const prodLogger = true
 
 export default class APIExtension extends ClientExtension {
   constructor(client: GamerbotClient) {
@@ -66,7 +66,7 @@ export default class APIExtension extends ClientExtension {
       }
 
       try {
-        const output = this.client.ext.eval.execute(code)
+        const output = await this.client.ext.eval.execute(code)
         return { status: 'ok', output }
       } catch (error) {
         reply.status(400)

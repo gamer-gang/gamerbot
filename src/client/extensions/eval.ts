@@ -87,16 +87,17 @@ const execute = async (
   println: (data: unknown) => void,
   codeBlock: (data: unknown, lang?: string) => string
 ): Promise<void> => {
-  const ret = new Function(
+  const ret = await new Function(
     'code',
     'client',
     'channel',
     'guild',
     'message',
     'print',
+    'println',
     'codeBlock',
-    code
-  )(code, client, channel, guild, message, print, println, codeBlock)
+    `return async () => {${code}}`
+  )(code, client, channel, guild, message, print, println, codeBlock)()
 
   if (ret) {
     const s = typeof ret === 'object' ? JSON.stringify(ret, null, 2) : ret
