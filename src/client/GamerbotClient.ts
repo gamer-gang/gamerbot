@@ -2,7 +2,6 @@
 import * as Sentry from '@sentry/node'
 import { ProfilingIntegration } from '@sentry/profiling-node'
 import {
-  ActivityType,
   ChannelType,
   Client,
   ClientOptions,
@@ -21,15 +20,17 @@ import { prisma } from '../prisma.js'
 import { interactionReplySafe } from '../util/discord.js'
 import { Embed } from '../util/embed.js'
 import { ClientContext } from './ClientContext.js'
-import { ClientStorage } from './ClientStorage.js'
-import { CountManager } from './CountManager.js'
-import { CustomEmojiManager } from './CustomEmojiManager.js'
-import { FlagsManager } from './FlagsManager.js'
-import { MarkovManager } from './MarkovManager.js'
-import { PresenceManager } from './PresenceManager.js'
-import { TriviaManager } from './TriviaManager.js'
-import * as eggs from './egg.js'
-import * as eval from './eval.js'
+import APIExtension from './extensions/api.js'
+import CountsExtension from './extensions/counts.js'
+import CustomEmojiExtension from './extensions/customEmoji.js'
+import DeployExtension from './extensions/deploy.js'
+import EggsExtension from './extensions/eggs.js'
+import EvalExtension from './extensions/eval.js'
+import FlagsExtension from './extensions/flags.js'
+import MarkovExtension from './extensions/markov.js'
+import PresenceExtension from './extensions/presence.js'
+import StorageExtension from './extensions/storage.js'
+import TriviaExtension from './extensions/trivia.js'
 import handleApplicationCommand from './handleApplicationCommand.js'
 import handleAutocomplete from './handleAutocomplete.js'
 import handleMessageComponent from './handleMessageComponent.js'
@@ -40,18 +41,22 @@ export class GamerbotClient extends Client {
   declare readonly user: ClientUser
   readonly #logger = log4js.getLogger('client')
   readonly #discordLogger = log4js.getLogger('discord')
-
   readonly commands = new Map<string, Command>()
-  readonly presenceManager = new PresenceManager(this)
-  readonly countManager = new CountManager(this)
-  readonly triviaManager = new TriviaManager(this)
-  readonly markov = new MarkovManager(this)
-  readonly flags = new FlagsManager()
-  readonly customEmojis = new CustomEmojiManager(this)
 
-  readonly storage = new ClientStorage()
+  readonly ext = {
+    api: new APIExtension(this),
+    counts: new CountsExtension(this),
+    customEmoji: new CustomEmojiExtension(this),
+    deploy: new DeployExtension(this),
+    eggs: new EggsExtension(this),
+    eval: new EvalExtension(this),
+    flags: new FlagsExtension(this),
+    markov: new MarkovExtension(this),
+    presence: new PresenceExtension(this),
+    storage: new StorageExtension(this),
+    trivia: new TriviaExtension(this),
+  }
 
-  #updateCountsInterval: NodeJS.Timeout | null = null
   /** set of guild ids that are already known to have config rows in the db to save queries */
   #hasConfig = new Set<string>()
 
@@ -77,45 +82,21 @@ export class GamerbotClient extends Client {
     this.on('error', (err) => this.#discordLogger.error(err))
     this.on('warn', (warn) => this.#discordLogger.warn(warn))
 
-    this.on('ready', async () => {
-      await Promise.all([
-        this.countManager.update(),
-        this.customEmojis.populateEmojis(),
-        this.markov.load().then(() => this.markov.sync()),
-      ])
-    })
-
     this.on('debug', this.onDebug.bind(this))
     this.on('messageCreate', this.onMessageCreate.bind(this))
     this.on('guildCreate', this.onGuildCreate.bind(this))
     this.on('guildDelete', this.onGuildDelete.bind(this))
     this.on('interactionCreate', this.onInteractionCreate.bind(this))
-
-    this.#updateCountsInterval = setInterval(() => void this.countManager.update(), 5 * 60_000)
-
-    setInterval(() => void this.markov.save(), 60 * 60_000)
   }
 
   getLogger(category: string): log4js.Logger {
     return log4js.getLogger(category)
   }
 
-  async refreshPresence(): Promise<void> {
-    const num = await eggs.getTotal()
-    this.presenceManager.presence = {
-      activities: [
-        {
-          type: ActivityType.Playing,
-          name: `with ${num.toLocaleString()} egg${num === 1n ? '' : 's'} | /help`,
-        },
-      ],
-    }
-  }
-
   async ensureConfig(guildId: string): Promise<void> {
     if (this.#hasConfig.has(guildId)) return
 
-    if (!/\d{18}/.test(guildId)) {
+    if (!/\d{18,}/.test(guildId)) {
       throw new Error(`Invalid guild id: ${guildId}`)
     }
 
@@ -127,9 +108,6 @@ export class GamerbotClient extends Client {
 
     this.#hasConfig.add(guildId)
   }
-
-  countUsers = this.countManager.countUsers.bind(this.countManager)
-  countGuilds = this.countManager.countGuilds.bind(this.countManager)
 
   onDebug(content: string): void {
     if (content.includes('Heartbeat')) return
@@ -145,11 +123,6 @@ export class GamerbotClient extends Client {
 
   async onMessageCreate(message: Message): Promise<void> {
     if (message.author.id === this.user.id) return
-    void eggs.onMessage(this, message)
-    void eval.onMessage(this, message)
-    if (!message.author.bot) {
-      void this.markov.addMessage(message.cleanContent || message.content)
-    }
   }
 
   async onGuildCreate(guild: Guild): Promise<void> {

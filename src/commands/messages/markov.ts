@@ -38,12 +38,12 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
     const seed = input.value
     if (typeof seed !== 'string') return []
 
-    const words = Object.keys(client.markov.graph.words)
+    const words = Object.keys(client.ext.markov.graph.words)
 
     const results = words
       .filter((word) => word.startsWith(seed))
       .map((word) => ({
-        name: `${word} (${Object.values(client.markov.graph.words[word]).length} connections)`,
+        name: `${word} (${Object.values(client.ext.markov.graph.words[word]).length} connections)`,
         value: word,
       }))
 
@@ -59,7 +59,7 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
 
     const connectionsSeed = interaction.options.getString('connections')
     if (connectionsSeed) {
-      if (!client.markov.graph.words[connectionsSeed]) {
+      if (!client.ext.markov.graph.words[connectionsSeed]) {
         await interaction.reply({
           embeds: [Embed.error('Seed not found.')],
           ephemeral: true,
@@ -67,7 +67,7 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
         return CommandResult.Success
       }
 
-      const connections = client.markov.connections(connectionsSeed)
+      const connections = client.ext.markov.connections(connectionsSeed)
       const list = Object.entries(connections)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 25)
@@ -99,7 +99,7 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
 
     const seed = interaction.options.getString('seed')
 
-    if (seed && !client.markov.graph.words[seed]) {
+    if (seed && !client.ext.markov.graph.words[seed]) {
       await interaction.reply({
         embeds: [Embed.error('Seed not found.')],
         ephemeral: true,
@@ -107,7 +107,7 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
       return CommandResult.Success
     }
 
-    const chain = client.markov.generateMessage(
+    const chain = client.ext.markov.generateMessage(
       length,
       seed ?? undefined,
       interaction.options.getBoolean('guaranteed') ?? false

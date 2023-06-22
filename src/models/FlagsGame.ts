@@ -1,23 +1,21 @@
-/* eslint-disable no-constant-condition */
 import { bold, userMention } from 'discord.js'
 import yaml from 'js-yaml'
 import fs from 'node:fs'
 import { IS_DEVELOPMENT } from '../env.js'
-import { MultiplayerGame } from '../models/MultiplayerGame.js'
-import { MultiplayerGameManager } from '../models/MutliplayerGameManager.js'
 import { Embed } from '../util/embed.js'
 import { resolvePath } from '../util/path.js'
+import { MultiplayerGame } from './MultiplayerGame.js'
 
 const makeImageUrl = (base: string, prefix: string, image: string): string =>
   `${base}/${prefix[0]}/${prefix}/${image}/512px-${image}.png`
 
-const cleanName = (name: string): string =>
+export const cleanName = (name: string): string =>
   name
     .toLowerCase()
     .replaceAll(/[^a-z0-9 ]/g, '')
     .trim()
 
-const flags: Flag[] = []
+export const flags: Flag[] = []
 
 const flagData = yaml.load(
   fs.readFileSync(resolvePath('assets/flags.yaml')).toString('utf-8')
@@ -32,7 +30,25 @@ for (const flag of flagData.flags) {
   })
 }
 
-class FlagsGame extends MultiplayerGame {
+export interface Flag {
+  displayName: string
+  names: string[]
+  imageUrl: string
+}
+
+export interface FlagData {
+  name: string
+  aliases?: string[]
+  prefix: string
+  image: string
+}
+
+export interface FlagYaml {
+  url: string
+  flags: FlagData[]
+}
+
+export class FlagsGame extends MultiplayerGame {
   flagsLeft: Flag[] = [...flags]
   scores: Map<string, number> = new Map()
 
@@ -97,7 +113,7 @@ class FlagsGame extends MultiplayerGame {
   }
 
   async main(): Promise<void> {
-    if (await this.delay(15_000)) {
+    if (await this.delay(15000)) {
       return
     }
 
@@ -128,7 +144,7 @@ class FlagsGame extends MultiplayerGame {
         ],
       })
 
-      const expiresAt = Date.now() + 60_000
+      const expiresAt = Date.now() + 60000
       let hintedChars = 0
 
       while (true) {
@@ -145,7 +161,7 @@ class FlagsGame extends MultiplayerGame {
               Embed.error(`No one answered in time! The country was ${bold(flag.displayName)}.`),
             ],
           })
-          await new Promise((resolve) => setTimeout(resolve, 5_000))
+          await new Promise((resolve) => setTimeout(resolve, 5000))
           break
         }
 
@@ -170,7 +186,7 @@ class FlagsGame extends MultiplayerGame {
           this.channel.send({
             embeds: [Embed.error(`Round skipped! The next round will start in 10 seconds.`)],
           })
-          if (await this.delay(10_000)) {
+          if (await this.delay(10000)) {
             stopped = true
           }
           break
@@ -189,7 +205,7 @@ class FlagsGame extends MultiplayerGame {
             ],
           })
 
-          if (await this.delay(5_000)) {
+          if (await this.delay(5000)) {
             stopped = true
             break
           }
@@ -203,7 +219,7 @@ class FlagsGame extends MultiplayerGame {
             ],
           })
 
-          if (await this.delay(15_000)) {
+          if (await this.delay(15000)) {
             stopped = true
           }
 
@@ -231,28 +247,4 @@ class FlagsGame extends MultiplayerGame {
     })
     return
   }
-}
-
-export class FlagsManager extends MultiplayerGameManager<FlagsGame> {
-  constructor() {
-    super(FlagsGame)
-  }
-}
-
-export interface Flag {
-  displayName: string
-  names: string[]
-  imageUrl: string
-}
-
-export interface FlagData {
-  name: string
-  aliases?: string[]
-  prefix: string
-  image: string
-}
-
-export interface FlagYaml {
-  url: string
-  flags: FlagData[]
 }

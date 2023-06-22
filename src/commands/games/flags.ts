@@ -9,7 +9,9 @@ const COMMAND_FLAGS = command(ApplicationCommandType.ChatInput, {
   async run(context) {
     const {
       interaction,
-      client: { flags },
+      client: {
+        ext: { flags },
+      },
     } = context
 
     if (interaction.channel?.type !== ChannelType.GuildText) {

@@ -1,4 +1,3 @@
-import type { Logger } from 'log4js'
 import { URLSearchParams } from 'node:url'
 import {
   CategoriesResponse,
@@ -7,16 +6,19 @@ import {
   TriviaOptions,
   TriviaResponse,
   TriviaResponseType,
-} from '../types/trivia.js'
-import type { GamerbotClient } from './GamerbotClient.js'
+} from '../../types/trivia.js'
+import type { GamerbotClient } from '../GamerbotClient.js'
+import { ClientExtension } from './_extension.js'
 
-export class TriviaManager {
+export default class TriviaExtension extends ClientExtension {
   #token?: string
-  logger: Logger
 
-  constructor(public readonly client: GamerbotClient) {
-    void this.#requestToken()
-    this.logger = this.client.getLogger('trivia')
+  constructor(client: GamerbotClient) {
+    super(client, 'trivia')
+  }
+
+  async onReady(): Promise<void> {
+    await this.#requestToken()
   }
 
   async #requestToken(): Promise<boolean> {

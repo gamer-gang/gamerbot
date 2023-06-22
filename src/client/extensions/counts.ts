@@ -1,6 +1,7 @@
-import type { Client } from 'discord.js'
-import log4js, { Logger } from 'log4js'
+import { Client } from 'discord.js'
 import assert from 'node:assert'
+import { GamerbotClient } from '../GamerbotClient.js'
+import { ClientExtension } from './_extension.js'
 
 const countSingleClientUsers = async (client: Client): Promise<string[]> => {
   const guildMembers = await Promise.all(client.guilds.cache.map((guild) => guild.members.fetch()))
@@ -11,16 +12,26 @@ const countSingleClientUsers = async (client: Client): Promise<string[]> => {
   return users.flat(2)
 }
 
-export class CountManager {
-  #guildCount: number | undefined = undefined
+export default class CountsExtension extends ClientExtension {
+  #guildCount?: number
   #guildCountCacheTime = 0
-  #userCount: number | undefined = undefined
+  #userCount?: number
   #userCountCacheTime = 0
 
-  logger: Logger
+  #updateInterval?: NodeJS.Timeout
 
-  constructor(public readonly client: Client) {
-    this.logger = log4js.getLogger('counts')
+  constructor(client: GamerbotClient) {
+    super(client, 'counts')
+  }
+
+  async onReady(): Promise<void> {
+    await this.update()
+    this.#updateInterval = setInterval(() => void this.update(), 5 * 60_000)
+  }
+
+  async update(): Promise<void> {
+    this.logger.debug('UPDATE all')
+    await Promise.all([this.countGuilds(), this.countUsers()])
   }
 
   async countGuilds(): Promise<number> {
@@ -84,7 +95,7 @@ export class CountManager {
     const shard = this.client.shard
 
     if (shard == null) {
-      const users = await countSingleClientUsers(this.client)
+      const users = await countSingleClientUsers(this.client as unknown as Client)
       const size = new Set(users).size
       this.logger.debug(`UPDATE users ${size}`)
       return size
@@ -95,10 +106,5 @@ export class CountManager {
     const count = new Set(users.flat(1)).size
     this.logger.debug(`UPDATE users ${count}`)
     return count
-  }
-
-  async update(): Promise<void> {
-    this.logger.debug('UPDATE all')
-    await Promise.all([this.countGuilds(), this.countUsers()])
   }
 }

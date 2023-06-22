@@ -15,7 +15,10 @@ const COMMAND_ABOUT = command(ApplicationCommandType.ChatInput, {
 
     await interaction.deferReply()
 
-    const [guilds, users] = await Promise.all([client.countGuilds(), client.countUsers()])
+    const [guilds, users] = await Promise.all([
+      client.ext.counts.countGuilds(),
+      client.ext.counts.countUsers(),
+    ])
 
     const embed = new Embed({
       title: 'About',

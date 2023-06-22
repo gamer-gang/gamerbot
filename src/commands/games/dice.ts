@@ -268,7 +268,7 @@ function populateEmojis(client: GamerbotClient) {
   if (emojis.length !== 0) return
 
   for (let i = 1; i <= 6; i++) {
-    const emoji = client.customEmojis.get(`dice_${i}`)
+    const emoji = client.ext.customEmoji.get(`dice_${i}`)
     emojis.push(emoji ? { id: emoji.id, name: emoji.name! } : null)
   }
 }

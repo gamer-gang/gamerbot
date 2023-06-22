@@ -1,4 +1,6 @@
 import { GuildMember, TextChannel } from 'discord.js'
+import { GamerbotClient } from '../client/GamerbotClient.js'
+import { ClientExtension } from '../client/extensions/_extension.js'
 import { CommandContext } from '../commands/context.js'
 import { MultiplayerGame } from './MultiplayerGame.js'
 
@@ -9,10 +11,13 @@ type Constructor<T> = new (
   ...args: unknown[]
 ) => T
 
-export class MultiplayerGameManager<T extends MultiplayerGame> {
-  type: Constructor<T>
-  constructor(type: Constructor<T>) {
-    this.type = type
+export class MultiplayerGameExtension<T extends MultiplayerGame> extends ClientExtension {
+  constructor(
+    client: GamerbotClient,
+    public readonly type: Constructor<T>,
+    public readonly name: string
+  ) {
+    super(client, name)
   }
 
   games = new Map<string, T>()

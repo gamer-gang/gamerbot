@@ -50,7 +50,7 @@ export class Embed extends EmbedBuilder {
 
     return new Embed({
       intent: 'error',
-      description: `${this.#client?.customEmojis.getString('error', '❌')}${spacer}${intentText(
+      description: `${this.#client?.ext.customEmoji.getString('error', '❌')}${spacer}${intentText(
         `${err}`,
         description
       )}`,

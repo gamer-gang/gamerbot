@@ -1,8 +1,12 @@
 import fs from 'node:fs/promises'
-import { resolvePath } from '../util/path.js'
+import { resolvePath } from '../../util/path.js'
+import { GamerbotClient } from '../GamerbotClient.js'
+import { ClientExtension } from './_extension.js'
 
-export class ClientStorage {
-  constructor() {
+export default class StorageExtension extends ClientExtension {
+  constructor(client: GamerbotClient) {
+    super(client, 'storage')
+
     fs.mkdir(resolvePath('storage'), { recursive: true })
   }
 

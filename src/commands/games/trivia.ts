@@ -13,14 +13,14 @@ import {
 import he from 'he'
 import _ from 'lodash'
 import assert from 'node:assert'
-import { TriviaManager } from '../../client/TriviaManager.js'
+import TriviaExtension from '../../client/extensions/trivia.js'
 import { IS_DEVELOPMENT } from '../../env.js'
 import type { TriviaQuestion } from '../../types/trivia.js'
 import { escapeMarkdown } from '../../util.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
-const categories = await TriviaManager.getCategories()
+const categories = await TriviaExtension.getCategories()
 const categoryIds = categories.map((category) => category.id)
 
 const TIME_LIMIT = 15_000
@@ -119,7 +119,7 @@ const COMMAND_TRIVIA = command(ApplicationCommandType.ChatInput, {
 
     await interaction.deferReply()
 
-    const question = await client.triviaManager
+    const question = await client.ext.trivia
       .fetchQuestion({
         category,
         difficulty,

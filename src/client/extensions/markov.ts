@@ -1,10 +1,10 @@
 import Filter from 'bad-words'
-import { ChannelType, DiscordAPIError, Snowflake } from 'discord.js'
+import { ChannelType, DiscordAPIError, Message, Snowflake } from 'discord.js'
 import emojiRegex from 'emoji-regex'
-import { Logger } from 'log4js'
-import { getDateFromSnowflake } from '../util/discord.js'
-import { formatBytes } from '../util/format.js'
-import { GamerbotClient } from './GamerbotClient.js'
+import { getDateFromSnowflake } from '../../util/discord.js'
+import { formatBytes } from '../../util/format.js'
+import { GamerbotClient } from '../GamerbotClient.js'
+import { ClientExtension } from './_extension.js'
 
 interface MarkovGraph {
   timestamp: number
@@ -15,12 +15,12 @@ interface MarkovGraph {
   }
 }
 
-export class MarkovManager {
-  #logger: Logger
+export default class MarkovExtension extends ClientExtension {
   #format = formats.json
+  #saveInterval?: NodeJS.Timeout
 
-  constructor(public readonly client: GamerbotClient) {
-    this.#logger = client.getLogger('markov')
+  constructor(client: GamerbotClient) {
+    super(client, 'markov')
   }
 
   graph: MarkovGraph = {
@@ -28,10 +28,16 @@ export class MarkovManager {
     words: {},
   }
 
-  async load(): Promise<void> {
-    this.#logger.trace('LOAD')
+  async onReady(): Promise<void> {
+    await this.load()
+    await this.sync()
+    this.#saveInterval = setInterval(() => void this.save(), 60 * 60_000)
+  }
 
-    const data = await this.client.storage.read<string>('markov')
+  async load(): Promise<void> {
+    this.logger.trace('LOAD')
+
+    const data = await this.client.ext.storage.read<string>('markov')
 
     if (data) {
       this.graph = this.#format.deserialize(data)
@@ -42,20 +48,26 @@ export class MarkovManager {
       connections += Object.keys(word).length
     }
 
-    this.#logger.trace(
+    this.logger.trace(
       `LOAD done ${Object.keys(this.graph.words).length} words, ${connections} connections`
     )
   }
 
   async save(): Promise<void> {
-    this.#logger.trace('SAVE')
+    this.logger.trace('SAVE')
     const data = this.#format.serialize(this.graph)
-    await this.client.storage.write('markov', data)
-    this.#logger.trace(`SAVE done ${formatBytes(data.length)}`)
+    await this.client.ext.storage.write('markov', data)
+    this.logger.trace(`SAVE done ${formatBytes(data.length)}`)
+  }
+
+  async onMessageCreate(message: Message<boolean>): Promise<void> {
+    if (!message.author.bot) {
+      void this.addMessage(message.cleanContent || message.content)
+    }
   }
 
   addMessage(message: string): void {
-    this.#logger.trace(`ADD message "${message}"`)
+    this.logger.trace(`ADD message "${message}"`)
 
     const emoji = new RegExp(`^${emojiRegex().source}$`)
     // valid words are alphanumeric (no unicode) or emojis
@@ -99,7 +111,7 @@ export class MarkovManager {
       if (!this.graph.words[word][nextWord]) this.graph.words[word][nextWord] = 0
       this.graph.words[word][nextWord]++
 
-      this.#logger.trace(`ADD edge ${word} -> ${nextWord}`)
+      this.logger.trace(`ADD edge ${word} -> ${nextWord}`)
     }
   }
 
@@ -183,7 +195,7 @@ export class MarkovManager {
   async sync(): Promise<void> {
     const graphTimestamp = this.graph.timestamp
 
-    this.#logger.info(`SYNC start ${graphTimestamp}`)
+    this.logger.info(`SYNC start ${graphTimestamp}`)
 
     let messageCount = 0
     let latestTimestamp = 0
@@ -192,7 +204,7 @@ export class MarkovManager {
       for (const guild of this.client.guilds.cache.values()) {
         let guildMessageCount = 0
 
-        this.#logger.trace(`SYNC guild ${guild.id} ${guild.name}`)
+        this.logger.trace(`SYNC guild ${guild.id} ${guild.name}`)
 
         try {
           for (const channel of guild.channels.cache.values()) {
@@ -208,20 +220,20 @@ export class MarkovManager {
               channel.lastMessageId &&
               getDateFromSnowflake(channel.lastMessageId).millisecond < graphTimestamp
             ) {
-              this.#logger.trace(`SYNC channel ${channel.id} ${channel.name} skip`)
+              this.logger.trace(`SYNC channel ${channel.id} ${channel.name} skip`)
               continue
             }
 
             let channelMessageCount = 0
 
-            this.#logger.trace(`SYNC channel ${channel.id} ${channel.name}`)
+            this.logger.trace(`SYNC channel ${channel.id} ${channel.name}`)
 
             let oldestMessage: Snowflake | undefined
             let oldestMessageTimestamp = Infinity
 
             try {
               while (oldestMessageTimestamp > graphTimestamp) {
-                this.#logger.trace(
+                this.logger.trace(
                   `SYNC messages ${channel.id} ${channel.name} ${oldestMessage ?? 'latest'}`
                 )
                 const messages = await channel.messages.fetch({
@@ -230,7 +242,7 @@ export class MarkovManager {
                 })
 
                 if (!messages.size) {
-                  this.#logger.trace(`SYNC messages break`)
+                  this.logger.trace(`SYNC messages break`)
                   break
                 }
 
@@ -255,25 +267,25 @@ export class MarkovManager {
               if (err instanceof DiscordAPIError && err.code === 50001) {
                 // missing access, ignore
               } else {
-                this.#logger.error(`SYNC messages error`, err)
+                this.logger.error(`SYNC messages error`, err)
               }
             }
 
-            this.#logger.trace(`SYNC channel done ${channelMessageCount}`)
+            this.logger.trace(`SYNC channel done ${channelMessageCount}`)
           }
         } catch (err) {
-          this.#logger.error(`SYNC guild error`, err)
+          this.logger.error(`SYNC guild error`, err)
         }
 
-        this.#logger.trace(`SYNC guild done ${guildMessageCount}`)
+        this.logger.trace(`SYNC guild done ${guildMessageCount}`)
       }
     } catch (err) {
-      this.#logger.error(`SYNC guild error`, err)
+      this.logger.error(`SYNC guild error`, err)
     }
 
     this.graph.timestamp = Math.max(this.graph.timestamp, latestTimestamp)
 
-    this.#logger.info(`SYNC done ${messageCount}`)
+    this.logger.info(`SYNC done ${messageCount}`)
     await this.save()
   }
 }

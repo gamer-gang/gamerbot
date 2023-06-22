@@ -29,6 +29,8 @@ const env = createEnv({
     WIKIPEDIA_CONTACT: z.string(),
     HYPIXEL_CACHE_URL: z.string().optional(),
     HYPIXEL_CACHE_SECRET: z.string().optional(),
+
+    API_KEY: z.string().optional(),
   },
 })
 
