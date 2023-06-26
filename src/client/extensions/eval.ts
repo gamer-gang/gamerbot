@@ -48,8 +48,15 @@ export default class EvalExtension extends ClientExtension {
     let output = ''
 
     const print = (data: unknown): void => {
-      const s = typeof data === 'object' ? codeBlock(JSON.stringify(data, null, 2)) : data
-      output += s
+      if (message) {
+        // in a discord context, pretty print objects
+        const s = typeof data === 'object' ? codeBlock(JSON.stringify(data, null, 2)) : data
+        output += s
+      } else {
+        // just stringify it
+        const s = typeof data === 'object' ? JSON.stringify(data) : data
+        output += s
+      }
     }
 
     const println = (data: unknown): void => {
@@ -100,8 +107,7 @@ const execute = async (
   )(code, client, channel, guild, message, print, println, codeBlock)()
 
   if (ret) {
-    const s = typeof ret === 'object' ? JSON.stringify(ret, null, 2) : ret
-    print(`*returned:*\n${codeBlock(s)}`)
+    print(ret)
   }
 }
 
