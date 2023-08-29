@@ -2,7 +2,7 @@ import { ApplicationCommandOptionType, ApplicationCommandType, Message } from 'd
 import { Embed } from '../../util/embed.js'
 import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
-import { isTooBroke, updateBalances } from './wager.js'
+import { canAfford, transferEggs } from './_wager.js'
 
 const COMMAND_CONNECT4 = command(ApplicationCommandType.ChatInput, {
   name: 'connect4',
@@ -35,7 +35,7 @@ const COMMAND_CONNECT4 = command(ApplicationCommandType.ChatInput, {
     const opponentId = options.getUser('user')?.id
 
     if (wager && opponentId) {
-      if (await isTooBroke(interaction, interaction.user.id, opponentId, wager)) {
+      if (!(await canAfford(interaction, interaction.user.id, opponentId, wager))) {
         return CommandResult.Success
       }
     }
@@ -135,8 +135,8 @@ const COMMAND_CONNECT4 = command(ApplicationCommandType.ChatInput, {
       void msg.reactions.removeAll()
       if (reason === 'won') {
         if (wager) {
-          if (firstPlayerTurn) updateBalances(interaction.user.id, opponent.id, wager)
-          else updateBalances(opponent.id, interaction.user.id, wager)
+          if (firstPlayerTurn) transferEggs(opponent.id, interaction.user.id, wager)
+          else transferEggs(interaction.user.id, opponent.id, wager)
         }
 
         void msg.reply({
@@ -155,8 +155,8 @@ const COMMAND_CONNECT4 = command(ApplicationCommandType.ChatInput, {
         })
       } else {
         if (wager) {
-          if (firstPlayerTurn) updateBalances(opponent.id, interaction.user.id, wager)
-          else updateBalances(interaction.user.id, opponent.id, wager)
+          if (firstPlayerTurn) transferEggs(interaction.user.id, opponent.id, wager)
+          else transferEggs(opponent.id, interaction.user.id, wager)
         }
 
         void msg.reply({

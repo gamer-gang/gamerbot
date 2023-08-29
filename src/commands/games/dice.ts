@@ -15,7 +15,7 @@ import { GamerbotClient } from '../../client/GamerbotClient.js'
 import { Embed } from '../../util/embed.js'
 import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
-import { isTooBroke, updateBalances } from './wager.js'
+import { canAfford, transferEggs } from './_wager.js'
 
 const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
   name: 'dice',
@@ -48,7 +48,7 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
     const opponentId = options.getUser('user')?.id
 
     if (wager && opponentId) {
-      if (await isTooBroke(interaction, interaction.user.id, opponentId, wager)) {
+      if (!(await canAfford(interaction, interaction.user.id, opponentId, wager))) {
         return CommandResult.Success
       }
     }
@@ -117,7 +117,7 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
           time: 60000,
         })
       } catch (error) {
-        if (wager) await updateBalances(interaction.user.id, opponent.id, wager)
+        if (wager) await transferEggs(opponent.id, interaction.user.id, wager)
 
         void interaction.followUp({
           embeds: [Embed.error(`${currentTurn} failed to bid${losingWagerString}.`)],
@@ -126,7 +126,7 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
       }
 
       if (lastInteraction == null) {
-        if (wager) await updateBalances(opponent.id, interaction.user.id, wager)
+        if (wager) await transferEggs(interaction.user.id, opponent.id, wager)
 
         void interaction.followUp({
           embeds: [Embed.error(`${currentTurn} failed to bid${losingWagerString}.`)],
@@ -155,8 +155,8 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
         const winningWagerString = wager ? ` ${wager} eggs` : ''
 
         if (wager) {
-          if (winner.id == interaction.user.id) await updateBalances(winner.id, opponent.id, wager)
-          else await updateBalances(winner.id, interaction.user.id, wager)
+          if (winner.id == interaction.user.id) await transferEggs(opponent.id, winner.id, wager)
+          else await transferEggs(interaction.user.id, winner.id, wager)
         }
 
         await interaction.followUp({

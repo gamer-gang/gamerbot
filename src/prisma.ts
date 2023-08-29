@@ -1,11 +1,11 @@
-import Prisma from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import log4js from 'log4js'
 import { IS_DEVELOPMENT } from './env.js'
 import { initLogger } from './logger.js'
 
 initLogger()
 
-export const prisma = new Prisma.PrismaClient({
+export const prisma = new PrismaClient({
   errorFormat: IS_DEVELOPMENT ? 'pretty' : 'colorless',
   log: [
     { emit: 'event', level: 'query' },

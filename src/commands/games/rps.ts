@@ -11,7 +11,7 @@ import assert from 'node:assert'
 import { Embed } from '../../util/embed.js'
 import { challengePlayer } from '../../util/games.js'
 import command, { CommandResult } from '../command.js'
-import { isTooBroke, updateBalances } from './wager.js'
+import { canAfford, transferEggs } from './_wager.js'
 
 const RPS_CHOICES = {
   rock: '✊',
@@ -71,7 +71,7 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
     const opponentId = options.getUser('user')?.id
 
     if (wager && opponentId) {
-      if (await isTooBroke(interaction, interaction.user.id, opponentId, wager)) {
+      if (!(await canAfford(interaction, interaction.user.id, opponentId, wager))) {
         return CommandResult.Success
       }
     }
@@ -176,14 +176,14 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
             embeds: [Embed.error(`${interaction.user} didn't select a move${losingWagerString}.`)],
             components: [],
           })
-          if (wager) await updateBalances(opponent.id, interaction.user.id, wager)
+          if (wager) await transferEggs(interaction.user.id, opponent.id, wager)
           return
         } else if (!move2) {
           void moveMessage.edit({
             embeds: [Embed.error(`${opponent} didn't select a move${losingWagerString}.`)],
             components: [],
           })
-          if (wager) await updateBalances(interaction.user.id, opponent.id, wager)
+          if (wager) await transferEggs(opponent.id, interaction.user.id, wager)
           return
         }
 
@@ -225,7 +225,7 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
             ],
             components: [],
           })
-          if (wager) await updateBalances(interaction.user.id, opponent.id, wager)
+          if (wager) await transferEggs(opponent.id, interaction.user.id, wager)
           resolve(CommandResult.Success)
           return
         }
@@ -239,7 +239,7 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
           ],
           components: [],
         })
-        if (wager) await updateBalances(opponent.id, interaction.user.id, wager)
+        if (wager) await transferEggs(interaction.user.id, opponent.id, wager)
         resolve(CommandResult.Success)
       })
     })
