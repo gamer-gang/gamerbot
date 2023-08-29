@@ -53,7 +53,7 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
       }
     }
 
-    const challengeResponse = await challengePlayer(interaction, options, 'dice', '🎲')
+    const challengeResponse = await challengePlayer(interaction, options, 'dice', '🎲', wager)
 
     if (!challengeResponse) {
       return CommandResult.Success

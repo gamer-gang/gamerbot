@@ -40,7 +40,7 @@ const COMMAND_CONNECT4 = command(ApplicationCommandType.ChatInput, {
       }
     }
 
-    const response = await challengePlayer(interaction, options, 'connect four', '⚔️')
+    const response = await challengePlayer(interaction, options, 'connect four', '⚔️', wager)
 
     if (!response) {
       return CommandResult.Success

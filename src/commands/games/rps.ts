@@ -80,7 +80,8 @@ const COMMAND_RPS = command(ApplicationCommandType.ChatInput, {
       interaction,
       options,
       lizardSpock ? 'Rock Paper Scissors Lizard Spock' : 'Rock Paper Scissors',
-      '🪨'
+      '🪨',
+      wager
     )
 
     if (!response) {

@@ -18,7 +18,8 @@ export const challengePlayer = async (
   interaction: CommandContext['interaction'],
   options: CommandContext['options'],
   gameName: string,
-  emoji: string
+  emoji: string,
+  wager?: number | null
 ): Promise<ChallengeData | undefined> => {
   const opponent = options.getUser('user')
 
@@ -43,8 +44,9 @@ export const challengePlayer = async (
     return
   }
 
+  const wagerString = wager ? ` for ${wager} egg${wager === 1 ? '' : 's'}` : ''
   const embed = new Embed({
-    title: `${interaction.user.tag} has challenged ${opponent.tag} to a game of ${gameName}!`,
+    title: `${interaction.user.tag} has challenged ${opponent.tag} to a game of ${gameName}${wagerString}!`,
     description: `Click ${emoji} to accept.`,
   })
 
