@@ -1,16 +1,30 @@
-import { ActivityType, ChannelType, Message, PartialMessage, User } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ActivityType,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  Message,
+  PartialMessage,
+  User,
+} from 'discord.js'
 import yaml from 'js-yaml'
 import _ from 'lodash'
 import assert from 'node:assert'
 import fs from 'node:fs'
 import { prisma } from '../../prisma.js'
 import { resolvePath } from '../../util/path.js'
+import { Embed } from '../../util/embed.js'
 import { GamerbotClient } from '../GamerbotClient.js'
 import { ClientExtension } from './_extension.js'
 
 const eggs = loadEggFile()
 
-const EGG_COOLDOWN = 30000
+const EGG_COOLDOWN = 30//_000
+const EGG_MAX_STREAK = 3//2
+const EGG_PUNISHMENT_FACTOR = 16
+
+const EGG_STREAK_LIFETIME = 300_000
 
 const hasEggs = (msg: Message | PartialMessage): boolean =>
   eggs.some((egg) => msg.content?.toLowerCase().includes(egg))
@@ -23,9 +37,18 @@ class EggsCooldown {
   }
 }
 
+class EggsStreak {
+  constructor(public timestamp: number, public streak = 0) {}
+
+  get expired(): boolean {
+    return Date.now() > this.timestamp + EGG_STREAK_LIFETIME
+  }
+}
+
 export default class EggExtension extends ClientExtension {
   total!: bigint
   cooldowns = new Map<string, EggsCooldown>()
+  streaks = new Map<string, EggsStreak>()
 
   constructor(client: GamerbotClient) {
     super(client, 'egg')
@@ -58,7 +81,9 @@ export default class EggExtension extends ClientExtension {
       return
     }
 
-    const cooldown = this.cooldowns.get(message.author?.id as string)
+    const authorId = message.author.id
+
+    const cooldown = this.cooldowns.get(authorId)
     if (cooldown != null) {
       if (!cooldown.expired && !cooldown.warned) {
         cooldown.warned = true
@@ -69,7 +94,22 @@ export default class EggExtension extends ClientExtension {
       if (!cooldown.expired) return
     }
 
-    this.cooldowns.set(message.author?.id as string, new EggsCooldown(Date.now()))
+    this.cooldowns.set(authorId, new EggsCooldown(Date.now()))
+
+    const streak = this.streaks.get(authorId)
+    if (!streak || streak.expired) {
+      this.streaks.set(authorId, new EggsStreak(Date.now(), 1))
+      void this.grantEgg(message)
+      return
+    }
+
+    if (streak.streak >= EGG_MAX_STREAK) {
+      this.streaks.set(authorId, new EggsStreak(Date.now(), 0))
+      void this.sendCAPTCHA(message)
+      return
+    }
+
+    this.streaks.set(authorId, new EggsStreak(Date.now(), streak.streak + 1))
     void this.grantEgg(message)
   }
 
@@ -117,6 +157,67 @@ export default class EggExtension extends ClientExtension {
         userTag: msg.author.tag,
       },
     })
+  }
+
+  async sendCAPTCHA(msg: Message | PartialMessage): Promise<void> {
+    assert(msg.author, 'Message has no author')
+
+    const userId = msg.author.id
+
+    const emojis = _.shuffle(['🥚', '🐀', '💀'])
+
+    const captcha = await msg.reply({
+      content: msg.author.toString(),
+      embeds: [
+        new Embed({
+          title: `Egg CAPTCHA`,
+          description: `Are you there? Click the egg button in order to continue receiving eggs.`,
+        }),
+      ],
+      components: [
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          ...emojis.map(
+            (emoji) =>
+              new ButtonBuilder({
+                customId: emoji,
+                style: ButtonStyle.Primary,
+                emoji,
+              })
+          )
+        ),
+      ],
+    })
+
+    try {
+      const response = await captcha.awaitMessageComponent({
+        filter: (i) => i.user.id === userId,
+        time: 30_000,
+      })
+
+      if (response.customId == '🥚') {
+        void captcha.delete()
+        void this.grantEgg(msg)
+      } else {
+        throw 'bruh' // best practices?
+      }
+    } catch (e) {
+      // sorta hacky but cry about it
+      this.cooldowns.set(
+        userId,
+        new EggsCooldown(Date.now() + EGG_COOLDOWN * (EGG_PUNISHMENT_FACTOR - 1))
+      )
+
+      captcha.edit({
+        embeds: [
+          Embed.error(
+            `Epic CAPTCHA fail... Egg privileges revoked for ${
+              (EGG_COOLDOWN * EGG_PUNISHMENT_FACTOR) / 1000 / 60
+            } minutes.`
+          ),
+        ],
+        components: [],
+      })
+    }
   }
 
   async refreshPresence(): Promise<void> {
