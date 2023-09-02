@@ -20,8 +20,8 @@ import { ClientExtension } from './_extension.js'
 
 const eggs = loadEggFile()
 
-const EGG_COOLDOWN = 30//_000
-const EGG_MAX_STREAK = 3//2
+const EGG_COOLDOWN = 30_000
+const EGG_MAX_STREAK = 32
 const EGG_PUNISHMENT_FACTOR = 16
 
 const EGG_STREAK_LIFETIME = 300_000
