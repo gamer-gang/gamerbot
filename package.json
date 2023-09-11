@@ -9,19 +9,17 @@
     "types"
   ],
   "scripts": {
-    "dev": "NODE_ENV=development nodemon -r source-map-support/register ./dist/index.js",
-    "build": "./scripts/build.js --outdir=./dist src/index.ts src/docgen.ts --minify --production",
-    "watch": "./scripts/build.js --outdir=./dist src/index.ts src/docgen.ts --watch",
-    "docgen": "node -r source-map-support/register ./dist/docgen.js",
-    "types": "tsc && sed -i -e 's|\"src|\"gamerbot/src|g' -e 's|\"scripts|\"gamerbot/scripts|g' ./types/gamerbot.d.ts",
+    "compile": "bun build --compile --minify --target=bun --outfile=gamerbot ./lib/index.ts",
+    "start": "NODE_ENV=production bun ./lib/index.ts",
+    "dev": "NODE_ENV=development bun --watch ./lib/index.ts",
     "db": "docker-compose up db --no-log-prefix",
-    "git:tag": "git tag v$(echo $(./scripts/version.js --version-only)) -m \"v$(echo $(./scripts/version.js --version-only))\"",
-    "publish": "./scripts/publish.js",
-    "precommit": "yarn build && concurrently yarn:docgen yarn:types",
-    "release": "./scripts/release.js"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "git:tag": "git tag v$(echo $(bun version-only)) -m \"v$(echo $(bun version-only))\"",
+    "precommit": "bun build && concurrently 'bun docgen' 'bun types'",
+    "types": "tsc && sed -i -e 's|\"lib|\"gamerbot/lib|g' -e 's|\"scripts|\"gamerbot/scripts|g' ./types/gamerbot.d.ts",
+    "docgen": "bun ./scripts/docgen.ts",
+    "publish": "bun ./scripts/publish.ts",
+    "release": "bun ./scripts/release.ts",
+    "version-only": "bun ./scripts/version.ts --version-only"
   },
   "standard": {
     "engine": "ts-standard"
@@ -34,12 +32,16 @@
     "json5": "^1.0.2",
     "http-cache-semantics": "^4.1.1"
   },
+  "trustedDependencies": [
+    "zlib-sync",
+    "sharp"
+  ],
   "dependencies": {
-    "@fastify/middie": "^8.3.0",
+    "@calico32/hypixel-cache": "^1.0.0",
+    "@calico32/hypixel-types": "^0.1.1",
     "@napi-rs/canvas": "^0.1.44",
     "@prisma/client": "^5.2.0",
     "@sentry/node": "^7.65.0",
-    "@sentry/profiling-node": "^1.1.3",
     "@t3-oss/env-core": "^0.6.1",
     "@vvo/tzdb": "^6.108.0",
     "@wiisportsresorts/cowsay": "^0.3.2",
@@ -48,11 +50,9 @@
     "common-tags": "^1.8.2",
     "didyoumean": "^1.2.2",
     "discord.js": "^14.13.0",
+    "elysia": "^0.6.21",
     "emoji-regex": "^10.2.1",
-    "fastify": "^4.22.0",
     "he": "^1.2.0",
-    "hypixel-cache": "wiisportsresort/hypixel-cache#f15a3bfc24dd05ae58534d5feff2eddd5ec9e98b",
-    "hypixel-types": "wiisportsresort/hypixel-types#bc679c2ac1c436a2b6131819e8ff22df7406b287",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "log4js": "^6.9.1",
@@ -68,10 +68,10 @@
     "string-length": "^6.0.0",
     "tzdata": "^1.0.38",
     "unicode": "^14.0.0",
+    "zlib-sync": "^0.1.8",
     "zod": "^3.22.2"
   },
   "devDependencies": {
-    "@sentry/esbuild-plugin": "^2.7.0",
     "@types/bad-words": "^3.0.1",
     "@types/common-tags": "^1.8.1",
     "@types/didyoumean": "^1.2.0",
@@ -87,20 +87,18 @@
     "@types/yargs-parser": "^21.0.0",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
+    "bun-types": "^1.0.1",
     "concurrently": "^8.2.1",
     "discord-api-types": "0.37.55",
-    "dotenv": "^16.3.1",
-    "esbuild": "^0.19.2",
     "eslint": "^8.48.0",
     "eslint-config-standard-with-typescript": "^39.0.0",
     "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-n": "^16.0.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
-    "pino-pretty": "^10.2.0",
     "prettier": "^3.0.2",
     "prisma": "5.2.0",
-    "typescript": "5.2.2",
+    "typescript": "^5.2.2",
     "yargs-parser": "^21.1.1"
   }
 }
