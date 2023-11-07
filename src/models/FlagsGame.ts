@@ -184,7 +184,13 @@ export class FlagsGame extends MultiplayerGame {
 
         if (message === '.skip' && user.id === this.creator.id) {
           this.channel.send({
-            embeds: [Embed.error(`Round skipped! The next round will start in 10 seconds.`)],
+            embeds: [
+              Embed.error(
+                `Round skipped! The next round will start in 10 seconds. (the flag was ${bold(
+                  flag.displayName
+                )})`
+              ),
+            ],
           })
           if (await this.delay(10000)) {
             stopped = true
