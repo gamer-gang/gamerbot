@@ -54,10 +54,11 @@ const options = {
           assets: './dist/**',
         },
         release: releaseName,
-        finalize: true,
-        deploy: {
-          env: argv.production ? 'production' : 'development',
-        },
+
+        // finalize: true,
+        // deploy: {
+        //   env: argv.production ? 'production' : 'development',
+        // },
       }),
   ].filter(Boolean),
 }

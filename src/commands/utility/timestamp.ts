@@ -62,7 +62,7 @@ const COMMAND_TIMESTAMP = command(ApplicationCommandType.ChatInput, {
       description: `${getDateStringFromSnowflake(id).join('; ')}\n${time(seconds, 'F')}`,
     })
 
-    embed.setFooter({ text: date.toISO({ includeOffset: true }) })
+    embed.setFooter({ text: date.toISO({ includeOffset: true })! })
 
     await interaction.reply({ embeds: [embed] })
 
