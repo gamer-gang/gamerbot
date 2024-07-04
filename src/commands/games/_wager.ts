@@ -12,7 +12,7 @@ export async function canAfford(
     where: { userId },
     select: { balance: true },
   })
-  if ((user?.balance ?? 0) < wager) {
+  if ((user?.balance ?? 0) < Math.abs(wager)) {
     interaction.reply({
       embeds: [Embed.error(`You are too broke to bet ${wager} egg${wager === 1 ? '' : 's'}.`)],
     })
@@ -24,7 +24,7 @@ export async function canAfford(
     select: { balance: true },
   })
 
-  if ((opponent?.balance ?? 0) < wager) {
+  if ((opponent?.balance ?? 0) < Math.abs(wager)) {
     interaction.reply({
       embeds: [
         Embed.error(
