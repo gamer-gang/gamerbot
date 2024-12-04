@@ -1,27 +1,28 @@
 {
   "exclude": ["node_modules", "**/node_modules/*", "types/gamerbot.d.ts"],
-  "include": ["src", "scripts", "types", "lib", "src/types/*.d.ts", "scripts", "test"],
+  "include": ["lib", "scripts", "types", "test", "scripts", "lib/index.ts"],
   "compilerOptions": {
-    "checkJs": true,
-    "module": "esnext",
+    "lib": ["esnext"],
     "target": "esnext",
-    "jsx": "preserve",
-    "lib": ["ESNext"],
-    "incremental": true,
-    "strict": true,
-    "resolveJsonModule": true,
-    "useUnknownInCatchVariables": false,
-    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
     "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "esModuleInterop": true,
-    "sourceMap": true,
-    "skipDefaultLibCheck": true,
-    "downlevelIteration": true,
+    "jsx": "react-jsx",
+
+    "checkJs": true,
+    "incremental": true,
+
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "useUnknownInCatchVariables": false,
     "skipLibCheck": true,
+
+    "sourceMap": true,
     "declaration": true,
     "baseUrl": "gamerbot",
     "emitDeclarationOnly": true,
     "experimentalDecorators": true,
-    "outFile": "types/gamerbot.d.ts"
-  }
+    "outFile": "types/gamerbot.d.ts",
+  },
 }
