@@ -33,10 +33,18 @@ export async function createReleaseName(production = false): Promise<string> {
     .replace(/\..+/, '')
     .replace(/T/, '_')
 
-  const { stdout: tag } = await exec('git tag --points-at HEAD')
-  if (tag.trim()) {
-    return packageJson.version
-  }
+  try {
+    const { stdout: tag } = await exec('git tag --points-at HEAD')
+    if (tag.trim()) {
+      return packageJson.version
+    }
 
-  return `${(await getVersion()).replace(/\+/g, '_')}${production ? '' : '-dev'}_${formattedDate}`
+    return `${(await getVersion()).replace(/\+/g, '_')}${
+      production ? '' : '-dev'
+    }_${formattedDate}`
+  } catch (err) {
+    throw new Error(
+      `Failed to create release name because git failed/is not available. Set the $RELEASE_NAME environment variable to a custom release name without git information.`
+    )
+  }
 }

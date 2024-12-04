@@ -1,5 +1,11 @@
 import Filter from 'bad-words'
-import { ChannelType, DiscordAPIError, Message, Snowflake } from 'discord.js'
+import {
+  ChannelType,
+  DiscordAPIError,
+  Message,
+  NonThreadGuildBasedChannel,
+  Snowflake,
+} from 'discord.js'
 import emojiRegex from 'emoji-regex'
 import { getDateFromSnowflake } from '../../util/discord.js'
 import { formatBytes } from '../../util/format.js'
@@ -49,7 +55,9 @@ export default class MarkovExtension extends ClientExtension {
     }
 
     this.logger.trace(
-      `LOAD done ${Object.keys(this.graph.words).length} words, ${connections} connections`
+      `LOAD done ${
+        Object.keys(this.graph.words).length
+      } words, ${connections} connections`
     )
   }
 
@@ -108,7 +116,9 @@ export default class MarkovExtension extends ClientExtension {
       if (!nextWord) break
 
       if (!this.graph.words[word]) this.graph.words[word] = {}
-      if (!this.graph.words[word][nextWord]) this.graph.words[word][nextWord] = 0
+      if (!this.graph.words[word][nextWord]) {
+        this.graph.words[word][nextWord] = 0
+      }
       this.graph.words[word][nextWord]++
 
       this.logger.trace(`ADD edge ${word} -> ${nextWord}`)
@@ -124,7 +134,8 @@ export default class MarkovExtension extends ClientExtension {
 
     if (guaranteed) {
       return (
-        this.generateMessageRecursive(length, words)?.join(' ') ?? 'Failed to generate message.'
+        this.generateMessageRecursive(length, words)?.join(' ') ??
+        'Failed to generate message.'
       )
     }
 
@@ -142,7 +153,8 @@ export default class MarkovExtension extends ClientExtension {
 
     const words = [..._words]
 
-    const current = words[_words.length - 1] ?? words[words.push(this.getRandomWord())]
+    const current =
+      words[_words.length - 1] ?? words[words.push(this.getRandomWord())]
 
     const excluded: string[] = []
     // eslint-disable-next-line no-constant-condition
@@ -201,13 +213,18 @@ export default class MarkovExtension extends ClientExtension {
     let latestTimestamp = 0
 
     try {
-      for (const guild of this.client.guilds.cache.values()) {
+      const guilds = await this.client.guilds.fetch()
+      for (const guild of guilds.values()) {
         let guildMessageCount = 0
 
         this.logger.trace(`SYNC guild ${guild.id} ${guild.name}`)
 
         try {
-          for (const channel of guild.channels.cache.values()) {
+          const g = await guild.fetch()
+          const channels = await g.channels.fetch()
+          for (const channel of [...channels.values()].filter(
+            (c) => c
+          ) as NonThreadGuildBasedChannel[]) {
             if (
               channel.type !== ChannelType.GuildText &&
               channel.type !== ChannelType.GuildAnnouncement &&
@@ -218,9 +235,12 @@ export default class MarkovExtension extends ClientExtension {
 
             if (
               channel.lastMessageId &&
-              getDateFromSnowflake(channel.lastMessageId).millisecond < graphTimestamp
+              getDateFromSnowflake(channel.lastMessageId).millisecond <
+                graphTimestamp
             ) {
-              this.logger.trace(`SYNC channel ${channel.id} ${channel.name} skip`)
+              this.logger.trace(
+                `SYNC channel ${channel.id} ${channel.name} skip`
+              )
               continue
             }
 
@@ -234,7 +254,9 @@ export default class MarkovExtension extends ClientExtension {
             try {
               while (oldestMessageTimestamp > graphTimestamp) {
                 this.logger.trace(
-                  `SYNC messages ${channel.id} ${channel.name} ${oldestMessage ?? 'latest'}`
+                  `SYNC messages ${channel.id} ${channel.name} ${
+                    oldestMessage ?? 'latest'
+                  }`
                 )
                 const messages = await channel.messages.fetch({
                   limit: 100,
@@ -247,7 +269,10 @@ export default class MarkovExtension extends ClientExtension {
                 }
 
                 for (const message of messages.values()) {
-                  if (!oldestMessage || message.createdTimestamp < oldestMessageTimestamp) {
+                  if (
+                    !oldestMessage ||
+                    message.createdTimestamp < oldestMessageTimestamp
+                  ) {
                     oldestMessage = message.id
                     oldestMessageTimestamp = message.createdTimestamp
                   }
@@ -260,7 +285,10 @@ export default class MarkovExtension extends ClientExtension {
                   guildMessageCount++
                   messageCount++
 
-                  latestTimestamp = Math.max(latestTimestamp, message.createdTimestamp)
+                  latestTimestamp = Math.max(
+                    latestTimestamp,
+                    message.createdTimestamp
+                  )
                 }
               }
             } catch (err) {

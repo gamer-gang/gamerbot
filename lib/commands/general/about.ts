@@ -1,7 +1,7 @@
 import { stripIndent } from 'common-tags'
 import { ApplicationCommandType } from 'discord.js'
 import packageJson from '../../../package.json'
-import env, { GAMERBOT_VERSION, SENTRY_RELEASE } from '../../env.js'
+import env, { GAMERBOT_VERSION, RELEASE_NAME } from '../../env.js'
 import { getProfileImageUrl } from '../../util/discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
@@ -40,7 +40,11 @@ const COMMAND_ABOUT = command(ApplicationCommandType.ChatInput, {
     embed
       .addField('Servers', guilds.toLocaleString(), true)
       .addField('Users', users.toLocaleString(), true)
-      .addField('Version', SENTRY_RELEASE || GAMERBOT_VERSION || packageJson.version, true)
+      .addField(
+        'Version',
+        RELEASE_NAME || GAMERBOT_VERSION || packageJson.version,
+        true
+      )
 
     await interaction.editReply({ embeds: [embed] })
 

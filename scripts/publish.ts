@@ -3,7 +3,7 @@ import { exec as _exec } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { promisify } from 'util'
-import { createReleaseName } from '../lib/version.js'
+import { createReleaseName, getVersion } from '../lib/version.js'
 
 const exec = promisify(_exec)
 
@@ -11,15 +11,14 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const releaseName = await createReleaseName(true)
+const version = await getVersion()
 
 console.log(`publish.js: building release ${releaseName}`)
 
 console.log('publish.js: building docker container')
+const context = path.resolve(__dirname, '..')
 await exec(
-  `docker build ${path.resolve(
-    __dirname,
-    '..'
-  )} -t ghcr.io/gamer-gang/gamerbot:latest`
+  `docker build ${context} -t ghcr.io/gamer-gang/gamerbot:latest --build-arg RELEASE_NAME=${releaseName} --build-arg GAMERBOT_VERSION=${version}`
 )
 
 console.log('publish.js: tagging container')

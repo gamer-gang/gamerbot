@@ -2,7 +2,6 @@
   "exclude": ["node_modules", "**/node_modules/*", "types/gamerbot.d.ts"],
   "include": ["lib", "scripts", "types", "test", "scripts", "lib/index.ts"],
   "compilerOptions": {
-    "types": ["bun-types"],
     "lib": ["esnext"],
     "target": "esnext",
     "module": "esnext",

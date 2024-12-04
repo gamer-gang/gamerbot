@@ -1,6 +1,7 @@
 import { createEnv } from '@t3-oss/env-core'
 import { GatewayIntentBits } from 'discord.js'
 import { z } from 'zod'
+import * as buildinfo from './buildinfo.js'
 import { createReleaseName, getVersion } from './version.js'
 
 const env = createEnv({
@@ -29,6 +30,9 @@ const env = createEnv({
     HYPIXEL_CACHE_SECRET: z.string().optional(),
 
     API_KEY: z.string().optional(),
+
+    GAMERBOT_VERSION: z.string().optional(),
+    RELEASE_NAME: z.string().optional(),
   },
 })
 
@@ -42,11 +46,13 @@ export const CLIENT_INTENTS = [
   GatewayIntentBits.GuildMembers,
   GatewayIntentBits.GuildMessages,
   GatewayIntentBits.GuildMessageReactions,
-  GatewayIntentBits.GuildBans,
+  GatewayIntentBits.GuildModeration,
   GatewayIntentBits.GuildEmojisAndStickers,
   GatewayIntentBits.GuildInvites,
   GatewayIntentBits.MessageContent,
 ]
 
-export const SENTRY_RELEASE = await createReleaseName()
-export const GAMERBOT_VERSION = await getVersion()
+export const RELEASE_NAME =
+  env.RELEASE_NAME || buildinfo.RELEASE_NAME || (await createReleaseName())
+export const GAMERBOT_VERSION =
+  env.GAMERBOT_VERSION || buildinfo.GAMERBOT_VERSION || (await getVersion())
