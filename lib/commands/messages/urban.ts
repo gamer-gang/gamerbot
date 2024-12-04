@@ -10,7 +10,10 @@ import {
   cleanContent,
 } from 'discord.js'
 import { KnownInteractions } from '../../types.js'
-import { UrbanDictionaryResponse, UrbanDictionaryTerm } from '../../types/urbandictionary.js'
+import {
+  UrbanDictionaryResponse,
+  UrbanDictionaryTerm,
+} from '../../types/urbandictionary.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
@@ -60,12 +63,15 @@ export const sendUrban = async (
   url.searchParams.set('term', term)
 
   const response = await fetch(url)
-  const { list: definitions } = (await response.json()) as UrbanDictionaryResponse
+  const { list: definitions } =
+    (await response.json()) as UrbanDictionaryResponse
 
   if (!definitions.length) {
     await interaction.editReply({
       embeds: [
-        Embed.error(`No definitions found for ${cleanContent(term, interaction.channel!)}.`),
+        Embed.error(
+          `No definitions found for ${cleanContent(term, interaction.channel!)}.`
+        ),
       ],
     })
     return CommandResult.Success
@@ -82,7 +88,8 @@ export const sendUrban = async (
   const collector = message.createMessageComponentCollector({
     idle: 1000 * 60 * 5,
     dispose: true,
-    filter: (interaction) => interaction.customId === 'prev' || interaction.customId === 'next',
+    filter: (interaction) =>
+      interaction.customId === 'prev' || interaction.customId === 'next',
   })
 
   collector.on('collect', (interaction) => {
@@ -111,12 +118,13 @@ const makeMessage = (
   index: number,
   definitions: UrbanDictionaryTerm[]
 ): InteractionEditReplyOptions => {
-  const { word, permalink, definition, thumbs_down, thumbs_up, example } = definitions[index]
+  const { word, permalink, definition, thumbs_down, thumbs_up, example } =
+    definitions[index]
 
   const [linkedDefinition, definitionTerms] = linkDefinitions(definition)
   const [linkedExample, exampleTerms] = linkDefinitions(example)
 
-  const newTerms = [
+  let newTerms = [
     ...new Set([
       ...definitionTerms.map((term) => term.toLowerCase()),
       ...exampleTerms.map((term) => term.toLowerCase()),
@@ -143,6 +151,7 @@ const makeMessage = (
   )[] = []
 
   if (newTerms.length) {
+    newTerms = newTerms.slice(0, 25)
     components.push(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
@@ -178,7 +187,9 @@ const makeMessage = (
   }
 }
 
-const linkDefinitions = (content: string): [linked: string, terms: string[]] => {
+const linkDefinitions = (
+  content: string
+): [linked: string, terms: string[]] => {
   const terms: string[] = []
   const linked = content.replaceAll(/\[(.+?)\]/g, (s) => {
     const term = s.slice(1, -1)
