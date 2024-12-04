@@ -1,3 +1,18 @@
+# v2.12.0
+
+## Features
+
+- Add egg captcha
+- Add `/flag` name on skip
+
+## Changes
+
+- Switch to Bun
+
+## Fixes
+
+- Fix negative egg wagers
+
 # v2.11.0
 
 ## Features
@@ -52,7 +67,7 @@
 ## Features
 
 - Support autocompletion in `/urban`
-  
+
 ## Changes
 
 - Return 25 autocompletions instead of 5 in `/wiki`
