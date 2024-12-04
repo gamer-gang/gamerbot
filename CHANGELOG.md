@@ -1,3 +1,10 @@
+# v2.12.1
+
+## Fixes
+
+- Fix `/urban` too many definitions in search box
+- Fix release script with Bun
+
 # v2.12.0
 
 ## Features
