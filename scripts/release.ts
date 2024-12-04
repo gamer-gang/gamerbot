@@ -15,7 +15,7 @@ if (tag.trim()) {
 }
 
 console.log('release.js: running publish')
-await exec(`bun publish`)
+await exec(`bun run publish`)
 
 console.log('release.js: pushing commit')
 await exec(`git push`)
