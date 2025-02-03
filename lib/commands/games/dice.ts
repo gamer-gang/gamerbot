@@ -117,7 +117,7 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
           time: 60000,
         })
       } catch (error) {
-        if (wager) await transferEggs(opponent.id, interaction.user.id, wager)
+        if (wager) await transferEggs(interaction.user.id, opponent.id, wager)
 
         void interaction.followUp({
           embeds: [Embed.error(`${currentTurn} failed to bid${losingWagerString}.`)],
@@ -126,7 +126,7 @@ const COMMAND_DICE = command(ApplicationCommandType.ChatInput, {
       }
 
       if (lastInteraction == null) {
-        if (wager) await transferEggs(interaction.user.id, opponent.id, wager)
+        if (wager) await transferEggs(opponent.id, interaction.user.id, wager)
 
         void interaction.followUp({
           embeds: [Embed.error(`${currentTurn} failed to bid${losingWagerString}.`)],
