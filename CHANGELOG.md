@@ -1,3 +1,9 @@
+# v2.12.2
+
+## Fixes
+
+- Fix winning eggs on failure to bid in `/dice`
+
 # v2.12.1
 
 ## Fixes
