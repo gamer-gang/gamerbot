@@ -10,7 +10,7 @@ export default class EvalExtension extends ClientExtension {
     super(client, 'eval')
   }
 
-  async onMessage(message: Message): Promise<void> {
+  async onMessageCreate(message: Message): Promise<void> {
     const allowedUsers = env.EVAL_ALLOWED_USERS?.split(',') ?? []
     if (!allowedUsers.includes(message.author!.id)) return
 
