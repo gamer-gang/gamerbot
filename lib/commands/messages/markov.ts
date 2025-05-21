@@ -1,4 +1,8 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, escapeItalic } from 'discord.js'
+import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  escapeItalic,
+} from 'discord.js'
 import { Embed } from '../../util/embed.js'
 import command, { CommandResult } from '../command.js'
 
@@ -33,17 +37,23 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
 
   async autocomplete(interaction, client) {
     const input = interaction.options.getFocused(true)
-    if (input == null || (input.name !== 'seed' && input.name !== 'connections')) return []
+    if (
+      input == null ||
+      (input.name !== 'seed' && input.name !== 'connections')
+    ) {
+      return []
+    }
 
+    const guildId = interaction.guildId ?? ''
     const seed = input.value
     if (typeof seed !== 'string') return []
 
-    const words = Object.keys(client.ext.markov.graph.words)
+    const words = Object.keys(client.ext.markov.graph.guilds[guildId])
 
     const results = words
       .filter((word) => word.startsWith(seed))
       .map((word) => ({
-        name: `${word} (${Object.values(client.ext.markov.graph.words[word]).length} connections)`,
+        name: `${word} (${Object.values(client.ext.markov.graph.guilds[guildId][word]).length} connections)`,
         value: word,
       }))
 
@@ -57,9 +67,10 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
   async run(context) {
     const { interaction, client } = context
 
+    const guildId = interaction.guildId ?? ''
     const connectionsSeed = interaction.options.getString('connections')
     if (connectionsSeed) {
-      if (!client.ext.markov.graph.words[connectionsSeed]) {
+      if (!client.ext.markov.graph.guilds[guildId][connectionsSeed]) {
         await interaction.reply({
           embeds: [Embed.error('Seed not found.')],
           ephemeral: true,
@@ -93,13 +104,15 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
     const length = interaction.options.getInteger('length') ?? 20
 
     if (length < 2 || length > 200) {
-      await interaction.reply({ embeds: [Embed.error('Length must be between 2 and 200.')] })
+      await interaction.reply({
+        embeds: [Embed.error('Length must be between 2 and 200.')],
+      })
       return CommandResult.Success
     }
 
     const seed = interaction.options.getString('seed')
 
-    if (seed && !client.ext.markov.graph.words[seed]) {
+    if (seed && !client.ext.markov.graph.guilds[guildId][seed]) {
       await interaction.reply({
         embeds: [Embed.error('Seed not found.')],
         ephemeral: true,
@@ -109,6 +122,7 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
 
     const chain = client.ext.markov.generateMessage(
       length,
+      guildId,
       seed ?? undefined,
       interaction.options.getBoolean('guaranteed') ?? false
     )

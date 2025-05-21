@@ -14,9 +14,11 @@ import { ClientExtension } from './_extension.js'
 
 interface MarkovGraph {
   timestamp: number
-  words: {
-    [startingWord: string]: {
-      [nextWord: string]: number // weight
+  guilds: {
+    [guildId: string]: {
+      [startingWord: string]: {
+        [nextWord: string]: number // weight
+      }
     }
   }
 }
@@ -31,7 +33,7 @@ export default class MarkovExtension extends ClientExtension {
 
   graph: MarkovGraph = {
     timestamp: 0,
-    words: {},
+    guilds: {},
   }
 
   async onReady(): Promise<void> {
@@ -50,13 +52,15 @@ export default class MarkovExtension extends ClientExtension {
     }
 
     let connections = 0
-    for (const word of Object.values(this.graph.words)) {
-      connections += Object.keys(word).length
+    for (const words of Object.values(this.graph.guilds)) {
+      for (const word of Object.values(words)) {
+        connections += Object.keys(word).length
+      }
     }
 
     this.logger.trace(
       `LOAD done ${
-        Object.keys(this.graph.words).length
+        Object.keys(this.graph.guilds).length
       } words, ${connections} connections`
     )
   }
@@ -70,11 +74,14 @@ export default class MarkovExtension extends ClientExtension {
 
   async onMessageCreate(message: Message<boolean>): Promise<void> {
     if (!message.author.bot) {
-      void this.addMessage(message.cleanContent || message.content)
+      void this.addMessage(
+        message.cleanContent || message.content,
+        message.guildId ?? ''
+      )
     }
   }
 
-  addMessage(message: string): void {
+  addMessage(message: string, guildId: string): void {
     this.logger.trace(`ADD message "${message}"`)
 
     const emoji = new RegExp(`^${emojiRegex().source}$`)
@@ -115,32 +122,42 @@ export default class MarkovExtension extends ClientExtension {
 
       if (!nextWord) break
 
-      if (!this.graph.words[word]) this.graph.words[word] = {}
-      if (!this.graph.words[word][nextWord]) {
-        this.graph.words[word][nextWord] = 0
+      if (!this.graph.guilds[guildId]) {
+        this.graph.guilds[guildId] = {}
       }
-      this.graph.words[word][nextWord]++
+      if (!this.graph.guilds[guildId][word]) {
+        this.graph.guilds[guildId][word] = {}
+      }
+      if (!this.graph.guilds[guildId][word][nextWord]) {
+        this.graph.guilds[guildId][word][nextWord] = 0
+      }
+      this.graph.guilds[guildId][word][nextWord]++
 
-      this.logger.trace(`ADD edge ${word} -> ${nextWord}`)
+      this.logger.trace(`ADD edge ${word} -> ${nextWord} in ${guildId}`)
     }
   }
 
-  connections(seed: string): { [nextWord: string]: number } {
-    return this.graph.words[seed] ?? {}
+  connections(seed: string, guildId?: string): { [nextWord: string]: number } {
+    return guildId ? this.graph.guilds[guildId][seed] ?? {} : {}
   }
 
-  generateMessage(length: number, seed?: string, guaranteed = false): string {
-    const words = [seed ?? this.getRandomWord()]
+  generateMessage(
+    length: number,
+    guildId: string,
+    seed?: string,
+    guaranteed = false
+  ): string {
+    const words = [seed ?? this.getRandomWord(guildId)]
 
     if (guaranteed) {
       return (
-        this.generateMessageRecursive(length, words)?.join(' ') ??
+        this.generateMessageRecursive(length, guildId, words)?.join(' ') ??
         'Failed to generate message.'
       )
     }
 
     while (words.length < length) {
-      const nextWord = this.getNextWord(words[words.length - 1])
+      const nextWord = this.getNextWord(words[words.length - 1], guildId)
       if (!nextWord) break
       words.push(nextWord)
     }
@@ -148,24 +165,31 @@ export default class MarkovExtension extends ClientExtension {
     return words.join(' ')
   }
 
-  generateMessageRecursive(length: number, _words: string[]): string[] | null {
+  generateMessageRecursive(
+    length: number,
+    guildId: string,
+    _words: string[]
+  ): string[] | null {
     if (_words.length >= length) return _words
 
     const words = [..._words]
 
     const current =
-      words[_words.length - 1] ?? words[words.push(this.getRandomWord())]
+      words[_words.length - 1] ?? words[words.push(this.getRandomWord(guildId))]
 
     const excluded: string[] = []
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const nextWord = this.getNextWord(current, excluded)
+      const nextWord = this.getNextWord(current, guildId, excluded)
       if (!nextWord) {
         // end of branch, signal to parent
         return null
       }
 
-      const result = this.generateMessageRecursive(length, [...words, nextWord])
+      const result = this.generateMessageRecursive(length, guildId, [
+        ...words,
+        nextWord,
+      ])
       if (result === null) {
         // end of branch, try again with different next word
         excluded.push(nextWord)
@@ -177,13 +201,21 @@ export default class MarkovExtension extends ClientExtension {
     }
   }
 
-  getRandomWord(): string {
-    const words = Object.keys(this.graph.words)
+  getRandomWord(guildId: string): string {
+    const words = Object.keys(this.graph.guilds[guildId])
     return words[Math.floor(Math.random() * words.length)]
   }
 
-  getNextWord(word: string, exclude?: string[]): string | undefined {
-    const nextWords = { ...(this.graph.words[word] ?? {}) }
+  getNextWord(
+    word: string,
+    guildId: string,
+    exclude?: string[]
+  ): string | undefined {
+    const nextWords = {
+      ...(this.graph.guilds[guildId]
+        ? this.graph.guilds[guildId][word] ?? {}
+        : {}),
+    }
 
     for (const excludeWord of exclude ?? []) {
       delete nextWords[excludeWord]
@@ -280,7 +312,7 @@ export default class MarkovExtension extends ClientExtension {
                   if (message.author.bot) continue
 
                   if (message.createdTimestamp <= graphTimestamp) continue
-                  this.addMessage(message.content)
+                  this.addMessage(message.content, message.guildId)
                   channelMessageCount++
                   guildMessageCount++
                   messageCount++
@@ -334,12 +366,15 @@ const formats: MarkovFormats = {
     serialize: (graph: MarkovGraph) => {
       const output = []
       output.push(`${graph.timestamp};`)
-      for (const [startingWord, nextWords] of Object.entries(graph.words)) {
-        output.push(`${startingWord},`)
-        for (const [nextWord, count] of Object.entries(nextWords)) {
-          output.push(`${nextWord}:${count},`)
+      for (const [guildId, words] of Object.entries(graph.guilds)) {
+        output.push(`${guildId}.`)
+        for (const [startingWord, nextWords] of Object.entries(words)) {
+          output.push(`${startingWord},`)
+          for (const [nextWord, count] of Object.entries(nextWords)) {
+            output.push(`${nextWord}:${count},`)
+          }
+          output.push(';')
         }
-        output.push(';')
       }
 
       output.pop() // remove trailing semicolon
@@ -348,17 +383,20 @@ const formats: MarkovFormats = {
     deserialize: (data: string) => {
       const graph: MarkovGraph = {
         timestamp: 0,
-        words: {},
+        guilds: {},
       }
 
       const lines = data.split(';')
       graph.timestamp = parseInt(lines[0])
       for (const line of lines.slice(1)) {
-        const [startingWord, ...nextWords] = line.split(',')
-        graph.words[startingWord] = {}
-        for (const nextWord of nextWords) {
-          const [word, count] = nextWord.split(':')
-          graph.words[startingWord][word] = parseInt(count)
+        const [guildId, words] = line.split('.')
+        graph.guilds[guildId] = {}
+        for (const [startingWord, ...nextWords] of words.split(',')) {
+          graph.guilds[guildId][startingWord] = {}
+          for (const nextWord of nextWords) {
+            const [word, count] = nextWord.split(':')
+            graph.guilds[guildId][startingWord][word] = parseInt(count)
+          }
         }
       }
 
