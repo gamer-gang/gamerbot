@@ -1,3 +1,14 @@
+# v2.13.0
+
+## Changes
+
+- Make `/markov` scope limited to guild
+
+## Fixes
+
+- Fix `$$<id>.eval` not working
+- Fix deploys when entrypoint command is present
+
 # v2.12.2
 
 ## Fixes
