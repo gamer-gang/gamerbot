@@ -137,8 +137,8 @@ export default class MarkovExtension extends ClientExtension {
     }
   }
 
-  connections(seed: string, guildId?: string): { [nextWord: string]: number } {
-    return guildId ? this.graph.guilds[guildId][seed] ?? {} : {}
+  connections(seed: string, guildId: string): { [nextWord: string]: number } {
+    return this.graph.guilds[guildId][seed] ?? {}
   }
 
   generateMessage(

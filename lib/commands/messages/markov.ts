@@ -78,7 +78,10 @@ const COMMAND_MARKOV = command(ApplicationCommandType.ChatInput, {
         return CommandResult.Success
       }
 
-      const connections = client.ext.markov.connections(connectionsSeed)
+      const connections = client.ext.markov.connections(
+        connectionsSeed,
+        guildId
+      )
       const list = Object.entries(connections)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 25)
