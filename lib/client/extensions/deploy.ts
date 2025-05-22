@@ -22,8 +22,16 @@ export default class DeployExtension extends ClientExtension {
   }
 
   async deploy(): Promise<void> {
-    let commandManager: GuildApplicationCommandManager | ApplicationCommandManager | undefined
+    let commandManager:
+      | GuildApplicationCommandManager
+      | ApplicationCommandManager
+      | undefined
     let guild: Guild | undefined
+
+    const entrypoint = this.client.commands
+      .values()
+      .filter((c) => c.type === (4 as any))
+      .toArray()[0]
 
     if (IS_DEVELOPMENT) {
       if (!env.DEVELOPMENT_GUILD_ID) {
@@ -43,7 +51,7 @@ export default class DeployExtension extends ClientExtension {
       }
 
       commandManager = guild.commands
-      this.client.application?.commands.set([])
+      this.client.application?.commands.set([entrypoint])
     } else {
       commandManager = this.client.application?.commands
       for (const guild of this.client.guilds.cache.values()) {
@@ -56,15 +64,17 @@ export default class DeployExtension extends ClientExtension {
       return
     }
 
-    let commands: ApplicationCommandDataResolvable[] = [...this.client.commands.values()].map(
-      (command) => ({
-        type: command.type as never,
-        name: command.name,
-        description:
-          command.type === ApplicationCommandType.ChatInput ? command.description ?? '' : '',
-        options: (command as any).options ?? [],
-      })
-    )
+    let commands: ApplicationCommandDataResolvable[] = [
+      ...this.client.commands.values(),
+    ].map((command) => ({
+      type: command.type as never,
+      name: command.name,
+      description:
+        command.type === ApplicationCommandType.ChatInput
+          ? command.description ?? ''
+          : '',
+      options: (command as any).options ?? [],
+    }))
 
     commands = _.sortBy(commands, 'name')
 
@@ -80,17 +90,25 @@ export default class DeployExtension extends ClientExtension {
     if (_.isEqual(commands, existing)) {
       if (IS_DEVELOPMENT) {
         assert(guild != null)
-        this.logger.debug(`No commands to deploy to ${guild.name} (${guild.id})`)
+        this.logger.debug(
+          `No commands to deploy to ${guild.name} (${guild.id})`
+        )
       } else {
         this.logger.info('No commands to deploy to application')
       }
       return
     }
 
+    if (commandManager === this.client.application?.commands) {
+      commands.push(entrypoint)
+    }
+
     await commandManager.set(commands)
     if (IS_DEVELOPMENT) {
       assert(guild != null)
-      this.logger.debug(`${commands.length} commands deployed to ${guild.name} (${guild.id})`)
+      this.logger.debug(
+        `${commands.length} commands deployed to ${guild.name} (${guild.id})`
+      )
     } else {
       this.logger.info(`${commands.length} commands deployed globally`)
     }
