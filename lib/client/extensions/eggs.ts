@@ -226,7 +226,7 @@ export default class EggExtension extends ClientExtension {
       activities: [
         {
           type: ActivityType.Playing,
-          name: `with ${num.toLocaleString()} egg${num === 1n ? '' : 's'} | /help`,
+          name: `with ${num.toLocaleString()} egg${num === 1n ? '' : 's'} | /about`,
         },
       ],
     }
