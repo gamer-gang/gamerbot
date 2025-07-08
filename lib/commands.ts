@@ -1,4 +1,5 @@
 import COMMAND_CONFIG from './commands/config/config.js'
+import COMMAND_COIN from './commands/games/coin.js'
 import COMMAND_CONNECT4 from './commands/games/connect4.js'
 import COMMAND_DICE from './commands/games/dice.js'
 import COMMAND_FLAGS from './commands/games/flags.js'
@@ -41,6 +42,7 @@ export const DEFAULT_COMMANDS = [
   // config
   COMMAND_CONFIG,
   // games
+  COMMAND_COIN,
   COMMAND_CONNECT4,
   COMMAND_DICE,
   COMMAND_FLAGS,
