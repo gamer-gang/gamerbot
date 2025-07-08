@@ -56,7 +56,7 @@ const COMMAND_COIN = command(ApplicationCommandType.ChatInput, {
         return [{ name: 'No results found.', value: '-' }]
       }
 
-      return matches.slice(0, 25).map((cow) => ({ name: cow, value: cow }))
+      return matches.slice(0, 25).map((coin) => ({ name: coin, value: coin }))
     }
 
     return []
