@@ -29,10 +29,10 @@ export default class DeployExtension extends ClientExtension {
       | undefined
     let guild: Guild | undefined
 
-    const entrypoint: Command | undefined = this.client.commands
+    const entrypoint = this.client.commands
       .values()
       .filter((c) => c.type === (4 as any))
-      .toArray()[0]
+      .toArray()[0] as Command | undefined
 
     if (IS_DEVELOPMENT) {
       if (!env.DEVELOPMENT_GUILD_ID) {
@@ -67,7 +67,7 @@ export default class DeployExtension extends ClientExtension {
       return
     }
 
-    let commands: ApplicationCommandDataResolvable[] = [
+    let commands: NonNullable<ApplicationCommandDataResolvable>[] = [
       ...this.client.commands.values(),
     ].map((command) => ({
       type: command.type as never,
@@ -102,7 +102,7 @@ export default class DeployExtension extends ClientExtension {
       return
     }
 
-    if (commandManager === this.client.application?.commands) {
+    if (commandManager === this.client.application?.commands && entrypoint) {
       commands.push(entrypoint)
     }
 
