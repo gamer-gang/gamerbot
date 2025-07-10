@@ -1,3 +1,13 @@
+# v2.14.0
+
+## Features
+
+- Add `/coin` command
+
+## Fixes
+
+- Fix deployments when the application doesn't have an entrypoint command
+
 # v2.13.0
 
 ## Changes
