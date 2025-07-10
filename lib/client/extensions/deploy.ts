@@ -8,6 +8,7 @@ import {
 } from 'discord.js'
 import _ from 'lodash'
 import assert from 'node:assert'
+import { Command } from '../../commands/command.js'
 import env, { IS_DEVELOPMENT } from '../../env.js'
 import type { GamerbotClient } from '../GamerbotClient.js'
 import { ClientExtension } from './_extension.js'
@@ -28,7 +29,7 @@ export default class DeployExtension extends ClientExtension {
       | undefined
     let guild: Guild | undefined
 
-    const entrypoint = this.client.commands
+    const entrypoint: Command | undefined = this.client.commands
       .values()
       .filter((c) => c.type === (4 as any))
       .toArray()[0]
@@ -51,7 +52,9 @@ export default class DeployExtension extends ClientExtension {
       }
 
       commandManager = guild.commands
-      this.client.application?.commands.set([entrypoint])
+      if (entrypoint) {
+        this.client.application?.commands.set([entrypoint])
+      }
     } else {
       commandManager = this.client.application?.commands
       for (const guild of this.client.guilds.cache.values()) {
