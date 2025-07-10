@@ -27,7 +27,7 @@ const COMMAND_COIN = command(ApplicationCommandType.ChatInput, {
     },
     {
       name: 'odds',
-      description: 'Change the odds of getting heads to this.',
+      description: 'Change the odds of getting heads to this (out of 100).',
       type: ApplicationCommandOptionType.Number,
       required: false,
     },
@@ -68,7 +68,7 @@ const COMMAND_COIN = command(ApplicationCommandType.ChatInput, {
     const coinType = (options.getString('type') ??
       'standard') as keyof typeof coins
 
-    const odds = options.getInteger('odds') ?? 0.5
+    const odds = (options.getNumber('odds') ?? 50) / 100
 
     const wager = options.getInteger('wager')
     const opponentId = options.getUser('user')?.id
@@ -86,7 +86,7 @@ const COMMAND_COIN = command(ApplicationCommandType.ChatInput, {
       interaction.reply({
         embeds: [
           new Embed({
-            title: `${interaction.user.displayName}'s Coin Flip`,
+            title: `${interaction.user.displayName}'s Coin Flip${odds != 0.5 ? ` (with odds ${Math.round(odds * 100)}/100)` : ''}`,
             description: `${Math.random() < odds ? coins[coinType][0] : coins[coinType][1]}!`,
           }),
         ],
@@ -105,7 +105,7 @@ const COMMAND_COIN = command(ApplicationCommandType.ChatInput, {
     const response = await challengePlayer(
       interaction,
       options,
-      `coin flip${odds != 0.5 ? ` (odds: ${odds}-${odds})` : ''}`,
+      `Coin Flip${odds != 0.5 ? ` (with odds ${Math.round(odds * 100)}/100)` : ''}`,
       '🪙',
       wager
     )
@@ -113,6 +113,7 @@ const COMMAND_COIN = command(ApplicationCommandType.ChatInput, {
     if (!response) {
       return CommandResult.Success
     }
+
     const opponent = response.button.user
     const winner = Math.random() < odds ? 0 : 1
 
@@ -155,7 +156,7 @@ const COMMAND_COIN = command(ApplicationCommandType.ChatInput, {
 const coins = {
   standard: ['Heads', 'Tails'],
   yesno: ['Yes', 'No'],
-  binary: ['0', '1'],
+  binary: ['1', '0'],
   boolean: ['True', 'False'],
   wheeloffortune: ['!!!', 'Nope'],
 }
