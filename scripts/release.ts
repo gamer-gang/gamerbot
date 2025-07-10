@@ -2,7 +2,10 @@
 import { exec as _exec } from 'child_process'
 import { promisify } from 'util'
 
-const exec = promisify(_exec)
+const exec = (command: string) => {
+  console.log('+', command)
+  return promisify(_exec)(command)
+}
 
 console.log('release.js: running release')
 

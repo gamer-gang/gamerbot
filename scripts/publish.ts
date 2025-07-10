@@ -5,7 +5,10 @@ import { fileURLToPath } from 'url'
 import { promisify } from 'util'
 import { createReleaseName, getVersion } from '../lib/version.js'
 
-const exec = promisify(_exec)
+const exec = (command: string) => {
+  console.log('+', command)
+  return promisify(_exec)(command)
+}
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
