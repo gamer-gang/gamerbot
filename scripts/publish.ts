@@ -1,13 +1,30 @@
 #!/usr/bin/env node
-import { exec as _exec } from 'child_process'
+import { spawn } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { promisify } from 'util'
 import { createReleaseName, getVersion } from '../lib/version.js'
 
-const exec = (command: string) => {
+function exec(command: string): Promise<string> {
   console.log('+', command)
-  return promisify(_exec)(command)
+  const cmd = spawn(command, {
+    shell: '/bin/bash',
+    stdio: 'pipe',
+  })
+  let output = ''
+  cmd.stdout.on('data', (data) => {
+    output += data
+    process.stdout.write(data)
+  })
+  cmd.stderr.pipe(process.stderr as any)
+  return new Promise<string>((resolve, reject) => {
+    cmd.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(`Command failed with code ${code}: ${command}`))
+      } else {
+        resolve(output)
+      }
+    })
+  })
 }
 
 const __filename = fileURLToPath(import.meta.url)

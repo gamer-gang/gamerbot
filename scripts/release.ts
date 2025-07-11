@@ -1,15 +1,32 @@
 #!/usr/bin/env node
-import { exec as _exec } from 'child_process'
-import { promisify } from 'util'
+import { spawn } from 'child_process'
 
-const exec = (command: string) => {
+function exec(command: string): Promise<string> {
   console.log('+', command)
-  return promisify(_exec)(command)
+  const cmd = spawn(command, {
+    shell: '/bin/bash',
+    stdio: 'pipe',
+  })
+  let output = ''
+  cmd.stdout.on('data', (data) => {
+    output += data
+    process.stdout.write(data)
+  })
+  cmd.stderr.pipe(process.stderr as any)
+  return new Promise<string>((resolve, reject) => {
+    cmd.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(`Command failed with code ${code}: ${command}`))
+      } else {
+        resolve(output)
+      }
+    })
+  })
 }
 
 console.log('release.js: running release')
 
-const { stdout: tag } = await exec(`git tag --points-at HEAD`)
+const tag = await exec(`git tag --points-at HEAD`)
 if (tag.trim()) {
   console.log(`skipping tag, already tagged as ${tag}`)
 } else {

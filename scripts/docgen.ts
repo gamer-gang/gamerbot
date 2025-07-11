@@ -29,18 +29,25 @@ const __dirname = path.dirname(__filename)
 
 const resolvePath = (p: string) => path.resolve(__dirname, '..', p)
 
-const commandsTs = fs.readFileSync(resolvePath('src/commands.ts'), 'utf8').split('\n')
+const commandsTs = fs
+  .readFileSync(resolvePath('lib/commands.ts'), 'utf8')
+  .split('\n')
 
 const commandImports = Object.fromEntries(
   commandsTs
     .filter((line) => /^import COMMAND_/.test(line))
     .map(
-      (line) => /^import COMMAND_([^ ]+) from '\.\/([^']+)'$/.exec(line.replace(/\.js'$/, ".ts'"))!
+      (line) =>
+        /^import COMMAND_([^ ]+) from '\.\/([^']+)'$/.exec(
+          line.replace(/\.js'$/, ".ts'")
+        )!
     )
-    .map((match) => [match[1], `src/${match[2]}`])
+    .map((match) => [match[1], `lib/${match[2]}`])
 )
 
-const commandNames = commandsTs.flatMap((line) => /^\s+COMMAND_([^,\n]+),$/.exec(line)?.at(1) ?? [])
+const commandNames = commandsTs.flatMap(
+  (line) => /^\s+COMMAND_([^,\n]+),$/.exec(line)?.at(1) ?? []
+)
 
 for (const [i, command] of DEFAULT_COMMANDS.entries()) {
   const {
