@@ -1,3 +1,9 @@
+# v2.14.1
+
+## Fixes
+
+- Fix `/coin` odds option
+
 # v2.14.0
 
 ## Features
